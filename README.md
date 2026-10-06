@@ -1,17 +1,37 @@
-# sewsmart_mobile
+# SewSmart
 
-A new Flutter project.
+SewSmart is an AI-powered tailoring marketplace that connects customers, tailors and delivery riders. Customers browse tailors, place and track orders, get AI design recommendations and preview garments with a virtual try-on. It is a university Final Year Project.
 
-## Getting Started
+## Repository layout
 
-This project is a starting point for a Flutter application.
+| Path | What it is | Status |
+| --- | --- | --- |
+| `lib/` | Flutter mobile app for customers, tailors and riders | UI built, running on mock data |
+| `sewsmart_admin/` | Flutter web admin panel | UI built, running on mock data |
+| `backend/` | Node.js + Express REST API | Planned |
+| `tryon-service/` | Flask service for the virtual try-on | Planned |
 
-A few resources to get you started if this is your first Flutter project:
+## Run the mobile app
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+```bash
+flutter pub get
+flutter run
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Run the admin panel
+
+```bash
+cd sewsmart_admin
+flutter pub get
+flutter run -d chrome
+```
+
+## Working on this project
+
+All work goes through issues, short-lived branches and pull requests into `develop`. Read [CONTRIBUTING.md](CONTRIBUTING.md) before your first commit.
+
+| Branch | Purpose |
+| --- | --- |
+| `main` | Stable, demo-ready |
+| `develop` | Integration branch and repository default |
+| `feature/*` | One branch per issue |
