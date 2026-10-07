@@ -115,10 +115,17 @@ class _VerificationsScreenState extends State<VerificationsScreen>
     );
   }
 
-  void _requestMoreDocs(String name) {
+  Future<void> _requestMoreDocs(String id) async {
+    final idx = _all.indexWhere((v) => v.id == id);
+    final name = idx == -1 ? 'the applicant' : _all[idx].name;
+    final sent = await _service.requestMoreDocuments(id);
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Document request sent to $name.', style: GoogleFonts.poppins()),
+        content: Text(
+          sent ? 'Document request sent to $name.' : 'Could not send the document request.',
+          style: GoogleFonts.poppins(),
+        ),
       ),
     );
   }
@@ -270,7 +277,7 @@ class _VerificationList extends StatelessWidget {
           verification: v,
           onApprove: () => onApprove(v.id),
           onReject: () => onReject(v.id),
-          onRequestDocs: () => onRequestDocs(v.name),
+          onRequestDocs: () => onRequestDocs(v.id),
         );
       },
     );

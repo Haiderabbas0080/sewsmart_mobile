@@ -115,6 +115,40 @@ class _RidersScreenState extends State<RidersScreen>
     );
   }
 
+  void _confirmRemove(AdminRider rider) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        title: Text('Remove Rider',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+        content: Text(
+            'Are you sure you want to permanently remove ${rider.name}? This action cannot be undone.',
+            style: GoogleFonts.poppins(
+                fontSize: 14, color: AdminColors.textSecondary)),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text('Cancel',
+                  style: GoogleFonts.poppins(color: AdminColors.textSecondary))),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await _service.removeRider(rider.id);
+              if (mounted) _load();
+            },
+            style: ElevatedButton.styleFrom(
+                backgroundColor: AdminColors.error,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8))),
+            child: Text('Remove', style: GoogleFonts.poppins()),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -242,7 +276,7 @@ class _RidersScreenState extends State<RidersScreen>
                                   },
                                 ),
                                 const SizedBox(width: 4),
-                                _ActionBtn(icon: Icons.delete_rounded, color: AdminColors.error, tooltip: 'Remove', onTap: () {}),
+                                _ActionBtn(icon: Icons.delete_rounded, color: AdminColors.error, tooltip: 'Remove', onTap: () => _confirmRemove(r)),
                               ]),
                             ],
                             flexValues: const [2, 1.8, 1.2, 2.5, 1.2, 1, 1.3, 2],

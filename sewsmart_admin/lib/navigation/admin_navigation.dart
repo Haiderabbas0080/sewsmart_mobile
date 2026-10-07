@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/theme/admin_theme.dart';
 import '../core/widgets/admin_widgets.dart';
+import '../core/models/admin_models.dart';
+import '../core/services/admin_service.dart';
 import '../modules/dashboard/dashboard_screen.dart';
 import '../modules/users/customers_screen.dart';
 import '../modules/users/tailors_screen.dart';
@@ -18,8 +20,7 @@ import '../modules/auth/admin_login_screen.dart';
 class _NavItem {
   final IconData icon;
   final String label;
-  final int? badge;
-  const _NavItem({required this.icon, required this.label, this.badge});
+  const _NavItem({required this.icon, required this.label});
 }
 
 class AdminShell extends StatefulWidget {
@@ -39,12 +40,37 @@ class _AdminShellState extends State<AdminShell> {
     _NavItem(icon: Icons.delivery_dining_rounded, label: 'Riders'),
     _NavItem(icon: Icons.receipt_long_rounded, label: 'Orders'),
     _NavItem(icon: Icons.payments_rounded, label: 'Payments'),
-    _NavItem(icon: Icons.verified_user_rounded, label: 'Verifications', badge: 7),
+    _NavItem(icon: Icons.verified_user_rounded, label: 'Verifications'),
     _NavItem(icon: Icons.bar_chart_rounded, label: 'Reports'),
-    _NavItem(icon: Icons.gavel_rounded, label: 'Disputes', badge: 4),
+    _NavItem(icon: Icons.gavel_rounded, label: 'Disputes'),
     _NavItem(icon: Icons.article_rounded, label: 'Content'),
     _NavItem(icon: Icons.settings_rounded, label: 'Settings'),
   ];
+
+  // Sidebar badges use the same counts as the dashboard.
+  PlatformStats? _stats;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBadges();
+  }
+
+  Future<void> _loadBadges() async {
+    final stats = await AdminService().getStats();
+    if (mounted) setState(() => _stats = stats);
+  }
+
+  int? _badgeFor(String label) {
+    switch (label) {
+      case 'Verifications':
+        return _stats?.pendingVerifications;
+      case 'Disputes':
+        return _stats?.openDisputes;
+      default:
+        return null;
+    }
+  }
 
   bool get _isNarrow {
     final w = MediaQuery.sizeOf(context).width;
@@ -154,8 +180,12 @@ class _AdminShellState extends State<AdminShell> {
                         label: item.label,
                         isActive: _selectedIndex == i,
                         isCollapsed: collapsed,
-                        badgeCount: item.badge,
-                        onTap: () => setState(() => _selectedIndex = i),
+                        badgeCount: _badgeFor(item.label),
+                        onTap: () {
+                          setState(() => _selectedIndex = i);
+                          // The counts change while the admin works, so they reload on every move.
+                          _loadBadges();
+                        },
                       );
                     }),
                   ),
@@ -237,6 +267,8 @@ class _AdminShellState extends State<AdminShell> {
           ElevatedButton(
             onPressed: () {
               Navigator.pop(ctx);
+              // The session is cleared at once. The server call finishes on its own.
+              AdminService().logout();
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (_) => const AdminLoginScreen()),
@@ -327,7 +359,7 @@ class _TopBar extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Admin',
+                AdminService().adminName,
                 style: GoogleFonts.poppins(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -335,7 +367,7 @@ class _TopBar extends StatelessWidget {
                 ),
               ),
               Text(
-                'admin@sewsmart.com',
+                AdminService().adminEmail,
                 style: GoogleFonts.poppins(
                   fontSize: 11,
                   color: AdminColors.textSecondary,

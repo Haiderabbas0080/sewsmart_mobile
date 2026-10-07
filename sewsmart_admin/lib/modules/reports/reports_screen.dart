@@ -4,7 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:math' as math;
 import '../../core/theme/admin_theme.dart';
 import '../../core/widgets/admin_widgets.dart';
-import '../../core/data/admin_mock_data.dart';
+import '../../core/services/admin_service.dart';
+import '../../core/models/admin_models.dart';
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -14,16 +15,39 @@ class ReportsScreen extends StatefulWidget {
 }
 
 class _ReportsScreenState extends State<ReportsScreen> {
+  final _service = AdminService();
+  AdminReport? _report;
   String _range = 'This Month';
 
   final _ranges = ['Today', 'This Week', 'This Month', 'Custom'];
 
   @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  // Runs on open and again whenever the range chip changes.
+  Future<void> _load() async {
+    final range = _range;
+    final report = await _service.getReports(range: range);
+    // A late reply for an older range must not replace the current one.
+    if (mounted && range == _range) setState(() => _report = report);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final stats = AdminMockData.platformStats;
-    final monthly = AdminMockData.monthlyRevenue;
-    final categories = AdminMockData.revenueByCategory;
-    final topTailors = AdminMockData.topTailors;
+    final report = _report;
+    if (report == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    final stats = report.stats;
+    final monthly = report.monthlyRevenue;
+    final categories = report.revenueByCategory;
+    final topTailors = report.topTailors;
+    final statusCounts = report.orderStatusDistribution;
+    final statusTotal = statusCounts.values.fold<int>(0, (a, b) => a + b);
+    double share(int count) => statusTotal == 0 ? 0.0 : count / statusTotal;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
@@ -55,7 +79,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
               return Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: GestureDetector(
-                  onTap: () => setState(() => _range = r),
+                  onTap: () {
+                    setState(() => _range = r);
+                    _load();
+                  },
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 150),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -146,7 +173,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 child: StatCard(
                   icon: Icons.star_rounded,
                   iconColor: AdminColors.warning,
-                  value: '4.6',
+                  value: stats.averageTailorRating.toStringAsFixed(1),
                   label: 'Avg. Rating',
                   changeText: '+0.2',
                   isPositiveChange: true,
@@ -416,10 +443,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   flexValues: const [1.5, 1, 1, 3],
                 ),
                 ...[
-                  ('Completed', 2841, AdminColors.success),
-                  ('In Progress', 142, AdminColors.info),
-                  ('Pending', 287, AdminColors.warning),
-                  ('Cancelled', 604, AdminColors.error),
+                  ('Completed', statusCounts['Completed'] ?? 0, AdminColors.success),
+                  ('In Progress', statusCounts['In Progress'] ?? 0, AdminColors.info),
+                  ('Pending', statusCounts['Pending'] ?? 0, AdminColors.warning),
+                  ('Cancelled', statusCounts['Cancelled'] ?? 0, AdminColors.error),
                 ].map(
                   (item) => Column(
                     children: [
@@ -428,14 +455,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
                           statusBadge(item.$1),
                           Text('${item.$2}',
                               style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600)),
-                          Text('${(item.$2 / 3874 * 100).toStringAsFixed(1)}%',
+                          Text('${(share(item.$2) * 100).toStringAsFixed(1)}%',
                               style: GoogleFonts.poppins(fontSize: 12, color: AdminColors.textSecondary)),
                           Row(children: [
                             Expanded(
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(4),
                                 child: LinearProgressIndicator(
-                                  value: item.$2 / 3874,
+                                  value: share(item.$2),
                                   backgroundColor: AdminColors.border,
                                   valueColor: AlwaysStoppedAnimation(item.$3),
                                   minHeight: 8,
