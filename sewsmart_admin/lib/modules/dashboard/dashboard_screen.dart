@@ -3,7 +3,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/admin_theme.dart';
 import '../../core/widgets/admin_widgets.dart';
-import '../../core/data/admin_mock_data.dart';
 import '../../core/services/admin_service.dart';
 import '../../core/models/admin_models.dart';
 
@@ -17,6 +16,9 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final _service = AdminService();
   PlatformStats? _stats;
+  List<MonthlyRevenue> _monthlyRevenue = [];
+  List<AdminOrder> _recentOrders = [];
+  List<TopTailor> _topTailors = [];
 
   @override
   void initState() {
@@ -24,9 +26,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _loadStats();
   }
 
+  // The four requests start together and the screen updates once.
   Future<void> _loadStats() async {
-    final stats = await _service.getStats();
-    if (mounted) setState(() => _stats = stats);
+    final statsFuture = _service.getStats();
+    final revenueFuture = _service.getMonthlyRevenue();
+    final ordersFuture = _service.getRecentOrders();
+    final tailorsFuture = _service.getTopTailors();
+    final stats = await statsFuture;
+    final revenue = await revenueFuture;
+    final orders = await ordersFuture;
+    final tailors = await tailorsFuture;
+    if (mounted) {
+      setState(() {
+        _stats = stats;
+        _monthlyRevenue = revenue;
+        _recentOrders = orders;
+        _topTailors = tailors;
+      });
+    }
   }
 
   String _fmt(double v) {
@@ -37,7 +54,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final stats = _stats ?? AdminMockData.platformStats;
+    final stats = _stats;
+    if (stats == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
@@ -66,16 +86,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const SizedBox(height: 24),
 
           // Revenue Chart
-          _RevenueChart(),
+          _RevenueChart(data: _monthlyRevenue),
           const SizedBox(height: 24),
 
           // Recent Orders + Top Tailors
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(flex: 3, child: _RecentOrdersCard()),
+              Expanded(flex: 3, child: _RecentOrdersCard(orders: _recentOrders)),
               const SizedBox(width: 16),
-              Expanded(flex: 2, child: _TopTailorsCard()),
+              Expanded(flex: 2, child: _TopTailorsCard(tailors: _topTailors)),
             ],
           ),
           const SizedBox(height: 24),
@@ -191,7 +211,7 @@ class _StatsRow2 extends StatelessWidget {
           child: StatCard(
             icon: Icons.star_rounded,
             iconColor: AdminColors.warning,
-            value: '4.6',
+            value: stats.averageTailorRating.toStringAsFixed(1),
             label: 'Avg. Tailor Rating',
             changeText: '+0.2',
             isPositiveChange: true,
@@ -203,9 +223,20 @@ class _StatsRow2 extends StatelessWidget {
 }
 
 class _RevenueChart extends StatelessWidget {
+  final List<MonthlyRevenue> data;
+  const _RevenueChart({required this.data});
+
   @override
   Widget build(BuildContext context) {
-    final data = AdminMockData.monthlyRevenue;
+    // reduce throws on an empty list, so an empty chart gets its own card.
+    if (data.isEmpty) {
+      return const AdminCard(
+        child: EmptyState(
+          icon: Icons.show_chart_rounded,
+          message: 'No revenue data yet',
+        ),
+      );
+    }
     final maxY = data.map((d) => d.revenue).reduce((a, b) => a > b ? a : b) * 1.2;
 
     return AdminCard(
@@ -321,9 +352,11 @@ class _RevenueChart extends StatelessWidget {
 }
 
 class _RecentOrdersCard extends StatelessWidget {
+  final List<AdminOrder> orders;
+  const _RecentOrdersCard({required this.orders});
+
   @override
   Widget build(BuildContext context) {
-    final orders = AdminMockData.orders.take(5).toList();
     return AdminCard(
       padding: EdgeInsets.zero,
       child: Column(
@@ -384,9 +417,11 @@ class _RecentOrdersCard extends StatelessWidget {
 }
 
 class _TopTailorsCard extends StatelessWidget {
+  final List<TopTailor> tailors;
+  const _TopTailorsCard({required this.tailors});
+
   @override
   Widget build(BuildContext context) {
-    final tailors = AdminMockData.topTailors.take(5).toList();
     return AdminCard(
       padding: EdgeInsets.zero,
       child: Column(
@@ -504,16 +539,24 @@ class _PendingVerificationsCard extends StatefulWidget {
 
 class _PendingVerificationsCardState extends State<_PendingVerificationsCard> {
   final _service = AdminService();
-  late List<PendingVerification> _items;
+  List<PendingVerification> _items = [];
+  bool _loading = true;
   final Set<String> _processing = {};
 
   @override
   void initState() {
     super.initState();
-    _items = AdminMockData.pendingVerifications
-        .where((v) => v.status == 'Pending')
-        .take(3)
-        .toList();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final pending = await _service.getPendingVerifications();
+    if (mounted) {
+      setState(() {
+        _items = pending.take(3).toList();
+        _loading = false;
+      });
+    }
   }
 
   void _approve(String id) async {
@@ -571,7 +614,12 @@ class _PendingVerificationsCardState extends State<_PendingVerificationsCard> {
             ),
           ),
           const Divider(height: 1, color: AdminColors.border),
-          if (_items.isEmpty)
+          if (_loading)
+            const Padding(
+              padding: EdgeInsets.all(32),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (_items.isEmpty)
             const Padding(
               padding: EdgeInsets.all(32),
               child: EmptyState(

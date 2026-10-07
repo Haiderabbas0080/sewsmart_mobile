@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/admin_theme.dart';
 import '../../core/widgets/admin_widgets.dart';
+import '../../core/services/admin_service.dart';
 import '../../navigation/admin_navigation.dart';
 
 class AdminLoginScreen extends StatefulWidget {
@@ -30,18 +31,17 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
       _isLoading = true;
       _error = null;
     });
-    await Future.delayed(const Duration(milliseconds: 800));
+    final result = await AdminService().login(_emailCtrl.text, _passCtrl.text);
+    if (!mounted) return;
 
-    if (_emailCtrl.text.trim() == 'admin@sewsmart.com' &&
-        _passCtrl.text == 'admin123') {
-      if (!mounted) return;
+    if (result.success) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const AdminShell()),
       );
     } else {
       setState(() {
-        _error = 'Invalid credentials. Please try again.';
+        _error = result.error ?? 'Invalid credentials. Please try again.';
         _isLoading = false;
       });
     }

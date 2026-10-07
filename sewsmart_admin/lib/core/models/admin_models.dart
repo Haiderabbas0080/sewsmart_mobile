@@ -9,6 +9,7 @@ class PlatformStats {
   final int openDisputes;
   final double thisMonthRevenue;
   final double lastMonthRevenue;
+  final double averageTailorRating;
 
   const PlatformStats({
     required this.totalUsers,
@@ -21,6 +22,7 @@ class PlatformStats {
     required this.openDisputes,
     required this.thisMonthRevenue,
     required this.lastMonthRevenue,
+    required this.averageTailorRating,
   });
 }
 
@@ -294,5 +296,79 @@ class FlaggedItem {
     required this.reason,
     required this.date,
     required this.status,
+  });
+}
+
+class AdminAuthResult {
+  final bool success;
+  final String? token;
+  final String? name;
+  final String? email;
+  final String? error;
+
+  const AdminAuthResult({
+    required this.success,
+    this.token,
+    this.name,
+    this.email,
+    this.error,
+  });
+}
+
+class PaymentSummary {
+  final double totalRevenue;
+  final double thisMonth;
+  final double pending;
+  final double refunded;
+
+  const PaymentSummary({
+    required this.totalRevenue,
+    required this.thisMonth,
+    required this.pending,
+    required this.refunded,
+  });
+}
+
+class AdminReport {
+  final String range;
+  final PlatformStats stats;
+  final List<MonthlyRevenue> monthlyRevenue;
+  final List<CategoryRevenue> revenueByCategory;
+  final List<TopTailor> topTailors;
+  final Map<String, int> orderStatusDistribution;
+
+  const AdminReport({
+    required this.range,
+    required this.stats,
+    required this.monthlyRevenue,
+    required this.revenueByCategory,
+    required this.topTailors,
+    required this.orderStatusDistribution,
+  });
+}
+
+class AdminSettings {
+  double commissionRate;
+  final List<String> categories;
+  bool notifyNewOrder;
+  bool notifyOrderComplete;
+  bool notifyNewVerification;
+  bool notifyDispute;
+  bool notifyPayment;
+  bool notifyMarketing;
+  bool twoFaEnabled;
+  int sessionTimeout;
+
+  AdminSettings({
+    required this.commissionRate,
+    required this.categories,
+    required this.notifyNewOrder,
+    required this.notifyOrderComplete,
+    required this.notifyNewVerification,
+    required this.notifyDispute,
+    required this.notifyPayment,
+    required this.notifyMarketing,
+    required this.twoFaEnabled,
+    required this.sessionTimeout,
   });
 }

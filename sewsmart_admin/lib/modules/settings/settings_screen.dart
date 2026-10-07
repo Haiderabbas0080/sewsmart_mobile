@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/admin_theme.dart';
 import '../../core/widgets/admin_widgets.dart';
+import '../../core/services/admin_service.dart';
+import '../../core/models/admin_models.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -11,7 +13,10 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  // Platform settings state
+  final _service = AdminService();
+  bool _loading = true;
+
+  // Platform settings state. The values below only stand in until _load finishes.
   double _commissionRate = 8.5;
   final List<String> _categories = ['Bridal', 'Eastern', 'Western', 'Casual', 'Children'];
   final _newCategoryCtrl = TextEditingController();
@@ -35,6 +40,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _obscureConfirm = true;
 
   @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  @override
   void dispose() {
     _newCategoryCtrl.dispose();
     _oldPassCtrl.dispose();
@@ -43,27 +54,92 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.dispose();
   }
 
-  void _addCategory() {
-    final name = _newCategoryCtrl.text.trim();
-    if (name.isNotEmpty && !_categories.contains(name)) {
-      setState(() {
-        _categories.add(name);
-        _newCategoryCtrl.clear();
-      });
-    }
+  Future<void> _load() async {
+    final settings = await _service.getSettings();
+    if (!mounted) return;
+    setState(() {
+      // The slider and the dropdown only accept values inside their own range.
+      _commissionRate = settings.commissionRate.clamp(2, 20).toDouble();
+      _categories
+        ..clear()
+        ..addAll(settings.categories);
+      _notifyNewOrder = settings.notifyNewOrder;
+      _notifyOrderComplete = settings.notifyOrderComplete;
+      _notifyNewVerification = settings.notifyNewVerification;
+      _notifyDispute = settings.notifyDispute;
+      _notifyPayment = settings.notifyPayment;
+      _notifyMarketing = settings.notifyMarketing;
+      _twoFaEnabled = settings.twoFaEnabled;
+      _sessionTimeout =
+          const [15, 30, 60, 120].contains(settings.sessionTimeout) ? settings.sessionTimeout : 30;
+      _loading = false;
+    });
   }
 
-  void _removeCategory(String cat) {
+  // Sends the current values after a change. The screen has no Save button.
+  Future<void> _save() async {
+    await _service.updateSettings(AdminSettings(
+      commissionRate: _commissionRate,
+      categories: List<String>.from(_categories),
+      notifyNewOrder: _notifyNewOrder,
+      notifyOrderComplete: _notifyOrderComplete,
+      notifyNewVerification: _notifyNewVerification,
+      notifyDispute: _notifyDispute,
+      notifyPayment: _notifyPayment,
+      notifyMarketing: _notifyMarketing,
+      twoFaEnabled: _twoFaEnabled,
+      sessionTimeout: _sessionTimeout,
+    ));
+  }
+
+  void _showMessage(String text, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(text, style: GoogleFonts.poppins()),
+        backgroundColor: color,
+      ),
+    );
+  }
+
+  Future<void> _addCategory() async {
+    final name = _newCategoryCtrl.text.trim();
+    if (name.isEmpty || _categories.contains(name)) return;
+    final added = await _service.addCategory(name);
+    if (!mounted || !added) return;
+    setState(() {
+      _categories.add(name);
+      _newCategoryCtrl.clear();
+    });
+  }
+
+  Future<void> _removeCategory(String cat) async {
+    final removed = await _service.removeCategory(cat);
+    if (!mounted || !removed) return;
     setState(() => _categories.remove(cat));
   }
 
-  void _savePassword() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Password updated successfully!', style: GoogleFonts.poppins()),
-        backgroundColor: AdminColors.success,
-      ),
-    );
+  Future<void> _savePassword() async {
+    final current = _oldPassCtrl.text;
+    final next = _newPassCtrl.text;
+    if (current.isEmpty || next.isEmpty) {
+      _showMessage('Enter your current and new password.', AdminColors.error);
+      return;
+    }
+    if (next.length < 8) {
+      _showMessage('The new password needs at least 8 characters.', AdminColors.error);
+      return;
+    }
+    if (next != _confirmPassCtrl.text) {
+      _showMessage('The new password and its confirmation do not match.', AdminColors.error);
+      return;
+    }
+    final updated = await _service.changePassword(current, next);
+    if (!mounted) return;
+    if (!updated) {
+      _showMessage('The current password is not correct.', AdminColors.error);
+      return;
+    }
+    _showMessage('Password updated successfully!', AdminColors.success);
     _oldPassCtrl.clear();
     _newPassCtrl.clear();
     _confirmPassCtrl.clear();
@@ -71,6 +147,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -108,6 +187,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   divisions: 36,
                                   activeColor: AdminColors.primary,
                                   onChanged: (v) => setState(() => _commissionRate = v),
+                                  onChangeEnd: (v) => _save(),
                                 ),
                               ),
                               const SizedBox(width: 12),
@@ -186,37 +266,55 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   label: 'New Order Placed',
                   subtitle: 'Notify when a new order is placed on the platform',
                   value: _notifyNewOrder,
-                  onChanged: (v) => setState(() => _notifyNewOrder = v),
+                  onChanged: (v) {
+                    setState(() => _notifyNewOrder = v);
+                    _save();
+                  },
                 ),
                 _ToggleRow(
                   label: 'Order Completed',
                   subtitle: 'Notify when an order is marked as completed',
                   value: _notifyOrderComplete,
-                  onChanged: (v) => setState(() => _notifyOrderComplete = v),
+                  onChanged: (v) {
+                    setState(() => _notifyOrderComplete = v);
+                    _save();
+                  },
                 ),
                 _ToggleRow(
                   label: 'New Verification Request',
                   subtitle: 'Notify when a tailor or rider submits verification docs',
                   value: _notifyNewVerification,
-                  onChanged: (v) => setState(() => _notifyNewVerification = v),
+                  onChanged: (v) {
+                    setState(() => _notifyNewVerification = v);
+                    _save();
+                  },
                 ),
                 _ToggleRow(
                   label: 'Dispute Raised',
                   subtitle: 'Notify when a new dispute is opened',
                   value: _notifyDispute,
-                  onChanged: (v) => setState(() => _notifyDispute = v),
+                  onChanged: (v) {
+                    setState(() => _notifyDispute = v);
+                    _save();
+                  },
                 ),
                 _ToggleRow(
                   label: 'Payment Received',
                   subtitle: 'Notify on each successful payment',
                   value: _notifyPayment,
-                  onChanged: (v) => setState(() => _notifyPayment = v),
+                  onChanged: (v) {
+                    setState(() => _notifyPayment = v);
+                    _save();
+                  },
                 ),
                 _ToggleRow(
                   label: 'Marketing Updates',
                   subtitle: 'Receive platform marketing notifications',
                   value: _notifyMarketing,
-                  onChanged: (v) => setState(() => _notifyMarketing = v),
+                  onChanged: (v) {
+                    setState(() => _notifyMarketing = v);
+                    _save();
+                  },
                   isLast: true,
                 ),
               ],
@@ -248,7 +346,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     Switch(
                       value: _twoFaEnabled,
-                      onChanged: (v) => setState(() => _twoFaEnabled = v),
+                      onChanged: (v) {
+                        setState(() => _twoFaEnabled = v);
+                        _save();
+                      },
                       activeColor: AdminColors.primary,
                     ),
                     AdminBadge(
@@ -290,7 +391,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             .map((t) => DropdownMenuItem(value: t, child: Text('$t min')))
                             .toList(),
                         onChanged: (v) {
-                          if (v != null) setState(() => _sessionTimeout = v);
+                          if (v == null) return;
+                          setState(() => _sessionTimeout = v);
+                          _save();
                         },
                       ),
                     ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/admin_theme.dart';
 import '../../core/widgets/admin_widgets.dart';
-import '../../core/data/admin_mock_data.dart';
+import '../../core/services/admin_service.dart';
 import '../../core/models/admin_models.dart';
 
 class ContentScreen extends StatefulWidget {
@@ -14,18 +14,18 @@ class ContentScreen extends StatefulWidget {
 
 class _ContentScreenState extends State<ContentScreen>
     with SingleTickerProviderStateMixin {
+  final _service = AdminService();
   late TabController _tabController;
-  late List<ContentItem> _designs;
-  late List<ReviewItem> _reviews;
-  late List<FlaggedItem> _flagged;
+  List<ContentItem> _designs = [];
+  List<ReviewItem> _reviews = [];
+  List<FlaggedItem> _flagged = [];
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _designs = List.from(AdminMockData.designs);
-    _reviews = List.from(AdminMockData.reviews);
-    _flagged = List.from(AdminMockData.flaggedContent);
+    _load();
   }
 
   @override
@@ -34,24 +34,54 @@ class _ContentScreenState extends State<ContentScreen>
     super.dispose();
   }
 
-  void _removeDesign(String id) {
-    setState(() => _designs.removeWhere((d) => d.id == id));
+  // The three lists load together. _loading is only true for the first load,
+  // so a later refresh does not rebuild the tabs.
+  Future<void> _load() async {
+    final designsFuture = _service.getDesigns();
+    final reviewsFuture = _service.getReviews();
+    final flaggedFuture = _service.getFlaggedContent();
+    final designs = await designsFuture;
+    final reviews = await reviewsFuture;
+    final flagged = await flaggedFuture;
+    if (mounted) {
+      setState(() {
+        _designs = designs;
+        _reviews = reviews;
+        _flagged = flagged;
+        _loading = false;
+      });
+    }
+  }
+
+  void _showMessage(String text, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Design removed.', style: GoogleFonts.poppins()),
-        backgroundColor: AdminColors.error,
+        content: Text(text, style: GoogleFonts.poppins()),
+        backgroundColor: color,
       ),
     );
   }
 
-  void _removeReview(String id) {
+  Future<void> _removeDesign(String id) async {
+    final removed = await _service.removeDesign(id);
+    if (!mounted) return;
+    if (!removed) {
+      _showMessage('Could not remove the design.', AdminColors.error);
+      return;
+    }
+    setState(() => _designs.removeWhere((d) => d.id == id));
+    _showMessage('Design removed.', AdminColors.error);
+  }
+
+  Future<void> _removeReview(String id) async {
+    final removed = await _service.removeReview(id);
+    if (!mounted) return;
+    if (!removed) {
+      _showMessage('Could not remove the review.', AdminColors.error);
+      return;
+    }
     setState(() => _reviews.removeWhere((r) => r.id == id));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Review removed.', style: GoogleFonts.poppins()),
-        backgroundColor: AdminColors.error,
-      ),
-    );
+    _showMessage('Review removed.', AdminColors.error);
   }
 
   void _takeAction(FlaggedItem item) {
@@ -94,18 +124,17 @@ class _ContentScreenState extends State<ContentScreen>
               ),
               AdminButton(
                 label: 'Apply Action',
-                onPressed: () {
+                onPressed: () async {
                   Navigator.pop(ctx);
-                  setState(() {
-                    final idx = _flagged.indexWhere((f) => f.id == item.id);
-                    if (idx != -1) _flagged[idx].status = 'Resolved';
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Action applied: $_action', style: GoogleFonts.poppins()),
-                      backgroundColor: AdminColors.success,
-                    ),
-                  );
+                  final resolved = await _service.resolveFlaggedContent(item.id, _action);
+                  // Removing content can change the other two lists as well.
+                  await _load();
+                  if (!mounted) return;
+                  if (resolved) {
+                    _showMessage('Action applied: $_action', AdminColors.success);
+                  } else {
+                    _showMessage('Could not apply the action.', AdminColors.error);
+                  }
                 },
               ),
             ],
@@ -135,6 +164,9 @@ class _ContentScreenState extends State<ContentScreen>
 
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(

@@ -130,6 +130,56 @@ class _TailorsScreenState extends State<TailorsScreen>
     );
   }
 
+  Future<void> _requestMoreDocs(String id) async {
+    final sent = await _service.requestMoreDocuments(id);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          sent ? 'Request sent to applicant.' : 'Could not send the document request.',
+          style: GoogleFonts.poppins(),
+        ),
+      ),
+    );
+  }
+
+  void _confirmRemove(String id) {
+    final idx = _tailors.indexWhere((t) => t.id == id);
+    if (idx == -1) return;
+    final tailor = _tailors[idx];
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        title: Text('Remove Tailor',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+        content: Text(
+            'Are you sure you want to permanently remove ${tailor.name}? This action cannot be undone.',
+            style: GoogleFonts.poppins(
+                fontSize: 14, color: AdminColors.textSecondary)),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text('Cancel',
+                  style: GoogleFonts.poppins(color: AdminColors.textSecondary))),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await _service.removeTailor(tailor.id);
+              if (mounted) _load();
+            },
+            style: ElevatedButton.styleFrom(
+                backgroundColor: AdminColors.error,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8))),
+            child: Text('Remove', style: GoogleFonts.poppins()),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -206,11 +256,13 @@ class _TailorsScreenState extends State<TailorsScreen>
                     await _service.suspendTailor(id);
                     _load();
                   },
+                  onRemove: _confirmRemove,
                 ),
                 _PendingTailorsTab(
                   pending: _pending,
                   onApprove: _approvePending,
                   onReject: _showRejectDialog,
+                  onRequestDocs: _requestMoreDocs,
                 ),
               ],
             ),
@@ -229,6 +281,7 @@ class _AllTailorsTab extends StatelessWidget {
   final ValueChanged<String> onSearchChanged;
   final ValueChanged<String> onFilterChanged;
   final Future<void> Function(String) onSuspend;
+  final void Function(String) onRemove;
 
   const _AllTailorsTab({
     required this.tailors,
@@ -238,6 +291,7 @@ class _AllTailorsTab extends StatelessWidget {
     required this.onSearchChanged,
     required this.onFilterChanged,
     required this.onSuspend,
+    required this.onRemove,
   });
 
   @override
@@ -380,7 +434,7 @@ class _AllTailorsTab extends StatelessWidget {
                                         icon: Icons.delete_rounded,
                                         color: AdminColors.error,
                                         tooltip: 'Remove',
-                                        onTap: () {},
+                                        onTap: () => onRemove(t.id),
                                       ),
                                     ]),
                                   ],
@@ -406,11 +460,13 @@ class _PendingTailorsTab extends StatelessWidget {
   final List<PendingVerification> pending;
   final Future<void> Function(String) onApprove;
   final void Function(String) onReject;
+  final void Function(String) onRequestDocs;
 
   const _PendingTailorsTab({
     required this.pending,
     required this.onApprove,
     required this.onReject,
+    required this.onRequestDocs,
   });
 
   @override
@@ -427,6 +483,7 @@ class _PendingTailorsTab extends StatelessWidget {
         verification: v,
         onApprove: () => onApprove(v.id),
         onReject: () => onReject(v.id),
+        onRequestDocs: () => onRequestDocs(v.id),
       )).toList(),
     );
   }
@@ -436,11 +493,13 @@ class _PendingCard extends StatelessWidget {
   final PendingVerification verification;
   final VoidCallback onApprove;
   final VoidCallback onReject;
+  final VoidCallback onRequestDocs;
 
   const _PendingCard({
     required this.verification,
     required this.onApprove,
     required this.onReject,
+    required this.onRequestDocs,
   });
 
   @override
@@ -517,12 +576,7 @@ class _PendingCard extends StatelessWidget {
                 OutlineAdminButton(
                   label: 'Request More Docs',
                   icon: Icons.upload_file_rounded,
-                  onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Request sent to applicant.',
-                          style: GoogleFonts.poppins()),
-                    ),
-                  ),
+                  onPressed: onRequestDocs,
                 ),
               ],
             ),

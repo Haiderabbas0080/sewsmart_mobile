@@ -16,6 +16,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
   final _service = AdminService();
   List<AdminPayment> _payments = [];
   List<AdminPayment> _filtered = [];
+  PaymentSummary? _summary;
   bool _loading = true;
   String _methodFilter = 'All';
   String _statusFilter = 'All';
@@ -28,11 +29,15 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
 
   Future<void> _load() async {
     setState(() => _loading = true);
-    final data = await _service.getAllPayments();
+    final paymentsFuture = _service.getAllPayments();
+    final summaryFuture = _service.getPaymentSummary();
+    final data = await paymentsFuture;
+    final summary = await summaryFuture;
     if (mounted) {
       setState(() {
         _payments = data;
         _filtered = data;
+        _summary = summary;
         _loading = false;
       });
     }
@@ -48,10 +53,11 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
     });
   }
 
-  double get _totalRevenue => _payments.where((p) => p.status == 'Paid').fold(0.0, (a, b) => a + b.amount);
-  double get _thisMonth => _payments.where((p) => p.status == 'Paid').fold(0.0, (a, b) => a + b.amount) * 0.3;
-  double get _pending => _payments.where((p) => p.status == 'Processing').fold(0.0, (a, b) => a + b.amount);
-  double get _refunded => _payments.where((p) => p.status == 'Refunded').fold(0.0, (a, b) => a + b.amount);
+  // The four totals come from the server, not from the rows on screen.
+  double get _totalRevenue => _summary?.totalRevenue ?? 0.0;
+  double get _thisMonth => _summary?.thisMonth ?? 0.0;
+  double get _pending => _summary?.pending ?? 0.0;
+  double get _refunded => _summary?.refunded ?? 0.0;
 
   @override
   Widget build(BuildContext context) {

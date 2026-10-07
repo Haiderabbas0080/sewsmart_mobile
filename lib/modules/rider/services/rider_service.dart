@@ -50,4 +50,25 @@ class RiderService {
       'pending': 1200.0,
     };
   }
+
+  // TODO: GET /api/riders/:id
+  Future<RiderProfile?> getProfile(String riderId) async {
+    await Future.delayed(const Duration(milliseconds: 400));
+    final user = MockData.users
+        .where((u) => u.id == riderId && u.role == UserRole.rider)
+        .firstOrNull;
+    if (user == null) return null;
+    return RiderProfile(
+      id: user.id, name: user.name, phone: user.phone, city: user.city ?? '',
+      isVerified: user.isVerified, isAvailable: true,
+      totalDeliveries: 156, monthDeliveries: 28, rating: 4.8,
+      assignedTailorId: 'T001', assignedTailorName: "Sana's Couture",
+    );
+  }
+
+  // TODO: PUT /api/riders/:id/availability
+  Future<bool> setAvailability(String riderId, bool isAvailable) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return true;
+  }
 }
