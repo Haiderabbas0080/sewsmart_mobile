@@ -10,6 +10,7 @@ SewSmart is an AI-powered tailoring marketplace that connects customers, tailors
 | `sewsmart_admin/` | Flutter web admin panel | UI built, running on mock data |
 | `backend/` | Node.js + Express REST API | Planned |
 | `tryon-service/` | Flask service for the virtual try-on | Planned |
+| `docs/API.md` | API contract between the apps and the backend | Admin panel and new mobile endpoints designed |
 
 ## Run the mobile app
 

@@ -72,6 +72,7 @@ docs(api): document the payments endpoints
 - The code runs locally and you have tested the change yourself.
 - No secrets, `.env` files, `node_modules/` or build output.
 - API responses use the JSON keys the Flutter models expect (snake_case, for example `is_verified`, `created_at`, `price_from`).
+- Endpoints follow [docs/API.md](docs/API.md). To add or change an endpoint, update that file and the `// TODO` comment above the Flutter service method in the same pull request.
 - Attach a sample request and response, or screenshots, when behaviour changes.
 
 ## Repository layout
@@ -82,6 +83,7 @@ docs(api): document the payments endpoints
 | `sewsmart_admin/` | Flutter web admin panel |
 | `backend/` | Node.js + Express API (to be added) |
 | `tryon-service/` | Flask virtual try-on service (to be added) |
+| `docs/API.md` | API contract between the apps and the backend |
 | `.github/` | Issue and pull request templates |
 
 ## Secrets

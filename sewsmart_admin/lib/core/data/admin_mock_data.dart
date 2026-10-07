@@ -13,6 +13,7 @@ class AdminMockData {
     openDisputes: 4,
     thisMonthRevenue: 184200,
     lastMonthRevenue: 162500,
+    averageTailorRating: 4.6,
   );
 
   // ── Monthly Revenue ───────────────────────────────────────
@@ -614,4 +615,26 @@ class AdminMockData {
     FlaggedItem(id: 'f002', reporter: 'Nadia Hussain', reportedItem: 'Review by Unknown', reason: 'Spam / fake review', date: '2024-06-02', status: 'Pending'),
     FlaggedItem(id: 'f003', reporter: 'Sara Ahmed', reportedItem: 'Profile: Muhammad Tailor', reason: 'Misleading service description', date: '2024-05-31', status: 'Resolved'),
   ];
+
+  // ── Platform settings ─────────────────────────────────────
+  static AdminSettings settings = AdminSettings(
+    commissionRate: 8.5,
+    categories: ['Bridal', 'Eastern', 'Western', 'Casual', 'Children'],
+    notifyNewOrder: true,
+    notifyOrderComplete: true,
+    notifyNewVerification: true,
+    notifyDispute: true,
+    notifyPayment: false,
+    notifyMarketing: false,
+    twoFaEnabled: false,
+    sessionTimeout: 30,
+  );
+
+  // ── Order status distribution (reports) ───────────────────
+  static const orderStatusDistribution = {
+    'Completed': 2841,
+    'In Progress': 142,
+    'Pending': 287,
+    'Cancelled': 604,
+  };
 }
