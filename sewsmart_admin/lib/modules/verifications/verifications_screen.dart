@@ -394,28 +394,32 @@ class _VerificationCard extends StatelessWidget {
             const SizedBox(height: 16),
             Row(
               children: [
-                // Approve
-                Ink(
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF22C55E), Color(0xFF16A34A)],
+                // Approve. The Material puts the Ink above the white card;
+                // without it the gradient is painted behind the card and the button is invisible.
+                Material(
+                  color: Colors.transparent,
+                  child: Ink(
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF22C55E), Color(0xFF16A34A)],
+                      ),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: InkWell(
-                    onTap: onApprove,
-                    borderRadius: BorderRadius.circular(8),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.check_rounded, color: Colors.white, size: 16),
-                          const SizedBox(width: 6),
-                          Text('Approve',
-                              style: GoogleFonts.poppins(
-                                  fontSize: 13, color: Colors.white, fontWeight: FontWeight.w600)),
-                        ],
+                    child: InkWell(
+                      onTap: onApprove,
+                      borderRadius: BorderRadius.circular(8),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.check_rounded, color: Colors.white, size: 16),
+                            const SizedBox(width: 6),
+                            Text('Approve',
+                                style: GoogleFonts.poppins(
+                                    fontSize: 13, color: Colors.white, fontWeight: FontWeight.w600)),
+                          ],
+                        ),
                       ),
                     ),
                   ),
