@@ -5,6 +5,7 @@ import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/models/app_models.dart';
 import '../../../core/data/mock_data.dart';
 import '../../../core/services/auth_service.dart';
+import '../../../core/utils/validators.dart';
 import '../../auth/screens/login_screen.dart';
 
 class TailorProfileManageScreen extends StatefulWidget {
@@ -72,132 +73,116 @@ class _TailorProfileManageScreenState extends State<TailorProfileManageScreen>
     }
   }
 
-  void _showAddGarmentDialog() {
-    final garmentCtrl = TextEditingController();
-    final priceCtrl = TextEditingController();
-    final timeCtrl = TextEditingController();
+  // Adds a garment, or edits the one at [index]. A name and a price above zero
+  // are required; the dialog stays open and says what is missing.
+  void _showGarmentDialog({int? index}) {
+    final item = index == null ? null : _pricing[index];
+    final garmentCtrl = TextEditingController(text: item?.garment ?? '');
+    final priceCtrl = TextEditingController(text: item == null ? '' : item.price.toInt().toString());
+    final timeCtrl = TextEditingController(text: item?.estimatedTime ?? '');
+    String? error;
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          backgroundColor: AppColors.card,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(
+            item == null ? 'Add Garment' : 'Edit Garment',
+            style: GoogleFonts.poppins(color: AppColors.textPrimary, fontWeight: FontWeight.w600),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppTextField(hint: 'Garment name', ctrl: garmentCtrl),
+              const SizedBox(height: 10),
+              AppTextField(hint: 'Price (Rs)', ctrl: priceCtrl, keyboard: TextInputType.number),
+              const SizedBox(height: 10),
+              AppTextField(hint: 'Estimated time (e.g. 3-4 days)', ctrl: timeCtrl),
+              if (error != null) ...[
+                const SizedBox(height: 10),
+                Text(error!, style: GoogleFonts.poppins(color: AppColors.error, fontSize: 12)),
+              ],
+            ],
+          ),
+          actions: [
+            if (index != null)
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  _confirmDeleteGarment(index);
+                },
+                child: Text('Delete',
+                    style: GoogleFonts.poppins(color: AppColors.error, fontWeight: FontWeight.w600)),
+              ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text('Cancel', style: GoogleFonts.poppins(color: AppColors.textMuted)),
+            ),
+            GestureDetector(
+              onTap: () {
+                final name = garmentCtrl.text.trim();
+                final price = Validators.positiveNumber(priceCtrl.text);
+                if (name.isEmpty || price == null) {
+                  setDialogState(() => error = name.isEmpty ? 'Enter the garment name' : 'Enter a price above zero');
+                  return;
+                }
+                final time = timeCtrl.text.trim();
+                final garment = GarmentPricing(
+                  garment: name,
+                  price: price,
+                  estimatedTime: time.isEmpty ? (item?.estimatedTime ?? '') : time,
+                );
+                setState(() {
+                  if (index == null) {
+                    _pricing.add(garment);
+                  } else {
+                    _pricing[index] = garment;
+                  }
+                });
+                Navigator.pop(ctx);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(item == null ? 'Add' : 'Save',
+                    style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Deleting a garment removes it from the price list customers see, so ask first.
+  void _confirmDeleteGarment(int index) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.card,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(
-          'Add Garment',
-          style: GoogleFonts.poppins(
-              color: AppColors.textPrimary, fontWeight: FontWeight.w600),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppTextField(hint: 'Garment name', ctrl: garmentCtrl),
-            const SizedBox(height: 10),
-            AppTextField(hint: 'Price (Rs)', ctrl: priceCtrl, keyboard: TextInputType.number),
-            const SizedBox(height: 10),
-            AppTextField(hint: 'Estimated time (e.g. 3-4 days)', ctrl: timeCtrl),
-          ],
+        title: Text('Delete Garment?',
+            style: GoogleFonts.poppins(color: AppColors.textPrimary, fontWeight: FontWeight.w600)),
+        content: Text(
+          'Remove ${_pricing[index].garment} from your price list?',
+          style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: 13),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text('Cancel', style: GoogleFonts.poppins(color: AppColors.textMuted)),
           ),
-          GestureDetector(
-            onTap: () {
-              if (garmentCtrl.text.isNotEmpty) {
-                setState(() {
-                  _pricing.add(GarmentPricing(
-                    garment: garmentCtrl.text,
-                    price: double.tryParse(priceCtrl.text) ?? 0,
-                    estimatedTime: timeCtrl.text,
-                  ));
-                });
-              }
-              Navigator.pop(ctx);
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text('Add', style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showEditGarmentDialog(int index) {
-    final item = _pricing[index];
-    final garmentCtrl = TextEditingController(text: item.garment);
-    final priceCtrl = TextEditingController(text: item.price.toInt().toString());
-    final timeCtrl = TextEditingController(text: item.estimatedTime);
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.card,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Edit Garment',
-            style: GoogleFonts.poppins(
-                color: AppColors.textPrimary, fontWeight: FontWeight.w600)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppTextField(hint: 'Garment name', ctrl: garmentCtrl),
-            const SizedBox(height: 10),
-            AppTextField(
-                hint: 'Price (Rs)',
-                ctrl: priceCtrl,
-                keyboard: TextInputType.number),
-            const SizedBox(height: 10),
-            AppTextField(
-                hint: 'Estimated time (e.g. 3-4 days)', ctrl: timeCtrl),
-          ],
-        ),
-        actions: [
           TextButton(
             onPressed: () {
-              // Delete this garment
-              setState(() => _pricing.removeAt(index));
               Navigator.pop(ctx);
+              setState(() => _pricing.removeAt(index));
             },
             child: Text('Delete',
-                style: GoogleFonts.poppins(
-                    color: AppColors.error, fontWeight: FontWeight.w600)),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancel',
-                style: GoogleFonts.poppins(color: AppColors.textMuted)),
-          ),
-          GestureDetector(
-            onTap: () {
-              if (garmentCtrl.text.isNotEmpty) {
-                setState(() {
-                  _pricing[index] = GarmentPricing(
-                    garment: garmentCtrl.text,
-                    price: double.tryParse(priceCtrl.text) ?? item.price,
-                    estimatedTime: timeCtrl.text.isEmpty
-                        ? item.estimatedTime
-                        : timeCtrl.text,
-                  );
-                });
-              }
-              Navigator.pop(ctx);
-            },
-            child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                    colors: [AppColors.teal, AppColors.tealLight]),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text('Save',
-                  style: GoogleFonts.poppins(
-                      color: Colors.white, fontWeight: FontWeight.w600)),
-            ),
+                style: GoogleFonts.poppins(color: AppColors.error, fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -299,6 +284,8 @@ class _TailorProfileManageScreenState extends State<TailorProfileManageScreen>
       ),
       child: TabBar(
         controller: _tabController,
+        // Fill the whole tab, like the tab bars on the customer screens.
+        indicatorSize: TabBarIndicatorSize.tab,
         indicator: BoxDecoration(
           gradient: const LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
           borderRadius: BorderRadius.circular(10),
@@ -397,7 +384,8 @@ class _TailorProfileManageScreenState extends State<TailorProfileManageScreen>
       child: Column(
         children: [
           GestureDetector(
-            onTap: () {},
+            // Samples are photos, and photo upload is not built yet.
+            onTap: () => showComingSoon(context, 'Uploading portfolio photos'),
             child: Container(
               width: double.infinity,
               height: 50,
@@ -459,11 +447,11 @@ class _TailorProfileManageScreenState extends State<TailorProfileManageScreen>
         children: [
           ..._pricing.asMap().entries.map((entry) => _PricingItem(
             pricing: entry.value,
-            onEdit: () => _showEditGarmentDialog(entry.key),
+            onEdit: () => _showGarmentDialog(index: entry.key),
           )),
           const SizedBox(height: 14),
           GestureDetector(
-            onTap: _showAddGarmentDialog,
+            onTap: () => _showGarmentDialog(),
             child: Container(
               width: double.infinity,
               height: 50,

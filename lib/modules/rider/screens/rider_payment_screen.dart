@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/validators.dart';
 import '../../../core/widgets/shared_widgets.dart';
 
 class RiderPaymentScreen extends StatefulWidget {
@@ -509,6 +510,7 @@ class _AddPayoutSheetState extends State<_AddPayoutSheet> {
   final _nameCtrl = TextEditingController();
   final _bankNameCtrl = TextEditingController();
   final _ibanCtrl = TextEditingController();
+  String? _error;
 
   static const _types = [
     _SupportedItem(
@@ -583,8 +585,10 @@ class _AddPayoutSheetState extends State<_AddPayoutSheet> {
               children: _types
                   .map((t) => Expanded(
                         child: GestureDetector(
-                          onTap: () =>
-                              setState(() => _selectedType = t.name),
+                          onTap: () => setState(() {
+                            _selectedType = t.name;
+                            _error = null;
+                          }),
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             margin: const EdgeInsets.only(right: 8),
@@ -654,11 +658,26 @@ class _AddPayoutSheetState extends State<_AddPayoutSheet> {
               icon: Icons.person_rounded,
               ctrl: _nameCtrl,
             ),
+            if (_error != null) ...[
+              const SizedBox(height: 12),
+              Text(_error!, style: GoogleFonts.poppins(color: AppColors.error, fontSize: 12)),
+            ],
             const SizedBox(height: 22),
             GradientButton(
               text: 'Add Account',
               colors: [AppColors.riderColor, const Color(0xFFF97316)],
               onTap: () {
+                final problem = Validators.payoutAccountProblem(
+                  isBank: isBankAccount,
+                  number: _numberCtrl.text,
+                  holderName: _nameCtrl.text,
+                  bankName: _bankNameCtrl.text,
+                  iban: _ibanCtrl.text,
+                );
+                if (problem != null) {
+                  setState(() => _error = problem);
+                  return;
+                }
                 final type = _types.firstWhere((t) => t.name == _selectedType);
                 Navigator.pop(context);
                 widget.onAdd(

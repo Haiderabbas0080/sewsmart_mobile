@@ -5,6 +5,7 @@ import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/models/app_models.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/data/mock_data.dart';
+import '../../../core/utils/app_refresh.dart';
 import '../services/tailor_service.dart';
 import 'incoming_orders_screen.dart';
 import 'order_detail_screen.dart';
@@ -29,6 +30,14 @@ class _TailorDashboardScreenState extends State<TailorDashboardScreen> {
   void initState() {
     super.initState();
     _loadData();
+    // The counts change when an order is accepted, rejected or updated elsewhere.
+    AppRefresh.orders.addListener(_loadData);
+  }
+
+  @override
+  void dispose() {
+    AppRefresh.orders.removeListener(_loadData);
+    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -277,7 +286,7 @@ class _TailorDashboardScreenState extends State<TailorDashboardScreen> {
       mainAxisSpacing: 12,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 1.6,
+      childAspectRatio: 1.45,
       children: metrics.map((m) => MetricCard(
         label: m['label'] as String,
         value: m['value'] as String,

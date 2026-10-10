@@ -4,6 +4,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/models/app_models.dart';
 import '../../../core/services/auth_service.dart';
+import '../../../core/utils/app_refresh.dart';
 import '../services/customer_service.dart';
 import 'browse_tailors_screen.dart';
 import 'tailor_profile_screen.dart';
@@ -31,6 +32,14 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
   void initState() {
     super.initState();
     _loadData();
+    // The active order card changes when an order is placed or paid.
+    AppRefresh.orders.addListener(_loadData);
+  }
+
+  @override
+  void dispose() {
+    AppRefresh.orders.removeListener(_loadData);
+    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -306,10 +315,17 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                 Text('Eid Special', style: GoogleFonts.poppins(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                 Text('20% off on all bridal orders', style: GoogleFonts.poppins(color: Colors.white.withValues(alpha: 0.85), fontSize: 12)),
                 const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
-                  child: Text('Book Now', style: GoogleFonts.poppins(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.bold)),
+                // The offer is for bridal orders, so open the tailor list on Bridal.
+                GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const BrowseTailorsScreen(initialCategory: 'Bridal')),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+                    child: Text('Book Now', style: GoogleFonts.poppins(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.bold)),
+                  ),
                 ),
               ],
             ),

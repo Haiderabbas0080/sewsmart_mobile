@@ -9,19 +9,25 @@ class AuroraBackground extends StatelessWidget {
   const AuroraBackground({super.key, required this.child, this.orb1, this.orb2, this.orb3});
 
   @override
-  Widget build(BuildContext context) => Container(
-    decoration: const BoxDecoration(gradient: LinearGradient(
-      begin: Alignment.topLeft, end: Alignment.bottomRight,
-      colors: [Color(0xFF0A0812), Color(0xFF120A22), Color(0xFF0A1220)],
-    )),
-    child: Stack(children: [
-      Positioned(top: -80, left: -60, child: _Orb(color: orb1 ?? AppColors.purpleOrb, size: 280)),
-      Positioned(top: 200, left: 60, child: _Orb(color: orb2 ?? AppColors.pinkOrb, size: 220)),
-      Positioned(top: 80, right: -40, child: _Orb(color: orb3 ?? AppColors.tealOrb, size: 200)),
-      Positioned(bottom: 100, right: 20, child: _Orb(color: AppColors.purpleOrb, size: 160)),
-      child,
-    ]),
-  );
+  Widget build(BuildContext context) => LayoutBuilder(builder: (context, constraints) {
+    final background = Container(
+      decoration: const BoxDecoration(gradient: LinearGradient(
+        begin: Alignment.topLeft, end: Alignment.bottomRight,
+        colors: [Color(0xFF0A0812), Color(0xFF120A22), Color(0xFF0A1220)],
+      )),
+      child: Stack(children: [
+        Positioned(top: -80, left: -60, child: _Orb(color: orb1 ?? AppColors.purpleOrb, size: 280)),
+        Positioned(top: 200, left: 60, child: _Orb(color: orb2 ?? AppColors.pinkOrb, size: 220)),
+        Positioned(top: 80, right: -40, child: _Orb(color: orb3 ?? AppColors.tealOrb, size: 200)),
+        Positioned(bottom: 100, right: 20, child: _Orb(color: AppColors.purpleOrb, size: 160)),
+        child,
+      ]),
+    );
+    // Fill all the space the page gives, so the gradient reaches the bottom of
+    // the screen when the content is shorter than the screen.
+    if (!constraints.hasBoundedWidth || !constraints.hasBoundedHeight) return background;
+    return SizedBox(width: constraints.maxWidth, height: constraints.maxHeight, child: background);
+  });
 }
 
 class _Orb extends StatelessWidget {
@@ -162,8 +168,18 @@ class MetricCard extends StatelessWidget {
       if (change != null) Text(change!, style: GoogleFonts.poppins(color: AppColors.success, fontSize: 10, fontWeight: FontWeight.w600)),
     ]),
     const SizedBox(height: 8),
-    Text(value, style: GoogleFonts.poppins(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 18)),
-    Text(label, style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: 10)),
+    // The grid fixes the card height. On a small screen or with large system
+    // text the value and label shrink instead of overflowing the card.
+    Flexible(
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.centerLeft,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+          Text(value, style: GoogleFonts.poppins(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 18)),
+          Text(label, style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: 10)),
+        ]),
+      ),
+    ),
   ]));
 }
 
@@ -210,6 +226,18 @@ class RoleChip extends StatelessWidget {
       ]),
     ),
   ));
+}
+
+// ── Coming Soon ───────────────────────────────────────────────────────────────
+// For buttons whose feature is not built yet, so a tap always gives feedback.
+void showComingSoon(BuildContext context, String feature) {
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(
+      content: Text('$feature will be available soon', style: GoogleFonts.poppins()),
+      backgroundColor: AppColors.info,
+      duration: const Duration(seconds: 2),
+    ));
 }
 
 // ── Empty State ───────────────────────────────────────────────────────────────

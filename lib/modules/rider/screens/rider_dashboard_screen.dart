@@ -3,12 +3,16 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/models/app_models.dart';
+import '../../../core/services/auth_service.dart';
+import '../../../core/utils/app_refresh.dart';
 import '../services/rider_service.dart';
 import 'delivery_detail_screen.dart';
 import 'rider_notifications_screen.dart';
 
 class RiderDashboardScreen extends StatefulWidget {
-  const RiderDashboardScreen({super.key});
+  // The Deliveries tab uses this screen with only the delivery list.
+  final bool deliveriesOnly;
+  const RiderDashboardScreen({super.key, this.deliveriesOnly = false});
 
   @override
   State<RiderDashboardScreen> createState() => _RiderDashboardScreenState();
@@ -23,6 +27,14 @@ class _RiderDashboardScreenState extends State<RiderDashboardScreen> {
   void initState() {
     super.initState();
     _loadData();
+    // A delivery finished on the detail screen moves to Completed here.
+    AppRefresh.orders.addListener(_loadData);
+  }
+
+  @override
+  void dispose() {
+    AppRefresh.orders.removeListener(_loadData);
+    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -78,9 +90,20 @@ class _RiderDashboardScreenState extends State<RiderDashboardScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 16),
-                  _buildHeader(),
-                  const SizedBox(height: 16),
-                  _buildStatusToggle(),
+                  if (widget.deliveriesOnly)
+                    Text(
+                      'My Deliveries',
+                      style: GoogleFonts.poppins(
+                        color: AppColors.textPrimary,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )
+                  else ...[
+                    _buildHeader(),
+                    const SizedBox(height: 16),
+                    _buildStatusToggle(),
+                  ],
                   const SizedBox(height: 20),
                   if (_loading)
                     const Center(
@@ -90,8 +113,10 @@ class _RiderDashboardScreenState extends State<RiderDashboardScreen> {
                       ),
                     )
                   else ...[
-                    _buildMetricGrid(),
-                    const SizedBox(height: 24),
+                    if (!widget.deliveriesOnly) ...[
+                      _buildMetricGrid(),
+                      const SizedBox(height: 24),
+                    ],
                     _buildDeliveriesList(),
                     const SizedBox(height: 30),
                   ],
@@ -116,7 +141,7 @@ class _RiderDashboardScreenState extends State<RiderDashboardScreen> {
                 style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: 13),
               ),
               Text(
-                'Ali Raza',
+                AuthService().currentUser?.name ?? 'Rider',
                 style: GoogleFonts.poppins(
                   color: AppColors.textPrimary,
                   fontSize: 20,
@@ -172,7 +197,7 @@ class _RiderDashboardScreenState extends State<RiderDashboardScreen> {
           ),
           child: Center(
             child: Text(
-              'A',
+              initialsOf(AuthService().currentUser?.name ?? '', max: 1),
               style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ),
@@ -227,7 +252,7 @@ class _RiderDashboardScreenState extends State<RiderDashboardScreen> {
           Switch(
             value: _isAvailable,
             onChanged: (v) => setState(() => _isAvailable = v),
-            activeColor: AppColors.success,
+            activeThumbColor: AppColors.success,
             inactiveThumbColor: AppColors.riderColor,
             inactiveTrackColor: AppColors.riderColor.withValues(alpha: 0.3),
           ),
@@ -270,7 +295,7 @@ class _RiderDashboardScreenState extends State<RiderDashboardScreen> {
       mainAxisSpacing: 12,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 1.6,
+      childAspectRatio: 1.45,
       children: metrics.map((m) => MetricCard(
         label: m['label'] as String,
         value: m['value'] as String,

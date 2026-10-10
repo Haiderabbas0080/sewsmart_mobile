@@ -4,6 +4,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/models/app_models.dart';
 import '../../../core/services/auth_service.dart';
+import '../../../core/utils/app_refresh.dart';
 import '../services/customer_service.dart';
 import 'order_tracking_screen.dart';
 
@@ -24,10 +25,13 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> with SingleTick
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _loadOrders();
+    // This tab stays alive, so load again when an order is placed or paid.
+    AppRefresh.orders.addListener(_loadOrders);
   }
 
   @override
   void dispose() {
+    AppRefresh.orders.removeListener(_loadOrders);
     _tabController.dispose();
     super.dispose();
   }
@@ -120,7 +124,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> with SingleTick
       child: ListView.separated(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
         itemCount: orders.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        separatorBuilder: (_, _) => const SizedBox(height: 12),
         itemBuilder: (context, i) => _OrderCard(order: orders[i]),
       ),
     );

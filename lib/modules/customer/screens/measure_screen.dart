@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/validators.dart';
 import '../../../core/widgets/shared_widgets.dart';
 
 class MeasureScreen extends StatefulWidget {
@@ -14,19 +15,40 @@ class _MeasureScreenState extends State<MeasureScreen> {
   bool _isCm = true;
   bool _saving = false;
 
-  // Body measurements with default values
+  static const _weight = 'Weight (kg)';
+
+  // Body measurements with default values, in centimeters because the screen
+  // opens in cm. Weight is always in kilograms.
   final Map<String, TextEditingController> _ctrls = {
     'Height': TextEditingController(text: '165'),
-    'Weight (kg)': TextEditingController(text: '60'),
-    'Chest': TextEditingController(text: '36'),
-    'Waist': TextEditingController(text: '30'),
-    'Hips': TextEditingController(text: '38'),
-    'Shoulder': TextEditingController(text: '15'),
-    'Arm Length': TextEditingController(text: '24'),
-    'Inseam': TextEditingController(text: '28'),
-    'Neck': TextEditingController(text: '14'),
-    'Wrist': TextEditingController(text: '6'),
+    _weight: TextEditingController(text: '60'),
+    'Chest': TextEditingController(text: '91'),
+    'Waist': TextEditingController(text: '76'),
+    'Hips': TextEditingController(text: '97'),
+    'Shoulder': TextEditingController(text: '38'),
+    'Arm Length': TextEditingController(text: '61'),
+    'Inseam': TextEditingController(text: '71'),
+    'Neck': TextEditingController(text: '36'),
+    'Wrist': TextEditingController(text: '15'),
   };
+
+  // Switches the unit and converts every length, so 91 cm becomes 35.8 in.
+  void _setUnit(bool toCm) {
+    if (toCm == _isCm) return;
+    setState(() {
+      _isCm = toCm;
+      for (final entry in _ctrls.entries) {
+        if (entry.key == _weight) continue;
+        final value = double.tryParse(entry.value.text.trim());
+        if (value == null) continue;
+        final converted = toCm ? value * 2.54 : value / 2.54;
+        final rounded = (converted * 10).round() / 10;
+        entry.value.text = rounded == rounded.roundToDouble()
+            ? rounded.toInt().toString()
+            : rounded.toStringAsFixed(1);
+      }
+    });
+  }
 
   final Map<String, IconData> _icons = {
     'Height': Icons.height_rounded,
@@ -50,6 +72,19 @@ class _MeasureScreenState extends State<MeasureScreen> {
   }
 
   Future<void> _save() async {
+    final missing = _ctrls.entries
+        .where((e) => Validators.positiveNumber(e.value.text) == null)
+        .map((e) => e.key)
+        .toList();
+    if (missing.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Enter a number for ${missing.join(', ')}', style: GoogleFonts.poppins()),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
     setState(() => _saving = true);
     await Future.delayed(const Duration(milliseconds: 900));
     if (mounted) {
@@ -232,7 +267,7 @@ class _MeasureScreenState extends State<MeasureScreen> {
         children: [
           Expanded(
             child: GestureDetector(
-              onTap: () => setState(() => _isCm = true),
+              onTap: () => _setUnit(true),
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
@@ -256,7 +291,7 @@ class _MeasureScreenState extends State<MeasureScreen> {
           ),
           Expanded(
             child: GestureDetector(
-              onTap: () => setState(() => _isCm = false),
+              onTap: () => _setUnit(false),
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
@@ -314,7 +349,7 @@ class _MeasureScreenState extends State<MeasureScreen> {
                     label: entry.key,
                     ctrl: entry.value,
                     icon: _icons[entry.key] ?? Icons.straighten_rounded,
-                    unit: _isCm ? 'cm' : 'in',
+                    unit: entry.key == _weight ? 'kg' : (_isCm ? 'cm' : 'in'),
                   ))
               .toList(),
         ),

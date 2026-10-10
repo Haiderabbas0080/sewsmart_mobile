@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/models/user_model.dart';
+import '../../../core/services/auth_service.dart';
 import '../../../core/widgets/shared_widgets.dart';
 
 class _ChatMessage {
   final String text;
-  final bool isMe;
+  final bool fromCustomer;
   final DateTime time;
-  const _ChatMessage({required this.text, required this.isMe, required this.time});
+  const _ChatMessage({required this.text, required this.fromCustomer, required this.time});
 }
 
+// The chat for one order. Customers and tailors both open this screen, so a
+// message counts as "mine" when it comes from the signed-in user's side.
 class TailorChatScreen extends StatefulWidget {
-  final String customerName;
+  // The other person in the chat: the tailor for a customer, the customer for a tailor.
+  final String contactName;
   final String orderId;
   const TailorChatScreen({
     super.key,
-    required this.customerName,
+    required this.contactName,
     required this.orderId,
   });
 
@@ -29,6 +34,10 @@ class _TailorChatScreenState extends State<TailorChatScreen> {
 
   late List<_ChatMessage> _messages;
 
+  final UserModel? _me = AuthService().currentUser;
+  bool get _iAmTailor => _me?.role == UserRole.tailor;
+  bool _isMine(_ChatMessage m) => _iAmTailor ? !m.fromCustomer : m.fromCustomer;
+
   @override
   void initState() {
     super.initState();
@@ -36,27 +45,27 @@ class _TailorChatScreenState extends State<TailorChatScreen> {
     _messages = [
       _ChatMessage(
         text: 'Hello! I wanted to check on my order ${widget.orderId}.',
-        isMe: false,
+        fromCustomer: true,
         time: now.subtract(const Duration(hours: 2, minutes: 30)),
       ),
       _ChatMessage(
         text: 'Hi! Yes, I have started working on your ${widget.orderId}. The fabric is cut and initial stitching is done.',
-        isMe: true,
+        fromCustomer: false,
         time: now.subtract(const Duration(hours: 2, minutes: 20)),
       ),
       _ChatMessage(
         text: 'That sounds great! When do you think it will be ready?',
-        isMe: false,
+        fromCustomer: true,
         time: now.subtract(const Duration(hours: 2)),
       ),
       _ChatMessage(
         text: 'I estimate 3-4 more days. I will send you pictures once the main fitting is done.',
-        isMe: true,
+        fromCustomer: false,
         time: now.subtract(const Duration(hours: 1, minutes: 50)),
       ),
       _ChatMessage(
         text: 'Perfect, thank you so much!',
-        isMe: false,
+        fromCustomer: true,
         time: now.subtract(const Duration(hours: 1, minutes: 45)),
       ),
     ];
@@ -73,7 +82,7 @@ class _TailorChatScreenState extends State<TailorChatScreen> {
     final text = _msgCtrl.text.trim();
     if (text.isEmpty) return;
     setState(() {
-      _messages.add(_ChatMessage(text: text, isMe: true, time: DateTime.now()));
+      _messages.add(_ChatMessage(text: text, fromCustomer: !_iAmTailor, time: DateTime.now()));
       _msgCtrl.clear();
     });
     Future.delayed(const Duration(milliseconds: 100), () {
@@ -133,7 +142,7 @@ class _TailorChatScreenState extends State<TailorChatScreen> {
             ),
             child: Center(
               child: Text(
-                widget.customerName.isNotEmpty ? widget.customerName[0].toUpperCase() : 'C',
+                initialsOf(widget.contactName, max: 1),
                 style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
               ),
             ),
@@ -144,7 +153,7 @@ class _TailorChatScreenState extends State<TailorChatScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.customerName,
+                  widget.contactName,
                   style: GoogleFonts.poppins(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w600,
@@ -158,16 +167,6 @@ class _TailorChatScreenState extends State<TailorChatScreen> {
               ],
             ),
           ),
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: AppColors.card,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.divider),
-            ),
-            child: const Icon(Icons.more_vert_rounded, color: AppColors.textPrimary, size: 18),
-          ),
         ],
       ),
     );
@@ -180,6 +179,10 @@ class _TailorChatScreenState extends State<TailorChatScreen> {
       itemCount: _messages.length,
       itemBuilder: (_, i) => _MessageBubble(
         message: _messages[i],
+        isMe: _isMine(_messages[i]),
+        initial: _isMine(_messages[i])
+            ? initialsOf(_me?.name ?? '', max: 1)
+            : initialsOf(widget.contactName, max: 1),
         timeStr: _formatTime(_messages[i].time),
       ),
     );
@@ -195,7 +198,7 @@ class _TailorChatScreenState extends State<TailorChatScreen> {
       child: Row(
         children: [
           GestureDetector(
-            onTap: () {},
+            onTap: () => showComingSoon(context, 'Sending photos in chat'),
             child: Container(
               width: 42,
               height: 42,
@@ -259,12 +262,19 @@ class _TailorChatScreenState extends State<TailorChatScreen> {
 
 class _MessageBubble extends StatelessWidget {
   final _ChatMessage message;
+  final bool isMe;
+  // The avatar letter of whoever sent this message.
+  final String initial;
   final String timeStr;
-  const _MessageBubble({required this.message, required this.timeStr});
+  const _MessageBubble({
+    required this.message,
+    required this.isMe,
+    required this.initial,
+    required this.timeStr,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final isMe = message.isMe;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -280,7 +290,7 @@ class _MessageBubble extends StatelessWidget {
                 gradient: const LinearGradient(colors: [AppColors.primary, AppColors.teal]),
               ),
               child: Center(
-                child: Text('C', style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
+                child: Text(initial, style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
               ),
             ),
             const SizedBox(width: 8),
@@ -333,7 +343,7 @@ class _MessageBubble extends StatelessWidget {
                 gradient: LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
               ),
               child: Center(
-                child: Text('S', style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
+                child: Text(initial, style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
               ),
             ),
           ],

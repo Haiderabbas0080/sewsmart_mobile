@@ -5,6 +5,7 @@ import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/models/app_models.dart';
 import '../../../core/data/mock_data.dart';
+import '../../../core/utils/app_refresh.dart';
 import '../../auth/screens/login_screen.dart';
 import 'payment_methods_screen.dart';
 // ignore_for_file: use_build_context_synchronously
@@ -17,9 +18,25 @@ class CustomerProfileScreen extends StatefulWidget {
 }
 
 class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
-  bool _darkMode = false;
   bool _notifications = true;
   bool _signingOut = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // The order count changes when an order is placed.
+    AppRefresh.orders.addListener(_refresh);
+  }
+
+  @override
+  void dispose() {
+    AppRefresh.orders.removeListener(_refresh);
+    super.dispose();
+  }
+
+  void _refresh() {
+    if (mounted) setState(() {});
+  }
 
   UserModel? get _user => AuthService().currentUser;
 
@@ -90,7 +107,7 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                 ),
               ),
               GestureDetector(
-                onTap: () {},
+                onTap: () => _showEditProfileDialog(user),
                 child: Container(
                   width: 28,
                   height: 28,
@@ -271,19 +288,27 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
           trailing: Switch(
             value: _notifications,
             onChanged: (v) => setState(() => _notifications = v),
-            activeColor: AppColors.primaryLight,
+            activeThumbColor: AppColors.primaryLight,
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
           onTap: null,
         ),
-        _SettingsTile(icon: Icons.language_outlined, label: 'Language', trailing: 'English', onTap: () {}),
+        _SettingsTile(
+          icon: Icons.language_outlined,
+          label: 'Language',
+          trailing: 'English',
+          onTap: () => _showInfoDialog(
+              'Language', 'SewSmart is available in English for now. Urdu is planned for a later version.'),
+        ),
+        // The app has only a dark theme, so the switch stays on and explains why.
         _SettingsTile(
           icon: Icons.dark_mode_outlined,
           label: 'Dark Mode',
           trailing: Switch(
-            value: _darkMode,
-            onChanged: (v) => setState(() => _darkMode = v),
-            activeColor: AppColors.primaryLight,
+            value: true,
+            onChanged: (_) => _showInfoDialog(
+                'Dark Mode', 'SewSmart uses a dark theme. A light theme is planned for a later version.'),
+            activeThumbColor: AppColors.primaryLight,
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
           onTap: null,

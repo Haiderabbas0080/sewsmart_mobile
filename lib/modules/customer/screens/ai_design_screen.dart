@@ -17,6 +17,8 @@ class _AiDesignScreenState extends State<AiDesignScreen> {
   String _selectedFabric = 'Silk';
   bool _generating = false;
   bool _hasResult = false;
+  // The design the customer picked from the results, if any.
+  int? _selectedDesign;
 
   final _categories = [
     'Bridal', 'Shalwar Kameez', 'Formal', 'Casual', 'Abaya', 'Lehenga',
@@ -48,6 +50,7 @@ class _AiDesignScreenState extends State<AiDesignScreen> {
     setState(() {
       _generating = true;
       _hasResult = false;
+      _selectedDesign = null;
     });
     await Future.delayed(const Duration(seconds: 2));
     if (mounted) {
@@ -416,6 +419,8 @@ class _AiDesignScreenState extends State<AiDesignScreen> {
               category: _selectedCategory,
               color: _selectedColor,
               fabric: _selectedFabric,
+              selected: _selectedDesign == i,
+              onSelect: () => setState(() => _selectedDesign = i),
             ),
           ),
         ),
@@ -424,11 +429,17 @@ class _AiDesignScreenState extends State<AiDesignScreen> {
           padding: const EdgeInsets.all(14),
           borderColor: AppColors.primary.withValues(alpha: 0.4),
           onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Design sent to tailor!',
-                  style: GoogleFonts.poppins()),
-              backgroundColor: AppColors.success,
-            ),
+            _selectedDesign == null
+                ? SnackBar(
+                    content: Text('Select a design first',
+                        style: GoogleFonts.poppins()),
+                    backgroundColor: AppColors.warning,
+                  )
+                : SnackBar(
+                    content: Text('Design sent to tailor!',
+                        style: GoogleFonts.poppins()),
+                    backgroundColor: AppColors.success,
+                  ),
           ),
           child: Row(
             children: [
@@ -577,11 +588,15 @@ class _SelectChip extends StatelessWidget {
 class _DesignCard extends StatelessWidget {
   final int index;
   final String category, color, fabric;
+  final bool selected;
+  final VoidCallback onSelect;
   const _DesignCard(
       {required this.index,
       required this.category,
       required this.color,
-      required this.fabric});
+      required this.fabric,
+      required this.selected,
+      required this.onSelect});
 
   @override
   Widget build(BuildContext context) {
@@ -605,7 +620,10 @@ class _DesignCard extends StatelessWidget {
           ],
         ),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: g[0].withValues(alpha: 0.4)),
+        border: Border.all(
+          color: selected ? g[0] : g[0].withValues(alpha: 0.4),
+          width: selected ? 2 : 1,
+        ),
       ),
       child: Column(
         children: [
@@ -652,13 +670,7 @@ class _DesignCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: GestureDetector(
-                        onTap: () => ScaffoldMessenger.of(context)
-                            .showSnackBar(SnackBar(
-                          content: Text('Design selected!',
-                              style: GoogleFonts.poppins()),
-                          backgroundColor: AppColors.success,
-                          duration: const Duration(seconds: 1),
-                        )),
+                        onTap: onSelect,
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 5),
                           decoration: BoxDecoration(
@@ -667,7 +679,7 @@ class _DesignCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Center(
-                            child: Text('Select',
+                            child: Text(selected ? 'Selected ✓' : 'Select',
                                 style: GoogleFonts.poppins(
                                     color: Colors.white,
                                     fontSize: 10,
@@ -677,15 +689,18 @@ class _DesignCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 6),
-                    Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: AppColors.card,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.divider),
+                    GestureDetector(
+                      onTap: () => showComingSoon(context, 'Saving designs to your wishlist'),
+                      child: Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: AppColors.card,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColors.divider),
+                        ),
+                        child: const Icon(Icons.favorite_border_rounded,
+                            color: AppColors.textMuted, size: 12),
                       ),
-                      child: Icon(Icons.favorite_border_rounded,
-                          color: AppColors.textMuted, size: 12),
                     ),
                   ],
                 ),

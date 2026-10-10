@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/validators.dart';
 import '../../../core/widgets/shared_widgets.dart';
 
 class TailorPaymentScreen extends StatefulWidget {
@@ -572,6 +573,7 @@ class _AddPayoutSheetState extends State<_AddPayoutSheet> {
   final _nameCtrl     = TextEditingController();
   final _bankCtrl     = TextEditingController();
   final _ibanCtrl     = TextEditingController();
+  String? _error;
 
   static const _types = <_SupportItem>[
     _SupportItem('JazzCash',     Icons.account_balance_wallet_rounded, AppColors.warning),
@@ -640,7 +642,10 @@ class _AddPayoutSheetState extends State<_AddPayoutSheet> {
             Row(
               children: _types.map((t) => Expanded(
                 child: GestureDetector(
-                  onTap: () => setState(() => _type = t.name),
+                  onTap: () => setState(() {
+                    _type = t.name;
+                    _error = null;
+                  }),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 180),
                     margin: const EdgeInsets.only(right: 8),
@@ -708,11 +713,26 @@ class _AddPayoutSheetState extends State<_AddPayoutSheet> {
               icon: Icons.person_rounded,
               ctrl: _nameCtrl,
             ),
+            if (_error != null) ...[
+              const SizedBox(height: 12),
+              Text(_error!, style: GoogleFonts.poppins(color: AppColors.error, fontSize: 12)),
+            ],
             const SizedBox(height: 22),
             GradientButton(
               text: 'Add Account',
               colors: const [AppColors.teal, AppColors.tealLight],
               onTap: () {
+                final problem = Validators.payoutAccountProblem(
+                  isBank: isBank,
+                  number: _numCtrl.text,
+                  holderName: _nameCtrl.text,
+                  bankName: _bankCtrl.text,
+                  iban: _ibanCtrl.text,
+                );
+                if (problem != null) {
+                  setState(() => _error = problem);
+                  return;
+                }
                 final t = _types.firstWhere((x) => x.name == _type);
                 final label = isBank
                     ? '${_bankCtrl.text.isNotEmpty ? _bankCtrl.text : "Bank"} — ${_numCtrl.text.isNotEmpty ? _numCtrl.text : "—"}'

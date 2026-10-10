@@ -5,6 +5,8 @@ import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/models/app_models.dart';
 import '../../../core/data/mock_data.dart';
 import '../../../core/services/auth_service.dart';
+import '../../../core/utils/app_refresh.dart';
+import '../../../core/utils/validators.dart';
 import '../services/customer_service.dart';
 import 'payment_screen.dart';
 
@@ -33,11 +35,14 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
   // Step 3 – summary
   final _couponCtrl = TextEditingController();
   bool _couponApplied = false;
-  double _discount = 0;
+  // Kept as a share of the price, so the discount follows the garment when the
+  // customer goes back and picks another one after applying the coupon.
+  double _discountRate = 0;
 
   bool _loading = false;
   String? _errorMsg;
 
+  double get _discount => (_selectedGarment?.price ?? 0) * _discountRate;
   double get _total => (_selectedGarment?.price ?? 0) - _discount;
 
   @override
@@ -61,8 +66,13 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
       }
       setState(() => _currentStep = 2);
     } else if (_currentStep == 2) {
-      if (_chestCtrl.text.isEmpty || _waistCtrl.text.isEmpty || _hipCtrl.text.isEmpty || _lengthCtrl.text.isEmpty || _shoulderCtrl.text.isEmpty) {
+      final fields = [_chestCtrl, _waistCtrl, _hipCtrl, _lengthCtrl, _shoulderCtrl];
+      if (fields.any((c) => c.text.trim().isEmpty)) {
         setState(() => _errorMsg = 'Please fill in all measurements');
+        return;
+      }
+      if (fields.any((c) => Validators.positiveNumber(c.text) == null)) {
+        setState(() => _errorMsg = 'Enter each measurement as a number of inches, e.g. 36');
         return;
       }
       setState(() => _currentStep = 3);
@@ -72,7 +82,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
   void _applyCoupon() {
     final code = _couponCtrl.text.trim().toUpperCase();
     if (code == 'EID20') {
-      setState(() { _couponApplied = true; _discount = (_selectedGarment!.price) * 0.2; });
+      setState(() { _couponApplied = true; _discountRate = 0.2; });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('20% discount applied!', style: GoogleFonts.poppins(fontSize: 12)), backgroundColor: AppColors.success),
       );
@@ -92,13 +102,16 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
       tailorId: widget.tailor.id,
       garmentType: _selectedGarment!.garment,
       amount: _total,
-      measurements: 'C:${_chestCtrl.text} W:${_waistCtrl.text} H:${_hipCtrl.text} L:${_lengthCtrl.text} S:${_shoulderCtrl.text}',
+      measurements: 'C:${_chestCtrl.text.trim()} W:${_waistCtrl.text.trim()} H:${_hipCtrl.text.trim()} '
+          'L:${_lengthCtrl.text.trim()} S:${_shoulderCtrl.text.trim()}',
       hasDesignRef: _hasDesignRef,
       notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
     );
     if (!mounted) return;
     setState(() => _loading = false);
     if (order != null) {
+      // The new order shows on the Orders tab and in the chat list.
+      AppRefresh.ordersChanged();
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => PaymentScreen(amount: _total, orderId: order.id, tailorId: widget.tailor.id)),
@@ -329,7 +342,10 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
   }
 
   Widget _measureField(TextEditingController ctrl, String label, IconData icon) {
-    return AppTextField(ctrl: ctrl, hint: label, label: label, icon: icon, keyboard: TextInputType.number);
+    return AppTextField(
+      ctrl: ctrl, hint: label, label: label, icon: icon,
+      keyboard: const TextInputType.numberWithOptions(decimal: true),
+    );
   }
 
   Widget _buildStep3() {
