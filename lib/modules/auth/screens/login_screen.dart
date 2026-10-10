@@ -4,6 +4,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/models/app_models.dart';
+import '../../../core/utils/validators.dart';
 import '../../../navigation/app_router.dart';
 import 'register_screen.dart';
 import 'forgot_password_screen.dart';
@@ -61,10 +62,24 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       setState(() => _errorMsg = 'Please enter email and password');
       return;
     }
+    if (!Validators.isEmail(email)) {
+      setState(() => _errorMsg = 'Please enter a valid email address');
+      return;
+    }
     setState(() { _loading = true; _errorMsg = null; });
     final result = await AuthService().login(email, pass);
     if (!mounted) return;
     setState(() => _loading = false);
+    if (result.success && result.user != null && result.user!.role != _selectedRole) {
+      // The chips choose the app to open, so they must match the account.
+      await AuthService().logout();
+      final role = result.user!.role.name;
+      final label = role[0].toUpperCase() + role.substring(1);
+      if (mounted) {
+        setState(() => _errorMsg = 'This is a $role account. Select $label above to sign in.');
+      }
+      return;
+    }
     if (result.success && result.user != null) {
       Widget destination;
       switch (result.user!.role) {

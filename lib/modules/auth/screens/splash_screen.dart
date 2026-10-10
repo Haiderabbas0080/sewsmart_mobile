@@ -52,10 +52,14 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     _startAnimation();
   }
 
+  // The screen can close during a pause (for example on a hot restart), so
+  // each step checks it is still mounted before using the controllers.
   Future<void> _startAnimation() async {
     await Future.delayed(const Duration(milliseconds: 300));
+    if (!mounted) return;
     _logoController.forward();
     await Future.delayed(const Duration(milliseconds: 600));
+    if (!mounted) return;
     _textController.forward();
     await Future.delayed(const Duration(milliseconds: 1600));
     if (mounted) {

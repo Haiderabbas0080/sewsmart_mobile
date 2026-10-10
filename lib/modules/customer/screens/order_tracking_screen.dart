@@ -4,6 +4,8 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/models/app_models.dart';
 import '../../../core/data/mock_data.dart';
+import '../../../core/utils/app_refresh.dart';
+import '../../tailor/screens/tailor_chat_screen.dart';
 import '../services/customer_service.dart';
 
 class OrderTrackingScreen extends StatefulWidget {
@@ -54,6 +56,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
     );
     if (!mounted) return;
     setState(() { _savingSchedule = false; _scheduleSaved = success; });
+    if (success) AppRefresh.ordersChanged();
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Delivery scheduled!', style: GoogleFonts.poppins(fontSize: 12)), backgroundColor: AppColors.success),
@@ -268,7 +271,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: _futureDates.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 8),
+            separatorBuilder: (_, _) => const SizedBox(width: 8),
             itemBuilder: (context, i) {
               final date = _futureDates[i];
               final selected = _selectedDate?.day == date.day;
@@ -375,7 +378,15 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
           children: [
             Expanded(
               child: GestureDetector(
-                onTap: () {},
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => TailorChatScreen(
+                      contactName: widget.order.tailorName,
+                      orderId: widget.order.id,
+                    ),
+                  ),
+                ),
                 child: Container(
                   height: 48,
                   decoration: BoxDecoration(
@@ -397,7 +408,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: GestureDetector(
-                onTap: () {},
+                onTap: () => showComingSoon(context, 'Video calls with your tailor'),
                 child: Container(
                   height: 48,
                   decoration: BoxDecoration(

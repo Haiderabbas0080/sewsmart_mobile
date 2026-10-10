@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/validators.dart';
 import '../../../core/widgets/shared_widgets.dart';
 import '../services/tailor_service.dart';
 
@@ -19,6 +20,9 @@ class _AddRiderScreenState extends State<AddRiderScreen> {
 
   bool _submitting = false;
   bool _submitted = false;
+  // The admin verifies a rider from both sides of the ID card.
+  bool _idFrontUploaded = false;
+  bool _idBackUploaded = false;
 
   @override
   void dispose() {
@@ -29,11 +33,21 @@ class _AddRiderScreenState extends State<AddRiderScreen> {
     super.dispose();
   }
 
+  // What to fix before the rider can be sent for verification, or null.
+  String? _problem() {
+    if (_nameCtrl.text.trim().isEmpty) return "Enter the rider's full name";
+    if (!Validators.isMobile(_phoneCtrl.text)) return 'Enter a valid mobile number, e.g. 0300-1234567';
+    if (!Validators.isCnic(_cnicCtrl.text)) return 'Enter the 13-digit CNIC number';
+    if (!_idFrontUploaded || !_idBackUploaded) return 'Upload both sides of the ID card';
+    return null;
+  }
+
   Future<void> _handleSubmit() async {
-    if (_nameCtrl.text.isEmpty || _phoneCtrl.text.isEmpty) {
+    final problem = _problem();
+    if (problem != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Please fill all required fields', style: GoogleFonts.poppins()),
+          content: Text(problem, style: GoogleFonts.poppins()),
           backgroundColor: AppColors.error,
         ),
       );
@@ -205,9 +219,21 @@ class _AddRiderScreenState extends State<AddRiderScreen> {
           const SizedBox(height: 14),
           Row(
             children: [
-              Expanded(child: _UploadBox(label: 'ID Front')),
+              Expanded(
+                child: _UploadBox(
+                  label: 'ID Front',
+                  uploaded: _idFrontUploaded,
+                  onTap: () => setState(() => _idFrontUploaded = !_idFrontUploaded),
+                ),
+              ),
               const SizedBox(width: 14),
-              Expanded(child: _UploadBox(label: 'ID Back')),
+              Expanded(
+                child: _UploadBox(
+                  label: 'ID Back',
+                  uploaded: _idBackUploaded,
+                  onTap: () => setState(() => _idBackUploaded = !_idBackUploaded),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 30),
@@ -223,53 +249,49 @@ class _AddRiderScreenState extends State<AddRiderScreen> {
   }
 }
 
-class _UploadBox extends StatefulWidget {
+// The form keeps the uploaded state, so it can check both sides before submitting.
+class _UploadBox extends StatelessWidget {
   final String label;
-  const _UploadBox({required this.label});
-
-  @override
-  State<_UploadBox> createState() => _UploadBoxState();
-}
-
-class _UploadBoxState extends State<_UploadBox> {
-  bool _uploaded = false;
+  final bool uploaded;
+  final VoidCallback onTap;
+  const _UploadBox({required this.label, required this.uploaded, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => setState(() => _uploaded = !_uploaded),
+      onTap: onTap,
       child: Container(
         height: 110,
         decoration: BoxDecoration(
-          color: _uploaded
+          color: uploaded
               ? AppColors.teal.withValues(alpha: 0.1)
               : AppColors.card,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: _uploaded
+            color: uploaded
                 ? AppColors.tealLight.withValues(alpha: 0.5)
                 : AppColors.divider,
-            width: _uploaded ? 1.5 : 1,
+            width: uploaded ? 1.5 : 1,
           ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              _uploaded ? Icons.check_circle_rounded : Icons.upload_file_rounded,
-              color: _uploaded ? AppColors.tealLight : AppColors.textMuted,
+              uploaded ? Icons.check_circle_rounded : Icons.upload_file_rounded,
+              color: uploaded ? AppColors.tealLight : AppColors.textMuted,
               size: 28,
             ),
             const SizedBox(height: 8),
             Text(
-              widget.label,
+              label,
               style: GoogleFonts.poppins(
-                color: _uploaded ? AppColors.tealLight : AppColors.textMuted,
+                color: uploaded ? AppColors.tealLight : AppColors.textMuted,
                 fontSize: 12,
-                fontWeight: _uploaded ? FontWeight.w600 : FontWeight.normal,
+                fontWeight: uploaded ? FontWeight.w600 : FontWeight.normal,
               ),
             ),
-            if (_uploaded)
+            if (uploaded)
               Text(
                 'Uploaded',
                 style: GoogleFonts.poppins(color: AppColors.success, fontSize: 10),

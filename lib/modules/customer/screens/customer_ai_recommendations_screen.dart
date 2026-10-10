@@ -1,4 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
@@ -23,9 +25,11 @@ class _CustomerAiRecommendationsScreenState
   final _searchCtrl = TextEditingController();
   String _searchQuery = '';
   List<_DesignCard> _liveResults = [];
+  Timer? _recordTimer;
 
   @override
   void dispose() {
+    _recordTimer?.cancel();
     _searchCtrl.dispose();
     super.dispose();
   }
@@ -82,14 +86,20 @@ class _CustomerAiRecommendationsScreenState
   }
 
   // ── Search handler ───────────────────────────────────────────────────────────
-  void _onSearch(String q) {
+  // Results update on every letter. The search is saved to the history (3+
+  // letters) when the customer submits or taps a trend, or once typing stops,
+  // so "vel", "velv" and "velve" are not saved as separate searches.
+  void _onSearch(String q, {bool save = false}) {
     final trimmed = q.trim();
     final results = trimmed.isEmpty ? <_DesignCard>[] : _similarFor(trimmed);
 
-    // Record meaningful searches (3+ chars) into history
+    _recordTimer?.cancel();
     if (trimmed.length >= 3) {
-      final userName = _user?.name ?? 'Customer';
-      MockData.recordSearch(trimmed, customerName: userName);
+      if (save) {
+        _saveSearch(trimmed);
+      } else {
+        _recordTimer = Timer(const Duration(milliseconds: 1200), () => _saveSearch(trimmed));
+      }
     }
     setState(() {
       _searchQuery = trimmed;
@@ -97,9 +107,16 @@ class _CustomerAiRecommendationsScreenState
     });
   }
 
+  void _saveSearch(String query) {
+    final userName = _user?.name ?? 'Customer';
+    MockData.recordSearch(query, customerName: userName);
+    // The history sections read the saved searches, so show the new one.
+    if (mounted) setState(() {});
+  }
+
   void _applyTrending(String term) {
     _searchCtrl.text = term;
-    _onSearch(term);
+    _onSearch(term, save: true);
   }
 
   void _clearSearch() {
@@ -353,7 +370,7 @@ class _CustomerAiRecommendationsScreenState
               child: TextField(
                 controller: _searchCtrl,
                 onChanged: _onSearch,
-                onSubmitted: _onSearch,
+                onSubmitted: (q) => _onSearch(q, save: true),
                 style: GoogleFonts.poppins(
                     color: AppColors.textPrimary, fontSize: 13),
                 decoration: InputDecoration(

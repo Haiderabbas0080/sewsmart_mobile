@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/validators.dart';
 import '../../../core/widgets/shared_widgets.dart';
 
 class PaymentMethodsScreen extends StatefulWidget {
@@ -106,6 +107,15 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
       isScrollControlled: true,
       builder: (ctx) => _AddMethodSheet(
         onAdd: (method) {
+          if (_methods.any((m) => m.type == method.type && m.detail == method.detail)) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('${method.type} is already saved', style: GoogleFonts.poppins()),
+                backgroundColor: AppColors.warning,
+              ),
+            );
+            return;
+          }
           setState(() => _methods.add(method));
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -442,6 +452,35 @@ class _AddMethodSheetState extends State<_AddMethodSheet> {
   String _selectedType = 'JazzCash';
   final _numberCtrl = TextEditingController();
   final _nameCtrl = TextEditingController();
+  String? _error;
+
+  // Returns what to fix before the method can be added, or null.
+  String? _check() {
+    if (!_needsDetail) return null;
+    final number = _numberCtrl.text.trim();
+    switch (_selectedType) {
+      case 'JazzCash':
+      case 'EasyPaisa':
+        if (!Validators.isMobile(number)) return 'Enter the wallet mobile number, e.g. 0300-1234567';
+      case 'Bank Transfer':
+        if (Validators.digitsOnly(number).length < 8) return 'Enter the full account number or IBAN';
+      case 'Debit / Credit Card':
+        if (Validators.digitsOnly(number).length != 16) return 'Enter the 16-digit card number';
+    }
+    if (_nameCtrl.text.trim().isEmpty) return 'Enter the account holder name';
+    return null;
+  }
+
+  // Only the last four digits of a card are kept on screen.
+  String get _detail {
+    if (_selectedType == 'Cash on Delivery') return 'Pay when received';
+    final number = _numberCtrl.text.trim();
+    if (_selectedType == 'Debit / Credit Card') {
+      final digits = Validators.digitsOnly(number);
+      return '•••• ${digits.substring(digits.length - 4)}';
+    }
+    return number;
+  }
 
   static const _types = [
     _AcceptedMethod('JazzCash', Icons.account_balance_wallet_rounded,
@@ -519,8 +558,10 @@ class _AddMethodSheetState extends State<_AddMethodSheet> {
               runSpacing: 8,
               children: _types
                   .map((t) => GestureDetector(
-                        onTap: () =>
-                            setState(() => _selectedType = t.name),
+                        onTap: () => setState(() {
+                          _selectedType = t.name;
+                          _error = null;
+                        }),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
                           padding: const EdgeInsets.symmetric(
@@ -571,20 +612,25 @@ class _AddMethodSheetState extends State<_AddMethodSheet> {
                 ctrl: _nameCtrl,
               ),
             ],
+            if (_error != null) ...[
+              const SizedBox(height: 12),
+              Text(_error!, style: GoogleFonts.poppins(color: AppColors.error, fontSize: 12)),
+            ],
             const SizedBox(height: 22),
             GradientButton(
               text: 'Add Method',
               onTap: () {
+                final problem = _check();
+                if (problem != null) {
+                  setState(() => _error = problem);
+                  return;
+                }
                 final type = _types.firstWhere((t) => t.name == _selectedType);
                 Navigator.pop(context);
                 widget.onAdd(
                   _PayMethod(
                     type: _selectedType,
-                    detail: _selectedType == 'Cash on Delivery'
-                        ? 'Pay when received'
-                        : (_numberCtrl.text.isNotEmpty
-                            ? _numberCtrl.text
-                            : '—'),
+                    detail: _detail,
                     icon: type.icon,
                     color: type.color,
                     isDefault: false,

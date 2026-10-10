@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/models/app_models.dart';
+import '../../../core/utils/app_refresh.dart';
 import '../services/rider_service.dart';
 
 class DeliveryDetailScreen extends StatefulWidget {
@@ -71,8 +72,14 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
       ),
     );
     if (ok == true && mounted) {
+      final code = ctrl.text.trim();
+      if (!RegExp(r'^\d+$').hasMatch(code)) {
+        _showSnackBar('Enter the OTP the tailor gave you', AppColors.warning);
+        return;
+      }
       setState(() => _verifyingPickup = true);
-      await RiderService().verifyPickup(widget.order.id, ctrl.text);
+      await RiderService().verifyPickup(widget.order.id, code);
+      AppRefresh.ordersChanged();
       if (mounted) {
         setState(() {
           _verifyingPickup = false;
@@ -83,7 +90,15 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
     }
   }
 
+  // Delivery steps happen in order: pickup, then proof, then the customer's slip.
+  bool _checkPickupDone() {
+    if (_pickupVerified) return true;
+    _showSnackBar('Verify the pickup from the tailor first', AppColors.warning);
+    return false;
+  }
+
   Future<void> _handleUploadProof() async {
+    if (!_checkPickupDone()) return;
     setState(() => _uploadingProof = true);
     await RiderService().uploadDeliveryProof(widget.order.id);
     if (mounted) {
@@ -96,6 +111,11 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
   }
 
   Future<void> _showSlipDialog() async {
+    if (!_checkPickupDone()) return;
+    if (!_deliveryProofUploaded) {
+      _showSnackBar('Upload the delivery proof first', AppColors.warning);
+      return;
+    }
     final ctrl = TextEditingController();
     final ok = await showDialog<bool>(
       context: context,
@@ -142,8 +162,14 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
       ),
     );
     if (ok == true && mounted) {
+      final code = ctrl.text.trim();
+      if (!RegExp(r'^\d+$').hasMatch(code)) {
+        _showSnackBar("Enter the code from the customer's slip", AppColors.warning);
+        return;
+      }
       setState(() => _verifyingSlip = true);
-      await RiderService().verifyCustomerSlip(widget.order.id, ctrl.text);
+      await RiderService().verifyCustomerSlip(widget.order.id, code);
+      AppRefresh.ordersChanged();
       if (mounted) {
         setState(() {
           _verifyingSlip = false;
@@ -201,8 +227,13 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
       ),
     );
     if (ok == true && mounted) {
+      final reason = ctrl.text.trim();
+      if (reason.length < 5) {
+        _showSnackBar('Describe the issue so support can help', AppColors.warning);
+        return;
+      }
       setState(() => _reportingIssue = true);
-      await RiderService().reportIssue(widget.order.id, ctrl.text);
+      await RiderService().reportIssue(widget.order.id, reason);
       if (mounted) {
         setState(() => _reportingIssue = false);
         _showSnackBar('Issue reported to support team', AppColors.warning);
@@ -491,83 +522,93 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
           ),
           if (!_slipVerified) ...[
             const SizedBox(height: 14),
-            Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: (_uploadingProof || _deliveryProofUploaded) ? null : _handleUploadProof,
-                    child: Container(
-                      height: 40,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: _deliveryProofUploaded
-                              ? AppColors.success.withValues(alpha: 0.5)
-                              : AppColors.success.withValues(alpha: 0.4),
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                        color: _deliveryProofUploaded
-                            ? AppColors.success.withValues(alpha: 0.1)
-                            : Colors.transparent,
-                      ),
-                      child: Center(
-                        child: _uploadingProof
-                            ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(color: AppColors.success, strokeWidth: 2))
-                            : Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    _deliveryProofUploaded ? Icons.check_rounded : Icons.camera_alt_rounded,
-                                    color: AppColors.success,
-                                    size: 14,
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    _deliveryProofUploaded ? 'Proof Sent' : 'Upload Proof',
-                                    style: GoogleFonts.poppins(
-                                      color: AppColors.success,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: _verifyingSlip ? null : _showSlipDialog,
-                    child: Container(
-                      height: 40,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(colors: [AppColors.success, Color(0xFF4ADE80)]),
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.success.withValues(alpha: 0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
+            if (!_pickupVerified) ...[
+              Text(
+                'Verify the pickup first to start the delivery.',
+                style: GoogleFonts.poppins(color: AppColors.textMuted, fontSize: 11),
+              ),
+              const SizedBox(height: 8),
+            ],
+            Opacity(
+              opacity: _pickupVerified ? 1 : 0.45,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: (_uploadingProof || _deliveryProofUploaded) ? null : _handleUploadProof,
+                      child: Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: _deliveryProofUploaded
+                                ? AppColors.success.withValues(alpha: 0.5)
+                                : AppColors.success.withValues(alpha: 0.4),
                           ),
-                        ],
-                      ),
-                      child: Center(
-                        child: _verifyingSlip
-                            ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                            : Text(
-                                'Verify Slip',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 12,
+                          borderRadius: BorderRadius.circular(10),
+                          color: _deliveryProofUploaded
+                              ? AppColors.success.withValues(alpha: 0.1)
+                              : Colors.transparent,
+                        ),
+                        child: Center(
+                          child: _uploadingProof
+                              ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(color: AppColors.success, strokeWidth: 2))
+                              : Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      _deliveryProofUploaded ? Icons.check_rounded : Icons.camera_alt_rounded,
+                                      color: AppColors.success,
+                                      size: 14,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      _deliveryProofUploaded ? 'Proof Sent' : 'Upload Proof',
+                                      style: GoogleFonts.poppins(
+                                        color: AppColors.success,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: _verifyingSlip ? null : _showSlipDialog,
+                      child: Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(colors: [AppColors.success, Color(0xFF4ADE80)]),
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.success.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: _verifyingSlip
+                              ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                              : Text(
+                                  'Verify Slip',
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ],

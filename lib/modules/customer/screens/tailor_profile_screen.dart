@@ -4,6 +4,9 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/models/app_models.dart';
 import '../../../core/data/mock_data.dart';
+import '../../../core/services/auth_service.dart';
+import '../../tailor/screens/tailor_chat_screen.dart';
+import '../services/customer_service.dart';
 import 'place_order_screen.dart';
 
 class TailorProfileScreen extends StatefulWidget {
@@ -18,7 +21,35 @@ class _TailorProfileScreenState extends State<TailorProfileScreen> with SingleTi
   late TabController _tabController;
 
   final List<GarmentPricing> _pricing = MockData.garments;
-  final List<ReviewModel> _reviews = MockData.reviews;
+  // Only this tailor's reviews.
+  late final List<ReviewModel> _reviews =
+      MockData.reviews.where((r) => r.tailorId == widget.tailor.id).toList();
+
+  // Chats belong to an order, so open the chat of the customer's latest order
+  // with this tailor. Without an order there is nobody to chat with yet.
+  Future<void> _openChat() async {
+    final user = AuthService().currentUser;
+    if (user == null) return;
+    final orders = await CustomerService().getMyOrders(user.id);
+    if (!mounted) return;
+    final withTailor = orders.where((o) => o.tailorId == widget.tailor.id).toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    if (withTailor.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Place an order to chat with ${widget.tailor.name}', style: GoogleFonts.poppins()),
+          backgroundColor: AppColors.info,
+        ),
+      );
+      return;
+    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TailorChatScreen(contactName: widget.tailor.name, orderId: withTailor.first.id),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -89,11 +120,11 @@ class _TailorProfileScreenState extends State<TailorProfileScreen> with SingleTi
                   const Spacer(),
                   IconButton(
                     icon: const Icon(Icons.share_outlined, color: AppColors.textPrimary, size: 20),
-                    onPressed: () {},
+                    onPressed: () => showComingSoon(context, 'Sharing tailor profiles'),
                   ),
                   IconButton(
                     icon: const Icon(Icons.bookmark_border_rounded, color: AppColors.textPrimary, size: 20),
-                    onPressed: () {},
+                    onPressed: () => showComingSoon(context, 'Saving tailors'),
                   ),
                 ],
               ),
@@ -255,7 +286,7 @@ class _TailorProfileScreenState extends State<TailorProfileScreen> with SingleTi
     return ListView.separated(
       padding: const EdgeInsets.all(20),
       itemCount: _pricing.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      separatorBuilder: (_, _) => const SizedBox(height: 10),
       itemBuilder: (context, i) {
         final p = _pricing[i];
         return GlassCard(
@@ -302,7 +333,7 @@ class _TailorProfileScreenState extends State<TailorProfileScreen> with SingleTi
     return ListView.separated(
       padding: const EdgeInsets.all(20),
       itemCount: _reviews.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (context, i) {
         final r = _reviews[i];
         return GlassCard(
@@ -319,7 +350,7 @@ class _TailorProfileScreenState extends State<TailorProfileScreen> with SingleTi
                       shape: BoxShape.circle,
                       color: AppColors.primary.withValues(alpha: 0.15),
                     ),
-                    child: Center(child: Text(r.customerName[0], style: GoogleFonts.poppins(color: AppColors.primaryLight, fontWeight: FontWeight.bold))),
+                    child: Center(child: Text(initialsOf(r.customerName, max: 1), style: GoogleFonts.poppins(color: AppColors.primaryLight, fontWeight: FontWeight.bold))),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -358,7 +389,7 @@ class _TailorProfileScreenState extends State<TailorProfileScreen> with SingleTi
           Expanded(
             flex: 1,
             child: GestureDetector(
-              onTap: () {},
+              onTap: _openChat,
               child: Container(
                 height: 48,
                 decoration: BoxDecoration(

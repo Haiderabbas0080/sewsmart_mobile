@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/models/app_models.dart';
-import '../../../core/data/mock_data.dart';
 
 class TailorNotificationsScreen extends StatefulWidget {
   const TailorNotificationsScreen({super.key});
@@ -72,7 +71,8 @@ class _TailorNotificationsScreenState
   @override
   void initState() {
     super.initState();
-    _notifications = [..._tailorNotifications, ...MockData.notifications];
+    // MockData.notifications are the customer's, so they are not shown here.
+    _notifications = List.from(_tailorNotifications);
     Future.delayed(const Duration(milliseconds: 400), () {
       if (mounted) setState(() => _loading = false);
     });

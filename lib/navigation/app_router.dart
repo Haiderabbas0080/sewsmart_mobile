@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/theme/app_theme.dart';
 import '../core/data/mock_data.dart';
+import '../core/models/user_model.dart';
+import '../core/utils/app_refresh.dart';
 import '../core/widgets/shared_widgets.dart';
 import '../modules/customer/screens/customer_home_screen.dart';
 import '../modules/customer/screens/browse_tailors_screen.dart';
@@ -18,14 +20,16 @@ import '../modules/rider/screens/rider_profile_screen.dart';
 
 // ─── Customer Navigation ───────────────────────────────────────────────────────
 class MainNavigationCustomer extends StatefulWidget {
-  const MainNavigationCustomer({super.key});
+  // The tab to open first, e.g. 2 for Orders after a payment.
+  final int initialIndex;
+  const MainNavigationCustomer({super.key, this.initialIndex = 0});
 
   @override
   State<MainNavigationCustomer> createState() => _MainNavigationCustomerState();
 }
 
 class _MainNavigationCustomerState extends State<MainNavigationCustomer> {
-  int _currentIndex = 0;
+  late int _currentIndex = widget.initialIndex;
 
   final List<Widget> _screens = const [
     CustomerHomeScreen(),
@@ -77,8 +81,14 @@ class _MainNavigationCustomerState extends State<MainNavigationCustomer> {
 class _CustomerChatListScreen extends StatelessWidget {
   const _CustomerChatListScreen();
 
+  // Rebuild when an order is placed, so its conversation appears in the list.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ValueListenableBuilder<int>(
+        valueListenable: AppRefresh.orders,
+        builder: (context, _, _) => _buildList(context),
+      );
+
+  Widget _buildList(BuildContext context) {
     // Show conversations for customer C001 (current mock user)
     final orders = MockData.orders.where((o) => o.customerId == 'C001').toList();
     return Scaffold(
@@ -113,7 +123,7 @@ class _CustomerChatListScreen extends StatelessWidget {
                               ctx,
                               MaterialPageRoute(
                                 builder: (_) => TailorChatScreen(
-                                  customerName: o.tailorName,
+                                  contactName: o.tailorName,
                                   orderId: o.id,
                                 ),
                               ),
@@ -130,7 +140,7 @@ class _CustomerChatListScreen extends StatelessWidget {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      o.tailorName[0],
+                                      initialsOf(o.tailorName, max: 1),
                                       style: GoogleFonts.poppins(
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
@@ -229,8 +239,14 @@ class _MainNavigationTailorState extends State<MainNavigationTailor> {
 class _TailorChatListScreen extends StatelessWidget {
   const _TailorChatListScreen();
 
+  // Rebuild when a customer places an order, so the new conversation appears.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ValueListenableBuilder<int>(
+        valueListenable: AppRefresh.orders,
+        builder: (context, _, _) => _buildList(context),
+      );
+
+  Widget _buildList(BuildContext context) {
     // Show conversations for tailor T001
     final orders = MockData.orders.where((o) => o.tailorId == 'T001').toList();
     return Scaffold(
@@ -267,7 +283,7 @@ class _TailorChatListScreen extends StatelessWidget {
                               ctx,
                               MaterialPageRoute(
                                 builder: (_) => TailorChatScreen(
-                                  customerName: o.customerName,
+                                  contactName: o.customerName,
                                   orderId: o.id,
                                 ),
                               ),
@@ -284,7 +300,7 @@ class _TailorChatListScreen extends StatelessWidget {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      o.customerName[0],
+                                      initialsOf(o.customerName, max: 1),
                                       style: GoogleFonts.poppins(
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
@@ -339,7 +355,7 @@ class _MainNavigationRiderState extends State<MainNavigationRider> {
 
   final List<Widget> _screens = const [
     RiderDashboardScreen(),
-    RiderDashboardScreen(),   // Deliveries tab — same dashboard shows assigned deliveries
+    RiderDashboardScreen(deliveriesOnly: true),
     RiderEarningsScreen(),
     RiderProfileScreen(),
   ];

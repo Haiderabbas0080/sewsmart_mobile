@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../core/services/payout_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
 
@@ -45,6 +46,8 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
 
   // ── Gift overlay ──────────────────────────────────────────────────────────
   final List<_GiftPop> _pops = [];
+  // How many of each gift arrived during the stream, by gift name.
+  final Map<String, int> _giftCounts = {};
 
   // ── Timers ────────────────────────────────────────────────────────────────
   Timer? _statsTmr, _chatTmr, _giftTmr;
@@ -137,7 +140,7 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
       _phase = _Phase.live;
       _viewers = 0; _peakView = 0; _likes = 0;
       _earnings = 0; _durSec = 0;
-      _msgs.clear(); _pops.clear();
+      _msgs.clear(); _pops.clear(); _giftCounts.clear();
     });
 
     int ci = 0, gi = 0;
@@ -187,6 +190,7 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
       final v = _kViewers[(gi + 3) % _kViewers.length];
       setState(() {
         _pops.add(_GiftPop(v, g));
+        _giftCounts[g.name] = (_giftCounts[g.name] ?? 0) + 1;
         _earnings += g.amount;
         if (_pops.length > 3) _pops.removeAt(0);
       });
@@ -209,7 +213,7 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
       _phase = _Phase.setup;
       _viewers = 0; _peakView = 0; _likes = 0;
       _earnings = 0; _durSec = 0; _muted = false;
-      _msgs.clear(); _pops.clear();
+      _msgs.clear(); _pops.clear(); _giftCounts.clear();
       _titleCtrl.clear();
     });
   }
@@ -217,11 +221,19 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
   // ─────────────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
-    switch (_phase) {
-      case _Phase.setup: return _buildSetup();
-      case _Phase.live:  return _buildLive();
-      case _Phase.ended: return _buildSummary();
-    }
+    // While live, the back button asks before ending the stream instead of
+    // closing the screen and dropping the viewers.
+    return PopScope(
+      canPop: _phase != _Phase.live,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _confirmEnd();
+      },
+      child: switch (_phase) {
+        _Phase.setup => _buildSetup(),
+        _Phase.live => _buildLive(),
+        _Phase.ended => _buildSummary(),
+      },
+    );
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1130,9 +1142,7 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: _kGifts.map((g) {
-                          final cnt =
-                              (_earnings / (g.amount * _kGifts.length))
-                                  .ceil();
+                          final cnt = _giftCounts[g.name] ?? 0;
                           return Column(children: [
                             Text(g.emoji,
                                 style: const TextStyle(fontSize: 26)),
@@ -1156,14 +1166,24 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
 
                 // ── Withdraw button ───────────────────────────────────────────
                 GestureDetector(
+                  // Payouts have a minimum, as the payout screen explains.
                   onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                          'Rs ${_earnings.toInt()} withdrawal initiated!',
-                          style: GoogleFonts.poppins()),
-                      backgroundColor: AppColors.success,
-                      duration: const Duration(seconds: 3),
-                    ),
+                    _earnings < PayoutService.minimumWithdrawal
+                        ? SnackBar(
+                            content: Text(
+                                'The minimum withdrawal is Rs ${PayoutService.minimumWithdrawal.toInt()}. '
+                                'These earnings stay in your balance.',
+                                style: GoogleFonts.poppins()),
+                            backgroundColor: AppColors.warning,
+                            duration: const Duration(seconds: 3),
+                          )
+                        : SnackBar(
+                            content: Text(
+                                'Rs ${_earnings.toInt()} withdrawal initiated!',
+                                style: GoogleFonts.poppins()),
+                            backgroundColor: AppColors.success,
+                            duration: const Duration(seconds: 3),
+                          ),
                   ),
                   child: Container(
                     width: double.infinity, height: 54,

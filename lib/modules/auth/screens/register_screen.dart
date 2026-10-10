@@ -4,6 +4,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/models/app_models.dart';
+import '../../../core/utils/validators.dart';
 import '../../../navigation/app_router.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -55,6 +56,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (name.isEmpty || email.isEmpty || phone.isEmpty || pass.isEmpty) {
       setState(() => _errorMsg = 'Please fill in all required fields');
+      return;
+    }
+    if (!Validators.isEmail(email)) {
+      setState(() => _errorMsg = 'Please enter a valid email address');
+      return;
+    }
+    if (!Validators.isMobile(phone)) {
+      setState(() => _errorMsg = 'Please enter a valid mobile number, e.g. 03001234567');
+      return;
+    }
+    final experience = _experienceCtrl.text.trim();
+    if (_role == UserRole.tailor && experience.isNotEmpty && int.tryParse(experience) == null) {
+      setState(() => _errorMsg = 'Years of experience must be a whole number, e.g. 5');
       return;
     }
     if (pass != confirm) {

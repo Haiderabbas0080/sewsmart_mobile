@@ -4,6 +4,9 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/models/app_models.dart';
 import '../../../core/services/auth_service.dart';
+import '../../../core/utils/app_refresh.dart';
+import '../../../core/utils/validators.dart';
+import '../../../navigation/app_router.dart';
 import '../services/customer_service.dart';
 
 class PaymentScreen extends StatefulWidget {
@@ -51,9 +54,57 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
     super.dispose();
   }
 
+  // Checks the boxes of the chosen method. Returns what to fix, or null.
+  String? _checkFields() {
+    switch (_selectedMethod) {
+      case PaymentMethod.jazzCash:
+      case PaymentMethod.easyPaisa:
+        if (!Validators.isMobile(_mobileCtrl.text)) {
+          return 'Enter your wallet mobile number, e.g. 0300-1234567';
+        }
+        if (!RegExp(r'^\d{4,6}$').hasMatch(_otpCtrl.text.trim())) {
+          return 'Enter the 4 to 6 digit PIN or OTP';
+        }
+        return null;
+      case PaymentMethod.bank:
+        if (_accountCtrl.text.trim().length < 4) {
+          return 'Enter the transaction reference from your bank transfer';
+        }
+        return null;
+      case PaymentMethod.card:
+        if (_cardNameCtrl.text.trim().isEmpty) return "Enter the cardholder's name";
+        if (Validators.digitsOnly(_cardNumCtrl.text).length != 16) {
+          return 'Enter the 16-digit card number';
+        }
+        if (!_isValidExpiry(_cardExpCtrl.text)) return 'Enter a valid expiry date as MM/YY';
+        if (!RegExp(r'^\d{3,4}$').hasMatch(_cardCvcCtrl.text.trim())) return 'Enter the CVC from the back of the card';
+        return null;
+    }
+  }
+
+  // MM/YY that has not passed. A card works until the end of its expiry month.
+  bool _isValidExpiry(String value) {
+    final match = RegExp(r'^(\d{2})\s*/\s*(\d{2})$').firstMatch(value.trim());
+    if (match == null) return false;
+    final month = int.parse(match.group(1)!);
+    final year = 2000 + int.parse(match.group(2)!);
+    if (month < 1 || month > 12) return false;
+    final now = DateTime.now();
+    return year > now.year || (year == now.year && month >= now.month);
+  }
+
   Future<void> _pay() async {
     final user = AuthService().currentUser;
     if (user == null) return;
+    final problem = _checkFields();
+    if (problem != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(problem, style: GoogleFonts.poppins()), backgroundColor: AppColors.error),
+      );
+      return;
+    }
+    // Clear an earlier "fix this field" message once the details are fine.
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
     setState(() { _loading = true; });
     final payment = await CustomerService().makePayment(
       orderId: widget.orderId,
@@ -64,7 +115,14 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
     );
     if (!mounted) return;
     setState(() { _loading = false; _success = payment != null; _paymentResult = payment; });
-    if (_success) _successCtrl.forward();
+    if (_success) {
+      AppRefresh.ordersChanged();
+      _successCtrl.forward();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Payment failed. Please try again.', style: GoogleFonts.poppins()), backgroundColor: AppColors.error),
+      );
+    }
   }
 
   @override
@@ -332,7 +390,11 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
             const SizedBox(height: 28),
             GradientButton(
               text: 'Back to Orders',
-              onTap: () => Navigator.of(context).popUntil((route) => route.isFirst),
+              // Open the Orders tab, where the paid order now shows.
+              onTap: () => Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const MainNavigationCustomer(initialIndex: 2)),
+                (route) => false,
+              ),
               colors: const [AppColors.success, Color(0xFF16A34A)],
             ),
             const SizedBox(height: 14),

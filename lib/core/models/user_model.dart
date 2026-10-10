@@ -45,5 +45,19 @@ class UserModel {
     'created_at': createdAt.toIso8601String(),
   };
 
-  String get initials => name.split(' ').map((e) => e[0]).take(2).join().toUpperCase();
+  String get initials => initialsOf(name);
+}
+
+// Up to [max] capital letters from a name, for avatars. Extra spaces are
+// ignored, and an empty name gives '?'.
+String initialsOf(String name, {int max = 2}) {
+  final letters = name
+      .trim()
+      .split(RegExp(r'\s+'))
+      .where((part) => part.isNotEmpty)
+      .map((part) => part[0])
+      .take(max)
+      .join()
+      .toUpperCase();
+  return letters.isEmpty ? '?' : letters;
 }

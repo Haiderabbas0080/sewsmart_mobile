@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
+import '../../../core/models/user_model.dart';
 import '../../../core/services/auth_service.dart';
 import '../../auth/screens/login_screen.dart';
 import 'rider_earnings_screen.dart';
@@ -58,7 +59,7 @@ class RiderProfileScreen extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      'A',
+                      initialsOf(AuthService().currentUser?.name ?? '', max: 1),
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -84,7 +85,7 @@ class RiderProfileScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Ali Raza',
+                  AuthService().currentUser?.name ?? 'Rider',
                   style: GoogleFonts.poppins(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.bold,
@@ -326,8 +327,9 @@ void _showInfoDialog(BuildContext context, String title, String message) {
 }
 
 void _showEditProfileDialog(BuildContext context) {
-  final nameCtrl = TextEditingController(text: 'Ali Raza');
-  final phoneCtrl = TextEditingController(text: '0304-5678901');
+  final user = AuthService().currentUser;
+  final nameCtrl = TextEditingController(text: user?.name ?? '');
+  final phoneCtrl = TextEditingController(text: user?.phone ?? '');
   showDialog(
     context: context,
     builder: (ctx) => AlertDialog(

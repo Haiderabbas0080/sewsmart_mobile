@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/models/app_models.dart';
+import '../../../core/utils/app_refresh.dart';
 import '../services/tailor_service.dart';
 import 'order_detail_screen.dart';
 
@@ -25,10 +26,13 @@ class _IncomingOrdersScreenState extends State<IncomingOrdersScreen>
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _loadOrders();
+    // Load again when an order changes here or on the order detail screen.
+    AppRefresh.orders.addListener(_loadOrders);
   }
 
   @override
   void dispose() {
+    AppRefresh.orders.removeListener(_loadOrders);
     _tabController.dispose();
     super.dispose();
   }
@@ -66,7 +70,7 @@ class _IncomingOrdersScreenState extends State<IncomingOrdersScreen>
     if (mounted) {
       setState(() => _actionLoading['accept_${order.id}'] = false);
       if (ok) {
-        await _loadOrders();
+        AppRefresh.ordersChanged();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -80,11 +84,37 @@ class _IncomingOrdersScreenState extends State<IncomingOrdersScreen>
   }
 
   Future<void> _handleReject(OrderModel order) async {
+    // Rejecting cannot be undone, so ask first.
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.card,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('Reject Order?',
+            style: GoogleFonts.poppins(color: AppColors.textPrimary, fontWeight: FontWeight.w600)),
+        content: Text(
+          'Reject the ${order.garmentType} order from ${order.customerName}? This cannot be undone.',
+          style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: 13),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text('Cancel', style: GoogleFonts.poppins(color: AppColors.textMuted)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text('Reject',
+                style: GoogleFonts.poppins(color: AppColors.error, fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
     setState(() => _actionLoading['reject_${order.id}'] = true);
     await TailorService().rejectOrder(order.id);
     if (mounted) {
       setState(() => _actionLoading['reject_${order.id}'] = false);
-      await _loadOrders();
+      AppRefresh.ordersChanged();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -199,6 +229,8 @@ class _IncomingOrdersScreenState extends State<IncomingOrdersScreen>
       ),
       child: TabBar(
         controller: _tabController,
+        // Fill the whole tab, like the tab bars on the customer screens.
+        indicatorSize: TabBarIndicatorSize.tab,
         indicator: BoxDecoration(
           gradient: const LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
           borderRadius: BorderRadius.circular(10),

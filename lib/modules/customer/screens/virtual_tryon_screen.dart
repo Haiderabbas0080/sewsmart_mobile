@@ -18,6 +18,11 @@ class _VirtualTryOnScreenState extends State<VirtualTryOnScreen>
   bool _hasResult = false;
   String _selectedGarment = 'Bridal Lehenga';
   late AnimationController _spinCtrl;
+  // How the result is shown: turned left or right around its middle, and zoomed.
+  double _angle = 0;
+  bool _zoomed = false;
+
+  void _turn(double delta) => setState(() => _angle = (_angle + delta).clamp(-1.0, 1.0));
 
   final _garments = [
     'Bridal Lehenga',
@@ -57,6 +62,8 @@ class _VirtualTryOnScreenState extends State<VirtualTryOnScreen>
     setState(() {
       _processing = true;
       _hasResult = false;
+      _angle = 0;
+      _zoomed = false;
     });
     await Future.delayed(const Duration(seconds: 3));
     if (mounted) {
@@ -222,7 +229,22 @@ class _VirtualTryOnScreenState extends State<VirtualTryOnScreen>
           // Model content
           Center(
             child: _hasResult
-                ? _ModelResult(garment: _selectedGarment)
+                ? TweenAnimationBuilder<double>(
+                    tween: Tween<double>(end: _angle),
+                    duration: const Duration(milliseconds: 300),
+                    builder: (context, angle, child) => Transform(
+                      alignment: Alignment.center,
+                      transform: Matrix4.identity()
+                        ..setEntry(3, 2, 0.0015)
+                        ..rotateY(angle),
+                      child: child,
+                    ),
+                    child: AnimatedScale(
+                      scale: _zoomed ? 1.3 : 1.0,
+                      duration: const Duration(milliseconds: 250),
+                      child: _ModelResult(garment: _selectedGarment),
+                    ),
+                  )
                 : _ModelPlaceholder(),
           ),
           // Top-right badge
@@ -265,11 +287,14 @@ class _VirtualTryOnScreenState extends State<VirtualTryOnScreen>
               right: 14,
               child: Row(
                 children: [
-                  _ViewBtn(Icons.rotate_left_rounded),
+                  _ViewBtn(Icons.rotate_left_rounded, onTap: () => _turn(-0.5)),
                   const SizedBox(width: 6),
-                  _ViewBtn(Icons.rotate_right_rounded),
+                  _ViewBtn(Icons.rotate_right_rounded, onTap: () => _turn(0.5)),
                   const SizedBox(width: 6),
-                  _ViewBtn(Icons.zoom_in_rounded),
+                  _ViewBtn(
+                    _zoomed ? Icons.zoom_out_rounded : Icons.zoom_in_rounded,
+                    onTap: () => setState(() => _zoomed = !_zoomed),
+                  ),
                 ],
               ),
             ),
@@ -638,17 +663,21 @@ class _ModelResult extends StatelessWidget {
 
 class _ViewBtn extends StatelessWidget {
   final IconData icon;
-  const _ViewBtn(this.icon);
+  final VoidCallback onTap;
+  const _ViewBtn(this.icon, {required this.onTap});
 
   @override
-  Widget build(BuildContext context) => Container(
-        width: 30,
-        height: 30,
-        decoration: BoxDecoration(
-          color: AppColors.card.withValues(alpha: 0.85),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: AppColors.divider),
+  Widget build(BuildContext context) => GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 30,
+          height: 30,
+          decoration: BoxDecoration(
+            color: AppColors.card.withValues(alpha: 0.85),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: AppColors.divider),
+          ),
+          child: Icon(icon, color: AppColors.tealLight, size: 15),
         ),
-        child: Icon(icon, color: AppColors.tealLight, size: 15),
       );
 }

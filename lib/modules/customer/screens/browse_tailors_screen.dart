@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
@@ -9,7 +11,9 @@ import '../../../core/services/auth_service.dart';
 import 'tailor_profile_screen.dart';
 
 class BrowseTailorsScreen extends StatefulWidget {
-  const BrowseTailorsScreen({super.key});
+  // The category chip selected when the screen opens, e.g. 'Bridal' from the promo.
+  final String initialCategory;
+  const BrowseTailorsScreen({super.key, this.initialCategory = 'All'});
 
   @override
   State<BrowseTailorsScreen> createState() => _BrowseTailorsScreenState();
@@ -17,38 +21,44 @@ class BrowseTailorsScreen extends StatefulWidget {
 
 class _BrowseTailorsScreenState extends State<BrowseTailorsScreen> {
   final _searchCtrl = TextEditingController();
-  String _selectedCategory = 'All';
+  late String _selectedCategory = widget.initialCategory;
   List<TailorModel> _allTailors = [];
   List<TailorModel> _filtered = [];
   bool _loading = true;
+  Timer? _recordTimer;
+  String _lastRecorded = '';
 
   @override
   void initState() {
     super.initState();
     _loadTailors();
-    _searchCtrl.addListener(_applyFilter);
+    _searchCtrl.addListener(_onSearchChanged);
   }
 
   Future<void> _loadTailors() async {
     final tailors = await CustomerService().getTailors();
-    if (mounted) {
-      setState(() {
-        _allTailors = tailors;
-        _filtered = tailors;
-        _loading = false;
-      });
-    }
+    if (!mounted) return;
+    _allTailors = tailors;
+    _loading = false;
+    _applyFilter();
+  }
+
+  void _onSearchChanged() {
+    _applyFilter();
+    // Searches feed the AI Recommendations pages. Save one only after the
+    // customer stops typing, so "bri", "brid" and "brida" are not saved too.
+    _recordTimer?.cancel();
+    final query = _searchCtrl.text.trim().toLowerCase();
+    if (query.length < 3 || query == _lastRecorded) return;
+    _recordTimer = Timer(const Duration(milliseconds: 1200), () {
+      _lastRecorded = query;
+      final userName = AuthService().currentUser?.name ?? 'Customer';
+      MockData.recordSearch(query, customerName: userName);
+    });
   }
 
   void _applyFilter() {
-    final query = _searchCtrl.text.toLowerCase();
-    // Record searches with 3+ characters into the shared history so both
-    // the customer's AI Recommendations page and the tailor's AI Recs
-    // page can reflect them live.
-    if (query.length >= 3) {
-      final userName = AuthService().currentUser?.name ?? 'Customer';
-      MockData.recordSearch(query, customerName: userName);
-    }
+    final query = _searchCtrl.text.trim().toLowerCase();
     setState(() {
       _filtered = _allTailors.where((t) {
         final matchCat = _selectedCategory == 'All' || t.category == _selectedCategory || t.specialties.any((s) => s.toLowerCase().contains(_selectedCategory.toLowerCase()));
@@ -65,6 +75,7 @@ class _BrowseTailorsScreenState extends State<BrowseTailorsScreen> {
 
   @override
   void dispose() {
+    _recordTimer?.cancel();
     _searchCtrl.dispose();
     super.dispose();
   }
@@ -103,7 +114,7 @@ class _BrowseTailorsScreenState extends State<BrowseTailorsScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   scrollDirection: Axis.horizontal,
                   itemCount: MockData.categories.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  separatorBuilder: (_, _) => const SizedBox(width: 8),
                   itemBuilder: (context, i) {
                     final cat = MockData.categories[i];
                     final selected = _selectedCategory == cat;
@@ -143,7 +154,7 @@ class _BrowseTailorsScreenState extends State<BrowseTailorsScreen> {
                         : ListView.separated(
                             padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
                             itemCount: _filtered.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: 12),
+                            separatorBuilder: (_, _) => const SizedBox(height: 12),
                             itemBuilder: (context, i) => _TailorListCard(tailor: _filtered[i]),
                           ),
               ),

@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/models/app_models.dart';
+import '../../../core/utils/app_refresh.dart';
 import '../services/tailor_service.dart';
 import 'tailor_chat_screen.dart';
 
@@ -72,6 +73,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       _updatingStatus = true;
     });
     await TailorService().updateOrderStatus(widget.order.id, status);
+    AppRefresh.ordersChanged();
     if (mounted) {
       setState(() => _updatingStatus = false);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -110,6 +112,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 _sendingRequest = true;
               });
               await TailorService().sendDeliveryRequest(widget.order.id);
+              AppRefresh.ordersChanged();
               if (mounted) {
                 setState(() => _sendingRequest = false);
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -137,16 +140,27 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     );
   }
 
+  // Orders placed in the app store measurements as "C:36 W:30 H:38 L:42 S:15".
+  // The sample orders use "36-30-38" (chest, waist, hip). A value the order does
+  // not have shows as '-'.
   Map<String, String> get _measurements {
-    final raw = widget.order.measurements;
-    final parts = raw.split('-');
-    return {
-      'Chest': parts.isNotEmpty ? '${parts[0]}"' : '-',
-      'Waist': parts.length > 1 ? '${parts[1]}"' : '-',
-      'Hip': parts.length > 2 ? '${parts[2]}"' : '-',
-      'Length': '42"',
-      'Shoulder': '15"',
-    };
+    const names = ['Chest', 'Waist', 'Hip', 'Length', 'Shoulder'];
+    final raw = widget.order.measurements.trim();
+    final values = <String, String>{};
+    if (raw.contains(':')) {
+      const keys = {'C': 'Chest', 'W': 'Waist', 'H': 'Hip', 'L': 'Length', 'S': 'Shoulder'};
+      for (final part in raw.split(RegExp(r'\s+'))) {
+        final pair = part.split(':');
+        final name = keys[pair.first];
+        if (pair.length == 2 && name != null && pair[1].isNotEmpty) values[name] = pair[1];
+      }
+    } else {
+      final parts = raw.split('-');
+      for (var i = 0; i < parts.length && i < names.length; i++) {
+        if (parts[i].trim().isNotEmpty) values[names[i]] = parts[i].trim();
+      }
+    }
+    return {for (final name in names) name: values[name] == null ? '-' : '${values[name]}"'};
   }
 
   @override
@@ -361,6 +375,28 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   Widget _buildStatusUpdate() {
+    // A status only moves forward. A pending order is accepted or rejected on
+    // the Orders list first, and a finished order cannot change any more.
+    final current = _statusChips.indexOf(_selectedStatus ?? widget.order.status);
+    if (current == -1) {
+      final status = _selectedStatus ?? widget.order.status;
+      final note = status == OrderStatus.pending
+          ? 'Accept this order on the Orders screen before updating its status.'
+          // The other statuses here are rejected, cancelled, delivered and completed.
+          : 'This order is ${status.name}. Its status can no longer be changed.';
+      return GlassCard(
+        child: Row(
+          children: [
+            const Icon(Icons.info_outline_rounded, color: AppColors.textMuted, size: 18),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(note, style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: 12)),
+            ),
+          ],
+        ),
+      );
+    }
+    final busy = _updatingStatus || _sendingRequest;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -390,25 +426,30 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           children: _statusChips.map((status) {
             final isSelected = _selectedStatus == status;
             final color = _statusColor(status);
+            final canPick = !busy && _statusChips.indexOf(status) > current;
             return GestureDetector(
-              onTap: () => _updateStatus(status),
-              child: AnimatedContainer(
+              onTap: canPick ? () => _updateStatus(status) : null,
+              child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: isSelected ? color.withValues(alpha: 0.2) : AppColors.card,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: isSelected ? color : AppColors.divider,
-                    width: isSelected ? 1.5 : 1,
+                opacity: canPick || isSelected ? 1 : 0.4,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: isSelected ? color.withValues(alpha: 0.2) : AppColors.card,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isSelected ? color : AppColors.divider,
+                      width: isSelected ? 1.5 : 1,
+                    ),
                   ),
-                ),
-                child: Text(
-                  _statusLabel(status),
-                  style: GoogleFonts.poppins(
-                    color: isSelected ? color : AppColors.textSecondary,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                    fontSize: 12,
+                  child: Text(
+                    _statusLabel(status),
+                    style: GoogleFonts.poppins(
+                      color: isSelected ? color : AppColors.textSecondary,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ),
@@ -427,7 +468,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         context,
         MaterialPageRoute(
           builder: (_) => TailorChatScreen(
-            customerName: order.customerName,
+            contactName: order.customerName,
             orderId: order.id,
           ),
         ),
