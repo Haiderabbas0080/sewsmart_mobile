@@ -70,6 +70,16 @@ class OrderModel {
     notes: j['notes'],
   );
 
+  OrderModel copyWith({OrderStatus? status, String? riderId, String? riderName}) => OrderModel(
+    id: id, customerId: customerId, tailorId: tailorId,
+    customerName: customerName, tailorName: tailorName,
+    garmentType: garmentType, status: status ?? this.status, amount: amount,
+    measurements: measurements, createdAt: createdAt, hasDesignRef: hasDesignRef,
+    scheduledPickup: scheduledPickup, scheduledDelivery: scheduledDelivery,
+    riderId: riderId ?? this.riderId, riderName: riderName ?? this.riderName,
+    notes: notes,
+  );
+
   String get statusLabel {
     switch (status) {
       case OrderStatus.pending: return 'Pending';
@@ -173,15 +183,17 @@ class DeliveryScheduleModel {
 }
 
 // ── Review ────────────────────────────────────────────────────────────────────
+// orderId is the order the review is about. A customer reviews each order once.
 class ReviewModel {
   final String id, customerId, tailorId, customerName, comment;
   final double rating;
   final DateTime createdAt;
+  final String? orderId;
 
   const ReviewModel({
     required this.id, required this.customerId, required this.tailorId,
     required this.customerName, required this.comment,
-    required this.rating, required this.createdAt,
+    required this.rating, required this.createdAt, this.orderId,
   });
 
   factory ReviewModel.fromJson(Map<String, dynamic> j) => ReviewModel(
@@ -189,6 +201,7 @@ class ReviewModel {
     customerName: j['customer_name'], comment: j['comment'] ?? '',
     rating: (j['rating'] as num).toDouble(),
     createdAt: DateTime.parse(j['created_at']),
+    orderId: j['order_id'],
   );
 }
 
@@ -496,6 +509,9 @@ class LiveMessage {
 
 class LiveStream {
   final String id, tailorId, title, category;
+  // The business name, so the customer app can list streams without
+  // loading each tailor.
+  final String tailorName;
   final String status; // live, ended
   final bool giftsEnabled;
   final int viewers, peakViewers, likes, durationSeconds;
@@ -507,6 +523,7 @@ class LiveStream {
   const LiveStream({
     required this.id, required this.tailorId, required this.title,
     required this.category, required this.status, required this.startedAt,
+    this.tailorName = '',
     this.giftsEnabled = true, this.viewers = 0, this.peakViewers = 0,
     this.likes = 0, this.durationSeconds = 0, this.earnings = 0,
     this.pinnedGarmentId, this.gifts = const [],
@@ -514,6 +531,7 @@ class LiveStream {
 
   factory LiveStream.fromJson(Map<String, dynamic> j) => LiveStream(
     id: j['id'], tailorId: j['tailor_id'], title: j['title'],
+    tailorName: j['tailor_name'] ?? '',
     category: j['category'], status: j['status'],
     startedAt: DateTime.parse(j['started_at']),
     giftsEnabled: j['gifts_enabled'] ?? true,
@@ -532,6 +550,7 @@ class LiveStream {
     List<LiveGift>? gifts,
   }) => LiveStream(
     id: id, tailorId: tailorId, title: title, category: category,
+    tailorName: tailorName,
     status: status ?? this.status, startedAt: startedAt,
     giftsEnabled: giftsEnabled,
     viewers: viewers ?? this.viewers, peakViewers: peakViewers ?? this.peakViewers,
@@ -541,4 +560,99 @@ class LiveStream {
     pinnedGarmentId: pinnedGarmentId ?? this.pinnedGarmentId,
     gifts: gifts ?? this.gifts,
   );
+}
+
+// ── Delivery Address ──────────────────────────────────────────────────────────
+class AddressModel {
+  final String id;
+  final String label; // home, work, other
+  final String street, area, city, phone;
+  final String? landmark;
+  final bool isDefault;
+
+  const AddressModel({
+    required this.id, required this.label, required this.street,
+    required this.area, required this.city, required this.phone,
+    this.landmark, this.isDefault = false,
+  });
+
+  factory AddressModel.fromJson(Map<String, dynamic> j) => AddressModel(
+    id: j['id'], label: j['label'] ?? 'other', street: j['street'] ?? '',
+    area: j['area'] ?? '', city: j['city'] ?? '', phone: j['phone'] ?? '',
+    landmark: j['landmark'], isDefault: j['is_default'] ?? false,
+  );
+
+  AddressModel copyWith({bool? isDefault}) => AddressModel(
+    id: id, label: label, street: street, area: area, city: city,
+    phone: phone, landmark: landmark, isDefault: isDefault ?? this.isDefault,
+  );
+
+  // One line for lists: "House 12, Street 5, Gulberg III, Lahore".
+  String get summary =>
+      [street, area, city].where((part) => part.trim().isNotEmpty).join(', ');
+}
+
+// ── Dispute ───────────────────────────────────────────────────────────────────
+// A problem with one order, raised by its customer or its tailor and resolved
+// by the admin.
+class DisputeModel {
+  final String id, orderId, reason, details;
+  final String status; // open, resolved
+  final String? resolution; // refund, warning, dismiss
+  final String? resolutionNotes;
+  final DateTime createdAt;
+
+  const DisputeModel({
+    required this.id, required this.orderId, required this.reason,
+    required this.details, required this.status, required this.createdAt,
+    this.resolution, this.resolutionNotes,
+  });
+
+  factory DisputeModel.fromJson(Map<String, dynamic> j) => DisputeModel(
+    id: j['id'], orderId: j['order_id'], reason: j['reason'] ?? '',
+    details: j['details'] ?? '', status: j['status'] ?? 'open',
+    resolution: j['resolution'], resolutionNotes: j['resolution_notes'],
+    createdAt: DateTime.parse(j['created_at']),
+  );
+
+  bool get isOpen => status == 'open';
+}
+
+// ── Verification ──────────────────────────────────────────────────────────────
+// A document a tailor or rider sends to be verified. type is cnicFront,
+// cnicBack, businessProof (tailor) or drivingLicence (rider).
+class VerificationDocument {
+  final String type, url;
+  const VerificationDocument({required this.type, this.url = ''});
+
+  factory VerificationDocument.fromJson(Map<String, dynamic> j) =>
+      VerificationDocument(type: j['type'], url: j['url'] ?? '');
+}
+
+class VerificationRequest {
+  final String id;
+  final String status; // pending, approved, rejected
+  final String cnicNumber;
+  final List<VerificationDocument> documents;
+  final DateTime submittedAt;
+  final String? rejectionReason;
+  // Set when the admin asked for more documents. The request stays pending.
+  final String? adminMessage;
+
+  const VerificationRequest({
+    required this.id, required this.status, required this.cnicNumber,
+    required this.documents, required this.submittedAt,
+    this.rejectionReason, this.adminMessage,
+  });
+
+  factory VerificationRequest.fromJson(Map<String, dynamic> j) => VerificationRequest(
+    id: j['id'], status: j['status'], cnicNumber: j['cnic_number'] ?? '',
+    documents: ((j['documents'] ?? []) as List)
+        .map((d) => VerificationDocument.fromJson(Map<String, dynamic>.from(d as Map)))
+        .toList(),
+    submittedAt: DateTime.parse(j['submitted_at']),
+    rejectionReason: j['rejection_reason'], adminMessage: j['admin_message'],
+  );
+
+  bool has(String type) => documents.any((d) => d.type == type);
 }

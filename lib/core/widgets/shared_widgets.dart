@@ -228,6 +228,31 @@ class RoleChip extends StatelessWidget {
   ));
 }
 
+// ── Choice Pill ───────────────────────────────────────────────────────────────
+// A tappable pill for picking one of a few options, such as a reason or a label.
+class ChoicePill extends StatelessWidget {
+  final String label; final bool selected; final VoidCallback onTap; final Color color;
+  const ChoicePill({super.key, required this.label, required this.selected, required this.onTap, this.color = AppColors.primaryLight});
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+    onTap: onTap,
+    child: AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      decoration: BoxDecoration(
+        color: selected ? color.withValues(alpha: 0.16) : AppColors.card,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: selected ? color : AppColors.divider),
+      ),
+      child: Text(label, style: GoogleFonts.poppins(
+        color: selected ? color : AppColors.textSecondary,
+        fontSize: 12,
+        fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+      )),
+    ),
+  );
+}
+
 // ── Coming Soon ───────────────────────────────────────────────────────────────
 // For buttons whose feature is not built yet, so a tap always gives feedback.
 void showComingSoon(BuildContext context, String feature) {

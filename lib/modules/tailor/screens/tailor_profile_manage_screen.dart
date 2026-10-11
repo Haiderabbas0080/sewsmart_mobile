@@ -7,6 +7,8 @@ import '../../../core/data/mock_data.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/utils/validators.dart';
 import '../../auth/screens/login_screen.dart';
+import '../../auth/screens/verification_screen.dart';
+import 'my_riders_screen.dart';
 
 class TailorProfileManageScreen extends StatefulWidget {
   const TailorProfileManageScreen({super.key});
@@ -325,6 +327,26 @@ class _TailorProfileManageScreenState extends State<TailorProfileManageScreen>
             loading: _saving,
             onTap: _handleSave,
           ),
+          const SizedBox(height: 20),
+          _LinkTile(
+            icon: Icons.verified_user_rounded,
+            label: 'Verification',
+            subtitle: 'CNIC and business proof',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const VerificationScreen()),
+            ),
+          ),
+          const SizedBox(height: 10),
+          _LinkTile(
+            icon: Icons.directions_bike_rounded,
+            label: 'My Riders',
+            subtitle: 'Add riders and see who can deliver',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const MyRidersScreen()),
+            ),
+          ),
           const SizedBox(height: 16),
           GestureDetector(
             onTap: () async {
@@ -476,6 +498,49 @@ class _TailorProfileManageScreenState extends State<TailorProfileManageScreen>
             ),
           ),
           const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+}
+
+// A row that opens another screen, such as Verification or My Riders.
+class _LinkTile extends StatelessWidget {
+  final IconData icon;
+  final String label, subtitle;
+  final VoidCallback onTap;
+  const _LinkTile({required this.icon, required this.label, required this.subtitle, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassCard(
+      onTap: onTap,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: AppColors.teal.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(9),
+            ),
+            child: Icon(icon, color: AppColors.tealLight, size: 18),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: GoogleFonts.poppins(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 13),
+                ),
+                Text(subtitle, style: GoogleFonts.poppins(color: AppColors.textMuted, fontSize: 11)),
+              ],
+            ),
+          ),
+          const Icon(Icons.arrow_forward_ios_rounded, color: AppColors.textMuted, size: 14),
         ],
       ),
     );

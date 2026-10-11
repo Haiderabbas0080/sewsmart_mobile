@@ -73,7 +73,8 @@ class AuthService {
 
   // ── Reset Password ─────────────────────────────────────────────────────────
   // TODO: Replace with: POST /api/auth/reset-password
-  // token comes from the link in the reset email. No screen calls this yet.
+  // token is the code from the reset email, typed on ResetPasswordScreen, or
+  // the token from the email's link.
   Future<bool> resetPassword(String token, String newPassword) async {
     await Future.delayed(const Duration(milliseconds: 600));
     return token.isNotEmpty && newPassword.length >= 4;

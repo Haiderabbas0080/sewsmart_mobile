@@ -4,9 +4,12 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/models/app_models.dart';
 import '../../../core/data/mock_data.dart';
+import '../../../core/services/support_service.dart';
 import '../../../core/utils/app_refresh.dart';
+import '../../support/screens/raise_dispute_screen.dart';
 import '../../tailor/screens/tailor_chat_screen.dart';
 import '../services/customer_service.dart';
+import 'write_review_screen.dart';
 
 class OrderTrackingScreen extends StatefulWidget {
   final OrderModel order;
@@ -24,6 +27,50 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
 
   final List<DateTime> _futureDates = List.generate(7, (i) => DateTime.now().add(Duration(days: i + 1)));
   final List<String> _timeSlots = MockData.timeSlots;
+
+  // The customer's review of this order and a dispute about it, if any.
+  ReviewModel? _review;
+  DisputeModel? _dispute;
+
+  bool get _isFinished =>
+      widget.order.status == OrderStatus.delivered || widget.order.status == OrderStatus.completed;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadReviewAndDispute();
+  }
+
+  Future<void> _loadReviewAndDispute() async {
+    final reviews = await CustomerService().getTailorReviews(widget.order.tailorId);
+    final disputes = await SupportService().getMyDisputes();
+    if (!mounted) return;
+    setState(() {
+      _review = reviews.where((r) => r.orderId == widget.order.id).firstOrNull;
+      _dispute = disputes.where((d) => d.orderId == widget.order.id).firstOrNull;
+    });
+  }
+
+  Future<void> _openReview() async {
+    final sent = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => WriteReviewScreen(order: widget.order)),
+    );
+    if (sent != true || !mounted) return;
+    await _loadReviewAndDispute();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Thanks for your review!', style: GoogleFonts.poppins(fontSize: 12)), backgroundColor: AppColors.success),
+    );
+  }
+
+  Future<void> _openDispute() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => RaiseDisputeScreen(order: widget.order)),
+    );
+    if (mounted) _loadReviewAndDispute();
+  }
 
   int get _currentStepIndex {
     switch (widget.order.status) {
@@ -100,8 +147,14 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
                         const SizedBox(height: 20),
                         _buildScheduleConfirmed(),
                       ],
+                      if (_isFinished) ...[
+                        const SizedBox(height: 24),
+                        _buildReviewSection(),
+                      ],
                       const SizedBox(height: 24),
                       _buildContactButtons(),
+                      const SizedBox(height: 20),
+                      _buildProblemSection(),
                       const SizedBox(height: 24),
                     ],
                   ),
@@ -431,5 +484,88 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
         ),
       ],
     );
+  }
+
+  // A delivered or completed order can be rated once. After that the
+  // customer's own rating shows here.
+  Widget _buildReviewSection() {
+    final review = _review;
+    if (review != null) {
+      return GlassCard(
+        padding: const EdgeInsets.all(16),
+        borderColor: AppColors.gold.withValues(alpha: 0.35),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text('Your Review', style: GoogleFonts.poppins(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 14)),
+                const Spacer(),
+                StarRating(rating: review.rating),
+              ],
+            ),
+            if (review.comment.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(review.comment, style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: 12)),
+            ],
+          ],
+        ),
+      );
+    }
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.gold.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.gold.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.gold.withValues(alpha: 0.15)),
+            child: const Icon(Icons.star_rounded, color: AppColors.gold, size: 22),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('How was your order?', style: GoogleFonts.poppins(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 13)),
+                Text(
+                  'Rate ${widget.order.tailorName} to help other customers.',
+                  style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: 11),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: _openReview,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(color: AppColors.gold, borderRadius: BorderRadius.circular(10)),
+              child: Text('Rate', style: GoogleFonts.poppins(color: AppColors.bg, fontWeight: FontWeight.bold, fontSize: 12)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // A link to raise a dispute, or the state of the one already raised.
+  Widget _buildProblemSection() {
+    final dispute = _dispute;
+    if (dispute == null) {
+      return Center(
+        child: TextButton.icon(
+          onPressed: _openDispute,
+          icon: const Icon(Icons.report_problem_outlined, color: AppColors.textMuted, size: 16),
+          label: Text('Report a problem with this order', style: GoogleFonts.poppins(color: AppColors.textMuted, fontSize: 12)),
+        ),
+      );
+    }
+    return DisputeStatusCard(dispute: dispute);
   }
 }

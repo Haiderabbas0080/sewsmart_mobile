@@ -4,12 +4,14 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/models/app_models.dart';
 import '../../../core/services/auth_service.dart';
+import '../../../core/services/verification_service.dart';
 import '../../../core/data/mock_data.dart';
 import '../../../core/utils/app_refresh.dart';
+import '../../auth/screens/verification_screen.dart';
 import '../services/tailor_service.dart';
 import 'incoming_orders_screen.dart';
 import 'order_detail_screen.dart';
-import 'add_rider_screen.dart';
+import 'my_riders_screen.dart';
 import 'tailor_notifications_screen.dart';
 import 'tailor_profile_manage_screen.dart';
 import 'tailor_live_screen.dart';
@@ -25,6 +27,9 @@ class TailorDashboardScreen extends StatefulWidget {
 class _TailorDashboardScreenState extends State<TailorDashboardScreen> {
   List<OrderModel> _orders = [];
   bool _loading = true;
+  // The tailor's verification request, for the banner shown until the admin
+  // approves it.
+  VerificationRequest? _verification;
 
   @override
   void initState() {
@@ -42,12 +47,52 @@ class _TailorDashboardScreenState extends State<TailorDashboardScreen> {
 
   Future<void> _loadData() async {
     final orders = await TailorService().getOrders('T001');
+    final verification = await VerificationService().getMyVerification();
     if (mounted) {
       setState(() {
         _orders = orders;
+        _verification = verification;
         _loading = false;
       });
     }
+  }
+
+  Future<void> _openVerification() async {
+    await Navigator.push(context, MaterialPageRoute(builder: (_) => const VerificationScreen()));
+    _loadData();
+  }
+
+  // Shown to a tailor the admin has not verified yet.
+  Widget _buildVerifyBanner() {
+    final pending = _verification?.status == 'pending';
+    final color = pending ? AppColors.info : AppColors.tealLight;
+    return GestureDetector(
+      onTap: _openVerification,
+      child: Container(
+        margin: const EdgeInsets.only(top: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withValues(alpha: 0.4)),
+        ),
+        child: Row(
+          children: [
+            Icon(pending ? Icons.hourglass_top_rounded : Icons.verified_user_outlined, color: color, size: 20),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                pending
+                    ? 'Your documents are under review'
+                    : 'Verify your business to get the verified badge',
+                style: GoogleFonts.poppins(color: color, fontWeight: FontWeight.w600, fontSize: 12),
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios_rounded, color: color, size: 14),
+          ],
+        ),
+      ),
+    );
   }
 
   String get _greeting {
@@ -103,6 +148,7 @@ class _TailorDashboardScreenState extends State<TailorDashboardScreen> {
                 children: [
                   const SizedBox(height: 16),
                   _buildHeader(user, tailor),
+                  if (!_loading && user != null && !user.isVerified) _buildVerifyBanner(),
                   const SizedBox(height: 16),
                   if (!_loading && _pendingCount > 0) _buildPendingBanner(),
                   const SizedBox(height: 20),
@@ -300,9 +346,9 @@ class _TailorDashboardScreenState extends State<TailorDashboardScreen> {
     final actions = [
       {
         'icon': Icons.directions_bike_rounded,
-        'label': 'Add Rider',
+        'label': 'Riders',
         'gradient': [AppColors.riderColor, const Color(0xFFF97316)],
-        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddRiderScreen())),
+        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MyRidersScreen())),
       },
       {
         'icon': Icons.photo_library_rounded,

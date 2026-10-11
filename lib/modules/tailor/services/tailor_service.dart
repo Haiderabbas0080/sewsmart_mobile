@@ -63,9 +63,41 @@ class TailorService {
   }
 
   // TODO: POST /api/riders (add rider under tailor)
-  Future<bool> addRider({required String tailorId, required String riderName, required String riderPhone}) async {
+  // Creates the rider and a verification request for the admin. The rider
+  // cannot take deliveries until the admin approves it.
+  Future<bool> addRider({
+    required String tailorId, required String riderName, required String riderPhone,
+    String? cnicNumber, String? city,
+  }) async {
     await Future.delayed(const Duration(milliseconds: 700));
+    final tailor = MockData.tailors.where((t) => t.id == tailorId).firstOrNull;
+    MockData.riders.add(RiderProfile(
+      id: 'R${DateTime.now().millisecondsSinceEpoch}',
+      name: riderName.trim(), phone: riderPhone.trim(), city: city?.trim() ?? '',
+      isVerified: false, isAvailable: true,
+      totalDeliveries: 0, monthDeliveries: 0, rating: 0,
+      assignedTailorId: tailorId, assignedTailorName: tailor?.name,
+    ));
     return true;
+  }
+
+  // TODO: GET /api/tailors/:id/riders
+  Future<List<RiderProfile>> getRiders(String tailorId) async {
+    await Future.delayed(const Duration(milliseconds: 400));
+    return MockData.riders.where((r) => r.assignedTailorId == tailorId).toList();
+  }
+
+  // TODO: PUT /api/orders/:id/rider
+  // Only a verified, available rider of the order's tailor can be assigned,
+  // and only while the order is ready for delivery. Returns the updated order.
+  Future<OrderModel?> assignRider(String orderId, String riderId) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    final idx = MockData.orders.indexWhere((o) => o.id == orderId);
+    final rider = MockData.riders.where((r) => r.id == riderId).firstOrNull;
+    if (idx == -1 || rider == null || !rider.isVerified || !rider.isAvailable) return null;
+    final updated = MockData.orders[idx].copyWith(riderId: rider.id, riderName: rider.name);
+    MockData.orders[idx] = updated;
+    return updated;
   }
 
   // TODO: PUT /api/riders/:id/verify-pickup

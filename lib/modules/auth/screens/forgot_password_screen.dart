@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/services/auth_service.dart';
+import 'reset_password_screen.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -201,7 +202,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'The link will expire in 15 minutes. If you did not receive the email, check your spam folder.',
+                  'The email has a reset code and a link. Both expire in 15 minutes. If you did not receive it, check your spam folder.',
                   style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: 12),
                 ),
               ),
@@ -210,8 +211,29 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
         ),
         const SizedBox(height: 32),
         GradientButton(
-          text: 'Back to Sign In',
+          text: 'Enter Reset Code',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => ResetPasswordScreen(email: _emailCtrl.text.trim())),
+          ),
+        ),
+        const SizedBox(height: 12),
+        GestureDetector(
           onTap: () => Navigator.pop(context),
+          child: Container(
+            height: 50,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.primary.withValues(alpha: 0.5)),
+            ),
+            child: Center(
+              child: Text(
+                'Back to Sign In',
+                style: GoogleFonts.poppins(color: AppColors.primaryLight, fontWeight: FontWeight.w600, fontSize: 14),
+              ),
+            ),
+          ),
         ),
         const SizedBox(height: 20),
         Center(

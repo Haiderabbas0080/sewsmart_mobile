@@ -8,7 +8,10 @@ import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/data/mock_data.dart';
 import '../../../core/models/app_models.dart';
 import '../../../core/services/auth_service.dart';
+import '../../../core/utils/app_refresh.dart';
+import '../services/customer_service.dart';
 import 'browse_tailors_screen.dart';
+import 'saved_designs_screen.dart';
 
 class CustomerAiRecommendationsScreen extends StatefulWidget {
   const CustomerAiRecommendationsScreen({super.key});
@@ -26,6 +29,59 @@ class _CustomerAiRecommendationsScreenState
   String _searchQuery = '';
   List<_DesignCard> _liveResults = [];
   Timer? _recordTimer;
+  // Ids of the designs already in the wishlist, so the sheet can say so.
+  final Set<String> _savedIds = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSaved();
+  }
+
+  Future<void> _loadSaved() async {
+    final saved = await CustomerService().getWishlist();
+    if (!mounted) return;
+    setState(() => _savedIds
+      ..clear()
+      ..addAll(saved.map((d) => d.id)));
+  }
+
+  // The cards on this screen come from local lists, so their catalogue id is
+  // found by name. Once the screen reads getRecommendations, the id comes
+  // with each design.
+  DesignModel? _designFor(_DesignCard card) =>
+      MockData.designs.where((d) => d.name == card.name).firstOrNull;
+
+  Future<void> _saveDesign(_DesignCard card) async {
+    final id = _designFor(card)?.id ?? '';
+    final ok = id.isNotEmpty && await CustomerService().addToWishlist(id);
+    if (ok) AppRefresh.wishlistChanged();
+    if (!mounted) return;
+    if (ok) setState(() => _savedIds.add(id));
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(
+          ok ? '${card.name} saved to wishlist!' : 'Could not save ${card.name}',
+          style: GoogleFonts.poppins(),
+        ),
+        backgroundColor: ok ? AppColors.success : AppColors.error,
+        duration: const Duration(seconds: 3),
+        // A snack bar with an action stays until it is tapped unless told
+        // otherwise. This one should go away on its own.
+        persist: false,
+        action: ok
+            ? SnackBarAction(label: 'VIEW', textColor: Colors.white, onPressed: _openSaved)
+            : null,
+      ));
+  }
+
+  Future<void> _openSaved() async {
+    // VIEW can still be tapped for a moment after this screen is closed.
+    if (!mounted) return;
+    await Navigator.push(context, MaterialPageRoute(builder: (_) => const SavedDesignsScreen()));
+    _loadSaved();
+  }
 
   @override
   void dispose() {
@@ -676,6 +732,7 @@ class _CustomerAiRecommendationsScreenState
 
   // ── Design detail sheet ───────────────────────────────────────────────────────
   void _showDesignSheet(_DesignCard card) {
+    final saved = _savedIds.contains(_designFor(card)?.id);
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.surface,
@@ -789,24 +846,28 @@ class _CustomerAiRecommendationsScreenState
               colors: [card.color, card.color.withValues(alpha: 0.7)],
               onTap: () {
                 Navigator.pop(ctx);
+                // Open the tailor list on the design's category. General
+                // designs have no tailor category, so show every tailor.
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (_) => const BrowseTailorsScreen()),
+                      builder: (_) => BrowseTailorsScreen(
+                          initialCategory: card.category == 'General'
+                              ? 'All'
+                              : card.category)),
                 );
               },
             ),
             const SizedBox(height: 10),
-            // Save button
+            // Save button, or a link to the wishlist once the design is saved.
             GestureDetector(
               onTap: () {
                 Navigator.pop(ctx);
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text('${card.name} saved to wishlist!',
-                      style: GoogleFonts.poppins()),
-                  backgroundColor: AppColors.success,
-                  duration: const Duration(seconds: 2),
-                ));
+                if (saved) {
+                  _openSaved();
+                } else {
+                  _saveDesign(card);
+                }
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 13),
@@ -819,10 +880,14 @@ class _CustomerAiRecommendationsScreenState
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.bookmark_border_rounded,
-                        color: AppColors.success, size: 18),
+                    Icon(
+                        saved
+                            ? Icons.bookmark_rounded
+                            : Icons.bookmark_border_rounded,
+                        color: AppColors.success,
+                        size: 18),
                     const SizedBox(width: 8),
-                    Text('Save to Wishlist',
+                    Text(saved ? 'Saved · View Wishlist' : 'Save to Wishlist',
                         style: GoogleFonts.poppins(
                             color: AppColors.success,
                             fontWeight: FontWeight.w600,

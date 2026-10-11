@@ -3,8 +3,11 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/models/app_models.dart';
+import '../../../core/services/support_service.dart';
 import '../../../core/utils/app_refresh.dart';
+import '../../support/screens/raise_dispute_screen.dart';
 import '../services/tailor_service.dart';
+import 'my_riders_screen.dart';
 import 'tailor_chat_screen.dart';
 
 class OrderDetailScreen extends StatefulWidget {
@@ -19,6 +22,64 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   OrderStatus? _selectedStatus;
   bool _updatingStatus = false;
   bool _sendingRequest = false;
+  // The rider who delivers the order, once the order is ready.
+  late String? _riderId = widget.order.riderId;
+  late String? _riderName = widget.order.riderName;
+  bool _assigningRider = false;
+  // A dispute about this order, raised by the tailor or the customer.
+  DisputeModel? _dispute;
+
+  OrderStatus get _status => _selectedStatus ?? widget.order.status;
+
+  bool get _showsRider =>
+      _status == OrderStatus.readyForDelivery ||
+      _status == OrderStatus.delivered ||
+      _status == OrderStatus.completed;
+
+  Future<void> _assignRider() async {
+    final rider = await showAssignRiderSheet(
+      context,
+      tailorId: widget.order.tailorId,
+      currentRiderId: _riderId,
+    );
+    if (rider == null || !mounted) return;
+    setState(() => _assigningRider = true);
+    final updated = await TailorService().assignRider(widget.order.id, rider.id);
+    if (!mounted) return;
+    setState(() {
+      _assigningRider = false;
+      if (updated != null) {
+        _riderId = updated.riderId;
+        _riderName = updated.riderName;
+      }
+    });
+    if (updated != null) AppRefresh.ordersChanged();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          updated != null ? '${rider.name} will deliver this order' : 'Could not assign ${rider.name}. Try another rider.',
+          style: GoogleFonts.poppins(),
+        ),
+        backgroundColor: updated != null ? AppColors.success : AppColors.error,
+      ),
+    );
+  }
+
+  Future<void> _loadDispute() async {
+    final disputes = await SupportService().getMyDisputes();
+    if (!mounted) return;
+    setState(() => _dispute = disputes.where((d) => d.orderId == widget.order.id).firstOrNull);
+  }
+
+  Future<void> _reportProblem() async {
+    // The status and rider may have changed on this screen since it opened.
+    final order = widget.order.copyWith(status: _status, riderId: _riderId, riderName: _riderName);
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => RaiseDisputeScreen(order: order, byTailor: true)),
+    );
+    if (mounted) _loadDispute();
+  }
 
   final List<OrderStatus> _statusChips = [
     OrderStatus.accepted,
@@ -31,6 +92,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   void initState() {
     super.initState();
     _selectedStatus = widget.order.status;
+    _loadDispute();
   }
 
   Color _statusColor(OrderStatus s) {
@@ -195,8 +257,26 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                       ],
                       const SizedBox(height: 20),
                       _buildStatusUpdate(),
+                      if (_showsRider) ...[
+                        const SizedBox(height: 20),
+                        _buildRiderSection(),
+                      ],
                       const SizedBox(height: 30),
                       _buildChatButton(context, order),
+                      const SizedBox(height: 12),
+                      if (_dispute case final dispute?)
+                        DisputeStatusCard(dispute: dispute)
+                      else
+                        Center(
+                          child: TextButton.icon(
+                            onPressed: _reportProblem,
+                            icon: const Icon(Icons.report_problem_outlined, color: AppColors.textMuted, size: 16),
+                            label: Text(
+                              'Report a problem with this order',
+                              style: GoogleFonts.poppins(color: AppColors.textMuted, fontSize: 12),
+                            ),
+                          ),
+                        ),
                       const SizedBox(height: 20),
                     ],
                   ),
@@ -455,6 +535,88 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               ),
             );
           }).toList(),
+        ),
+      ],
+    );
+  }
+
+  // Who delivers the order. The rider can be picked or changed while the
+  // order is ready for delivery.
+  Widget _buildRiderSection() {
+    final canChange = _status == OrderStatus.readyForDelivery;
+    final name = _riderName;
+    final String note;
+    if (name == null) {
+      note = canChange ? 'Pick one of your verified riders' : 'No rider was assigned';
+    } else {
+      note = canChange ? 'Collects the order from you' : 'Delivered this order';
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Delivery Rider',
+          style: GoogleFonts.poppins(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 15),
+        ),
+        const SizedBox(height: 10),
+        GlassCard(
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: name == null ? AppColors.cardAlt : null,
+                  gradient: name == null
+                      ? null
+                      : const LinearGradient(colors: [AppColors.riderColor, Color(0xFFF97316)]),
+                ),
+                child: Center(
+                  child: name == null
+                      ? const Icon(Icons.two_wheeler_rounded, color: AppColors.textMuted, size: 20)
+                      : Text(
+                          initialsOf(name),
+                          style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                        ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name ?? 'No rider yet',
+                      style: GoogleFonts.poppins(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 13),
+                    ),
+                    Text(note, style: GoogleFonts.poppins(color: AppColors.textMuted, fontSize: 11)),
+                  ],
+                ),
+              ),
+              if (_assigningRider)
+                const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(color: AppColors.tealLight, strokeWidth: 2),
+                )
+              else if (canChange)
+                GestureDetector(
+                  onTap: _assignRider,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      name == null ? 'Assign' : 'Change',
+                      style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ],
     );

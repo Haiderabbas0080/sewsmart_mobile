@@ -5,6 +5,7 @@ import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/models/app_models.dart';
 import '../../../core/data/mock_data.dart';
 import '../../../core/services/auth_service.dart';
+import '../../support/screens/report_content_sheet.dart';
 import '../../tailor/screens/tailor_chat_screen.dart';
 import '../services/customer_service.dart';
 import 'place_order_screen.dart';
@@ -125,6 +126,29 @@ class _TailorProfileScreenState extends State<TailorProfileScreen> with SingleTi
                   IconButton(
                     icon: const Icon(Icons.bookmark_border_rounded, color: AppColors.textPrimary, size: 20),
                     onPressed: () => showComingSoon(context, 'Saving tailors'),
+                  ),
+                  PopupMenuButton<String>(
+                    color: AppColors.cardAlt,
+                    icon: const Icon(Icons.more_vert_rounded, color: AppColors.textPrimary, size: 20),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    onSelected: (_) => showReportContentSheet(
+                      context,
+                      targetType: 'profile',
+                      targetId: t.id,
+                      itemLabel: t.name,
+                    ),
+                    itemBuilder: (_) => [
+                      PopupMenuItem<String>(
+                        value: 'report',
+                        child: Row(
+                          children: [
+                            const Icon(Icons.flag_outlined, color: AppColors.error, size: 16),
+                            const SizedBox(width: 8),
+                            Text('Report profile', style: GoogleFonts.poppins(color: AppColors.textPrimary, fontSize: 13)),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -366,6 +390,20 @@ class _TailorProfileScreenState extends State<TailorProfileScreen> with SingleTi
                     ),
                   ),
                   StarRating(rating: r.rating),
+                  // Other customers' reviews can be reported to the admin.
+                  if (r.customerId != AuthService().currentUser?.id)
+                    GestureDetector(
+                      onTap: () => showReportContentSheet(
+                        context,
+                        targetType: 'review',
+                        targetId: r.id,
+                        itemLabel: 'Review by ${r.customerName}: "${r.comment}"',
+                      ),
+                      child: const Padding(
+                        padding: EdgeInsets.only(left: 8, top: 4, bottom: 4),
+                        child: Icon(Icons.flag_outlined, color: AppColors.textMuted, size: 16),
+                      ),
+                    ),
                 ],
               ),
               const SizedBox(height: 10),

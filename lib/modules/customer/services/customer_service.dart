@@ -78,11 +78,22 @@ class CustomerService {
   }
 
   // TODO: POST /api/reviews
+  // One review per delivered or completed order. orderId lets the backend
+  // check that the order belongs to this customer and tailor.
   Future<bool> submitReview({
     required String tailorId, required String customerId,
     required String customerName, required double rating, required String comment,
+    String? orderId,
   }) async {
     await Future.delayed(const Duration(milliseconds: 500));
+    if (rating < 1 || rating > 5) return false;
+    if (orderId != null && MockData.reviews.any((r) => r.orderId == orderId)) return false;
+    MockData.reviews.insert(0, ReviewModel(
+      id: 'REV${DateTime.now().millisecondsSinceEpoch}',
+      customerId: customerId, tailorId: tailorId, customerName: customerName,
+      comment: comment.trim(), rating: rating, createdAt: DateTime.now(),
+      orderId: orderId,
+    ));
     return true;
   }
 
@@ -187,6 +198,74 @@ class CustomerService {
     if (idx == -1 || MockData.paymentMethods[idx].isDefault) return false;
     MockData.paymentMethods.removeAt(idx);
     return true;
+  }
+
+  // ── Saved addresses ─────────────────────────────────────────────────────────
+  // TODO: GET /api/addresses
+  Future<List<AddressModel>> getAddresses() async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return List<AddressModel>.from(MockData.addresses);
+  }
+
+  // TODO: POST /api/addresses
+  // label is home, work or other. The first address becomes the default.
+  Future<AddressModel?> addAddress({
+    required String label, required String street, required String area,
+    required String city, required String phone, String? landmark,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    final address = AddressModel(
+      id: 'AD${DateTime.now().millisecondsSinceEpoch}',
+      label: label, street: street.trim(), area: area.trim(), city: city.trim(),
+      phone: phone.trim(), landmark: _optional(landmark),
+      isDefault: MockData.addresses.isEmpty,
+    );
+    MockData.addresses.add(address);
+    return address;
+  }
+
+  // TODO: PUT /api/addresses/:id
+  Future<AddressModel?> updateAddress({
+    required String id, required String label, required String street,
+    required String area, required String city, required String phone,
+    String? landmark,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    final idx = MockData.addresses.indexWhere((a) => a.id == id);
+    if (idx == -1) return null;
+    final updated = AddressModel(
+      id: id, label: label, street: street.trim(), area: area.trim(),
+      city: city.trim(), phone: phone.trim(), landmark: _optional(landmark),
+      isDefault: MockData.addresses[idx].isDefault,
+    );
+    MockData.addresses[idx] = updated;
+    return updated;
+  }
+
+  // TODO: PUT /api/addresses/:id/default
+  Future<bool> setDefaultAddress(String id) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    if (!MockData.addresses.any((a) => a.id == id)) return false;
+    MockData.addresses = MockData.addresses
+        .map((a) => a.copyWith(isDefault: a.id == id))
+        .toList();
+    return true;
+  }
+
+  // TODO: DELETE /api/addresses/:id
+  // The default address can only be removed when it is the last one.
+  Future<bool> removeAddress(String id) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = MockData.addresses.indexWhere((a) => a.id == id);
+    if (idx == -1) return false;
+    if (MockData.addresses[idx].isDefault && MockData.addresses.length > 1) return false;
+    MockData.addresses.removeAt(idx);
+    return true;
+  }
+
+  String? _optional(String? value) {
+    final text = value?.trim() ?? '';
+    return text.isEmpty ? null : text;
   }
 
   // ── Wishlist ────────────────────────────────────────────────────────────────
@@ -296,6 +375,92 @@ class CustomerService {
   // TODO: PUT /api/ai/try-on/:id/save
   Future<bool> saveTryOn(String id) async {
     await Future.delayed(const Duration(milliseconds: 300));
+    return true;
+  }
+
+  // ── Live streams (watching) ─────────────────────────────────────────────────
+  // The video itself needs a streaming service (docs/API.md, decision 12).
+  // These calls carry the list, the viewer count, the chat, likes and gifts.
+
+  // TODO: GET /api/streams?status=live
+  Future<List<LiveStream>> getLiveStreams() async {
+    await Future.delayed(const Duration(milliseconds: 400));
+    final streams = MockData.liveStreams.where((s) => s.status == 'live').toList();
+    final own = MockData.liveStream;
+    if (own != null && own.status == 'live') streams.insert(0, own);
+    return streams;
+  }
+
+  // TODO: POST /api/streams/:id/join
+  // Counts the viewer and returns the stream. A stream that has ended comes
+  // back with status ended.
+  Future<LiveStream?> joinStream(String streamId) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = MockData.liveStreams.indexWhere((s) => s.id == streamId);
+    if (idx == -1) return null;
+    final stream = MockData.liveStreams[idx];
+    if (stream.status != 'live') return stream;
+    final viewers = stream.viewers + 1;
+    final joined = stream.copyWith(
+      viewers: viewers,
+      peakViewers: viewers > stream.peakViewers ? viewers : stream.peakViewers,
+    );
+    MockData.liveStreams[idx] = joined;
+    return joined;
+  }
+
+  // TODO: POST /api/streams/:id/leave
+  Future<void> leaveStream(String streamId) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    final idx = MockData.liveStreams.indexWhere((s) => s.id == streamId);
+    if (idx == -1) return;
+    final stream = MockData.liveStreams[idx];
+    if (stream.viewers > 0) {
+      MockData.liveStreams[idx] = stream.copyWith(viewers: stream.viewers - 1);
+    }
+  }
+
+  // TODO: GET /api/streams/:id/messages
+  Future<List<LiveMessage>> getStreamMessages(String streamId) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return List<LiveMessage>.from(MockData.liveMessages);
+  }
+
+  // TODO: POST /api/streams/:id/messages
+  // viewerName is only for the mock. The real API reads the user from the token.
+  Future<LiveMessage?> sendStreamMessage(String streamId, String text, {String viewerName = 'You'}) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    final body = text.trim();
+    if (body.isEmpty) return null;
+    final message = LiveMessage(
+      id: 'LM${DateTime.now().millisecondsSinceEpoch}',
+      viewerName: viewerName, text: body, createdAt: DateTime.now(),
+    );
+    MockData.liveMessages.add(message);
+    return message;
+  }
+
+  // TODO: POST /api/streams/:id/like
+  Future<bool> likeStream(String streamId) async {
+    await Future.delayed(const Duration(milliseconds: 150));
+    final idx = MockData.liveStreams.indexWhere((s) => s.id == streamId);
+    if (idx == -1) return false;
+    final stream = MockData.liveStreams[idx];
+    MockData.liveStreams[idx] = stream.copyWith(likes: stream.likes + 1);
+    return true;
+  }
+
+  // TODO: POST /api/streams/:id/gifts
+  // giftName is Star, Rose, Diamond or Crown. The backend charges the viewer's
+  // default payment method and adds the gift to the tailor's stream earnings.
+  Future<bool> sendGift(String streamId, String giftName) async {
+    await Future.delayed(const Duration(milliseconds: 600));
+    final gift = MockData.giftTypes.where((g) => g.name == giftName).firstOrNull;
+    final idx = MockData.liveStreams.indexWhere((s) => s.id == streamId);
+    if (gift == null || idx == -1) return false;
+    final stream = MockData.liveStreams[idx];
+    if (stream.status != 'live' || !stream.giftsEnabled) return false;
+    MockData.liveStreams[idx] = stream.copyWith(earnings: stream.earnings + gift.amount);
     return true;
   }
 }
