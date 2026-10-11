@@ -133,11 +133,11 @@ class _VirtualTryOnScreenState extends State<VirtualTryOnScreen>
         children: [
           IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.arrow_back_ios_rounded,
+            icon: Icon(Icons.arrow_back_ios_rounded,
                 color: AppColors.textPrimary, size: 20),
           ),
           ShaderMask(
-            shaderCallback: (b) => const LinearGradient(
+            shaderCallback: (b) => LinearGradient(
               colors: [AppColors.teal, AppColors.tealLight],
             ).createShader(b),
             child: const Icon(Icons.view_in_ar_rounded,
@@ -266,7 +266,7 @@ class _VirtualTryOnScreenState extends State<VirtualTryOnScreen>
                   Container(
                     width: 6,
                     height: 6,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                         color: AppColors.tealLight,
                         shape: BoxShape.circle),
                   ),
@@ -393,7 +393,7 @@ class _VirtualTryOnScreenState extends State<VirtualTryOnScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(children: [
-          const Icon(Icons.checkroom_rounded,
+          Icon(Icons.checkroom_rounded,
               color: AppColors.tealLight, size: 16),
           const SizedBox(width: 6),
           Text('Select Garment',
@@ -457,7 +457,7 @@ class _VirtualTryOnScreenState extends State<VirtualTryOnScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(children: [
-          const Icon(Icons.mic_rounded, color: AppColors.primaryLight, size: 16),
+          Icon(Icons.mic_rounded, color: AppColors.primaryLight, size: 16),
           const SizedBox(width: 6),
           Text('AI Command',
               style: GoogleFonts.poppins(
@@ -512,7 +512,7 @@ class _VirtualTryOnScreenState extends State<VirtualTryOnScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(children: [
-            const Icon(Icons.check_circle_rounded,
+            Icon(Icons.check_circle_rounded,
                 color: AppColors.success, size: 18),
             const SizedBox(width: 8),
             Text('Try-On Ready!',
@@ -540,7 +540,7 @@ class _VirtualTryOnScreenState extends State<VirtualTryOnScreen>
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
+                    gradient: LinearGradient(
                         colors: [AppColors.success, Color(0xFF16A34A)]),
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -595,7 +595,7 @@ class _ModelPlaceholder extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           ShaderMask(
-            shaderCallback: (b) => const LinearGradient(
+            shaderCallback: (b) => LinearGradient(
               colors: [AppColors.teal, AppColors.primary],
             ).createShader(b),
             child: const Icon(Icons.person_outline_rounded,
@@ -626,7 +626,7 @@ class _ModelResult extends StatelessWidget {
             height: 160,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [AppColors.teal, AppColors.primary],

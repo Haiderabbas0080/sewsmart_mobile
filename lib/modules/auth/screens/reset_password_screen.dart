@@ -110,7 +110,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               children: [
                 const SizedBox(height: 16),
                 IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary, size: 18),
+                  icon: Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary, size: 18),
                   onPressed: _done ? _backToSignIn : () => Navigator.pop(context),
                 ),
                 const SizedBox(height: 20),
@@ -144,7 +144,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             color: AppColors.primary.withValues(alpha: 0.15),
             border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
           ),
-          child: const Icon(Icons.password_rounded, color: AppColors.primaryLight, size: 30),
+          child: Icon(Icons.password_rounded, color: AppColors.primaryLight, size: 30),
         ),
         const SizedBox(height: 20),
         Text(
@@ -200,7 +200,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.error_outline, color: AppColors.error, size: 16),
+                Icon(Icons.error_outline, color: AppColors.error, size: 16),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(_errorMsg!, style: GoogleFonts.poppins(color: AppColors.error, fontSize: 12)),
@@ -239,7 +239,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               color: AppColors.success.withValues(alpha: 0.12),
               border: Border.all(color: AppColors.success.withValues(alpha: 0.4), width: 2),
             ),
-            child: const Icon(Icons.verified_user_rounded, color: AppColors.success, size: 46),
+            child: Icon(Icons.verified_user_rounded, color: AppColors.success, size: 46),
           ),
         ),
         const SizedBox(height: 32),

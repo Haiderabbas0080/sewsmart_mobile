@@ -188,7 +188,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
+                gradient: LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
@@ -248,7 +248,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     children: [
                       _buildOrderHeader(order),
                       const SizedBox(height: 20),
-                      const Divider(color: AppColors.divider),
+                      Divider(color: AppColors.divider),
                       const SizedBox(height: 16),
                       _buildMeasurements(),
                       if (order.hasDesignRef) ...[
@@ -270,7 +270,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                         Center(
                           child: TextButton.icon(
                             onPressed: _reportProblem,
-                            icon: const Icon(Icons.report_problem_outlined, color: AppColors.textMuted, size: 16),
+                            icon: Icon(Icons.report_problem_outlined, color: AppColors.textMuted, size: 16),
                             label: Text(
                               'Report a problem with this order',
                               style: GoogleFonts.poppins(color: AppColors.textMuted, fontSize: 12),
@@ -302,7 +302,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   color: AppColors.teal.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Icon(Icons.checkroom_rounded, color: AppColors.tealLight, size: 26),
+                child: Icon(Icons.checkroom_rounded, color: AppColors.tealLight, size: 26),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -331,7 +331,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             ],
           ),
           const SizedBox(height: 14),
-          const Divider(color: AppColors.divider, height: 1),
+          Divider(color: AppColors.divider, height: 1),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -380,7 +380,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                             color: AppColors.teal.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(7),
                           ),
-                          child: const Icon(Icons.straighten_rounded, color: AppColors.tealLight, size: 14),
+                          child: Icon(Icons.straighten_rounded, color: AppColors.tealLight, size: 14),
                         ),
                         const SizedBox(width: 12),
                         Text(
@@ -399,7 +399,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                       ],
                     ),
                   ),
-                  if (idx < m.length - 1) const Divider(color: AppColors.divider, height: 1),
+                  if (idx < m.length - 1) Divider(color: AppColors.divider, height: 1),
                 ],
               );
             }).toList(),
@@ -440,7 +440,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   color: AppColors.primary.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.image_rounded, color: AppColors.primaryLight, size: 28),
+                child: Icon(Icons.image_rounded, color: AppColors.primaryLight, size: 28),
               ),
               const SizedBox(height: 10),
               Text(
@@ -467,7 +467,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       return GlassCard(
         child: Row(
           children: [
-            const Icon(Icons.info_outline_rounded, color: AppColors.textMuted, size: 18),
+            Icon(Icons.info_outline_rounded, color: AppColors.textMuted, size: 18),
             const SizedBox(width: 10),
             Expanded(
               child: Text(note, style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: 12)),
@@ -492,7 +492,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             ),
             const SizedBox(width: 8),
             if (_updatingStatus || _sendingRequest)
-              const SizedBox(
+              SizedBox(
                 width: 14,
                 height: 14,
                 child: CircularProgressIndicator(color: AppColors.tealLight, strokeWidth: 2),
@@ -570,11 +570,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   color: name == null ? AppColors.cardAlt : null,
                   gradient: name == null
                       ? null
-                      : const LinearGradient(colors: [AppColors.riderColor, Color(0xFFF97316)]),
+                      : LinearGradient(colors: [AppColors.riderColor, Color(0xFFF97316)]),
                 ),
                 child: Center(
                   child: name == null
-                      ? const Icon(Icons.two_wheeler_rounded, color: AppColors.textMuted, size: 20)
+                      ? Icon(Icons.two_wheeler_rounded, color: AppColors.textMuted, size: 20)
                       : Text(
                           initialsOf(name),
                           style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
@@ -595,7 +595,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 ),
               ),
               if (_assigningRider)
-                const SizedBox(
+                SizedBox(
                   width: 18,
                   height: 18,
                   child: CircularProgressIndicator(color: AppColors.tealLight, strokeWidth: 2),
@@ -606,7 +606,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
+                      gradient: LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
@@ -625,7 +625,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   Widget _buildChatButton(BuildContext context, OrderModel order) {
     return GradientButton(
       text: 'Chat with Customer',
-      colors: const [AppColors.teal, AppColors.tealLight],
+      colors: [AppColors.teal, AppColors.tealLight],
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(

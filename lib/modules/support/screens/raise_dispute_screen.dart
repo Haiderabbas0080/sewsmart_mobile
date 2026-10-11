@@ -183,7 +183,7 @@ class _RaiseDisputeScreenState extends State<RaiseDisputeScreen> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.support_agent_rounded, color: AppColors.info, size: 18),
+                Icon(Icons.support_agent_rounded, color: AppColors.info, size: 18),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(

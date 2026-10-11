@@ -330,7 +330,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
         const SizedBox(height: 4),
         Row(
           children: [
-            const Icon(Icons.lock_outline_rounded, color: AppColors.textMuted, size: 13),
+            Icon(Icons.lock_outline_rounded, color: AppColors.textMuted, size: 13),
             const SizedBox(width: 6),
             Expanded(
               child: Text(
@@ -364,12 +364,13 @@ class _VerificationScreenState extends State<VerificationScreen> {
 class _InfoRow extends StatelessWidget {
   final IconData icon;
   final String label, value;
-  final Color valueColor;
+  // Defaults to AppColors.textPrimary of the theme in use.
+  final Color? valueColor;
   const _InfoRow({
     required this.icon,
     required this.label,
     required this.value,
-    this.valueColor = AppColors.textPrimary,
+    this.valueColor,
   });
 
   @override
@@ -382,7 +383,7 @@ class _InfoRow extends StatelessWidget {
             Expanded(
               child: Text(label, style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: 13)),
             ),
-            Text(value, style: GoogleFonts.poppins(color: valueColor, fontWeight: FontWeight.w600, fontSize: 12)),
+            Text(value, style: GoogleFonts.poppins(color: valueColor ?? AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 12)),
           ],
         ),
       );

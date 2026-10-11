@@ -24,16 +24,16 @@ class LiveViewerScreen extends StatefulWidget {
 
 class _LiveViewerScreenState extends State<LiveViewerScreen> with SingleTickerProviderStateMixin {
   static const _gifts = <_Gift>[
-    _Gift('⭐', 'Star', 10, AppColors.gold),
-    _Gift('🌹', 'Rose', 50, AppColors.error),
-    _Gift('💎', 'Diamond', 100, AppColors.info),
-    _Gift('👑', 'Crown', 500, AppColors.secondary),
+    _Gift('⭐', 'Star', 10, DarkColors.gold),
+    _Gift('🌹', 'Rose', 50, DarkColors.error),
+    _Gift('💎', 'Diamond', 100, DarkColors.info),
+    _Gift('👑', 'Crown', 500, DarkColors.secondary),
   ];
   static const _nameColors = [
-    AppColors.tealLight,
-    AppColors.primaryLight,
-    AppColors.info,
-    AppColors.success,
+    DarkColors.tealLight,
+    DarkColors.primaryLight,
+    DarkColors.info,
+    DarkColors.success,
     Color(0xFFF472B6),
   ];
   // Other viewers' chat. Until the API sends live updates (docs/API.md,
@@ -193,7 +193,7 @@ class _LiveViewerScreenState extends State<LiveViewerScreen> with SingleTickerPr
     final viewerName = AuthService().currentUser?.name ?? 'Viewer';
     final sent = await CustomerService().sendStreamMessage(_stream.id, text, viewerName: viewerName);
     if (!mounted || sent != null) return;
-    _showMessage('Your message was not sent. Try again.', AppColors.error);
+    _showMessage('Your message was not sent. Try again.', DarkColors.error);
   }
 
   void _like() {
@@ -212,12 +212,12 @@ class _LiveViewerScreenState extends State<LiveViewerScreen> with SingleTickerPr
   void _openGifts() {
     if (_ended || _sendingGift) return;
     if (!_stream.giftsEnabled) {
-      _showMessage('$_tailorName turned off gifts for this stream', AppColors.info);
+      _showMessage('$_tailorName turned off gifts for this stream', DarkColors.info);
       return;
     }
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: DarkColors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
       ),
@@ -231,17 +231,17 @@ class _LiveViewerScreenState extends State<LiveViewerScreen> with SingleTickerPr
               child: Container(
                 width: 36,
                 height: 4,
-                decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(2)),
+                decoration: BoxDecoration(color: DarkColors.divider, borderRadius: BorderRadius.circular(2)),
               ),
             ),
             const SizedBox(height: 16),
             Text(
               'Send a Gift',
-              style: GoogleFonts.poppins(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 16),
+              style: GoogleFonts.poppins(color: DarkColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 16),
             ),
             Text(
               'Gifts go to $_tailorName and are charged to your default payment method.',
-              style: GoogleFonts.poppins(color: AppColors.textMuted, fontSize: 11),
+              style: GoogleFonts.poppins(color: DarkColors.textMuted, fontSize: 11),
             ),
             const SizedBox(height: 16),
             Row(
@@ -266,7 +266,7 @@ class _LiveViewerScreenState extends State<LiveViewerScreen> with SingleTickerPr
                                 const SizedBox(height: 4),
                                 Text(
                                   gift.name,
-                                  style: GoogleFonts.poppins(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 12),
+                                  style: GoogleFonts.poppins(color: DarkColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 12),
                                 ),
                                 Text(
                                   'Rs ${gift.amount}',
@@ -289,26 +289,26 @@ class _LiveViewerScreenState extends State<LiveViewerScreen> with SingleTickerPr
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.card,
+        backgroundColor: DarkColors.card,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
           'Send a ${gift.name}?',
-          style: GoogleFonts.poppins(color: AppColors.textPrimary, fontWeight: FontWeight.w600),
+          style: GoogleFonts.poppins(color: DarkColors.textPrimary, fontWeight: FontWeight.w600),
         ),
         content: Text(
           'Rs ${gift.amount} will be charged to your default payment method and sent to $_tailorName.',
-          style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: 13),
+          style: GoogleFonts.poppins(color: DarkColors.textSecondary, fontSize: 13),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text('Cancel', style: GoogleFonts.poppins(color: AppColors.textMuted)),
+            child: Text('Cancel', style: GoogleFonts.poppins(color: DarkColors.textMuted)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(
               'Send Rs ${gift.amount}',
-              style: GoogleFonts.poppins(color: AppColors.primaryLight, fontWeight: FontWeight.w600),
+              style: GoogleFonts.poppins(color: DarkColors.primaryLight, fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -320,7 +320,7 @@ class _LiveViewerScreenState extends State<LiveViewerScreen> with SingleTickerPr
     if (!mounted) return;
     setState(() => _sendingGift = false);
     if (!ok) {
-      _showMessage('The gift could not be sent, and you were not charged.', AppColors.error);
+      _showMessage('The gift could not be sent, and you were not charged.', DarkColors.error);
       return;
     }
     _addChat(_ChatLine('You', 'sent a ${gift.name} ${gift.emoji}', mine: true, gift: true));
@@ -351,106 +351,108 @@ class _LiveViewerScreenState extends State<LiveViewerScreen> with SingleTickerPr
   @override
   Widget build(BuildContext context) {
     final pinned = _pinned;
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFF04010F), Color(0xFF080318), Color(0xFF040210)],
-              ),
-            ),
-          ),
-          AnimatedBuilder(
-            animation: _pulse,
-            builder: (_, child) => Opacity(opacity: 0.05 + _pulse.value * 0.06, child: child),
-            child: Container(
+    return AlwaysDark(
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: Stack(
+          children: [
+            Container(
               decoration: const BoxDecoration(
-                gradient: RadialGradient(
-                  center: Alignment(-0.2, -0.4),
-                  radius: 0.9,
-                  colors: [AppColors.teal, Colors.transparent],
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Color(0xFF04010F), Color(0xFF080318), Color(0xFF040210)],
                 ),
               ),
             ),
-          ),
-          Center(child: _buildStage()),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(8, 8, 4, 0),
-              child: _buildTopBar(),
+            AnimatedBuilder(
+              animation: _pulse,
+              builder: (_, child) => Opacity(opacity: 0.05 + _pulse.value * 0.06, child: child),
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: RadialGradient(
+                    center: Alignment(-0.2, -0.4),
+                    radius: 0.9,
+                    colors: [DarkColors.teal, Colors.transparent],
+                  ),
+                ),
+              ),
             ),
-          ),
-          SafeArea(
-            child: Align(
-              alignment: Alignment.centerRight,
+            Center(child: _buildStage()),
+            SafeArea(
               child: Padding(
-                padding: const EdgeInsets.only(right: 10),
+                padding: const EdgeInsets.fromLTRB(8, 8, 4, 0),
+                child: _buildTopBar(),
+              ),
+            ),
+            SafeArea(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildLikeButton(),
+                      const SizedBox(height: 16),
+                      _SideAction(
+                        icon: Icons.card_giftcard_rounded,
+                        color: DarkColors.gold,
+                        label: _sendingGift ? 'Sending' : 'Gift',
+                        onTap: _openGifts,
+                      ),
+                      const SizedBox(height: 16),
+                      _SideAction(
+                        icon: Icons.share_rounded,
+                        color: DarkColors.info,
+                        label: 'Share',
+                        onTap: () => showComingSoon(context, 'Sharing live streams'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            SafeArea(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 12, top: 40),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: _giftPops.map(_buildGiftBubble).toList(),
+                  ),
+                ),
+              ),
+            ),
+            SafeArea(
+              child: Align(
+                alignment: Alignment.bottomCenter,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _buildLikeButton(),
-                    const SizedBox(height: 16),
-                    _SideAction(
-                      icon: Icons.card_giftcard_rounded,
-                      color: AppColors.gold,
-                      label: _sendingGift ? 'Sending' : 'Gift',
-                      onTap: _openGifts,
+                    if (pinned != null && !_ended) _buildPinned(pinned),
+                    SizedBox(
+                      height: 170,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 12, right: 68),
+                        child: ListView.builder(
+                          controller: _chatScroll,
+                          itemCount: _chat.length,
+                          itemBuilder: (_, i) => _buildChatLine(_chat[i]),
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 16),
-                    _SideAction(
-                      icon: Icons.share_rounded,
-                      color: AppColors.info,
-                      label: 'Share',
-                      onTap: () => showComingSoon(context, 'Sharing live streams'),
-                    ),
+                    const SizedBox(height: 6),
+                    _buildInputBar(),
                   ],
                 ),
               ),
             ),
-          ),
-          SafeArea(
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 12, top: 40),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: _giftPops.map(_buildGiftBubble).toList(),
-                ),
-              ),
-            ),
-          ),
-          SafeArea(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (pinned != null && !_ended) _buildPinned(pinned),
-                  SizedBox(
-                    height: 170,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 12, right: 68),
-                      child: ListView.builder(
-                        controller: _chatScroll,
-                        itemCount: _chat.length,
-                        itemBuilder: (_, i) => _buildChatLine(_chat[i]),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  _buildInputBar(),
-                ],
-              ),
-            ),
-          ),
-          if (_ended) _buildEndedOverlay(),
-        ],
+            if (_ended) _buildEndedOverlay(),
+          ],
+        ),
       ),
     );
   }
@@ -468,14 +470,14 @@ class _LiveViewerScreenState extends State<LiveViewerScreen> with SingleTickerPr
             height: 114,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.error.withValues(alpha: 0.65), width: 2.5),
+              border: Border.all(color: DarkColors.error.withValues(alpha: 0.65), width: 2.5),
             ),
             child: Padding(
               padding: const EdgeInsets.all(5),
               child: Container(
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
+                  gradient: LinearGradient(colors: [DarkColors.teal, DarkColors.tealLight]),
                 ),
                 child: Center(
                   child: Text(
@@ -524,7 +526,7 @@ class _LiveViewerScreenState extends State<LiveViewerScreen> with SingleTickerPr
               height: 34,
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
+                gradient: LinearGradient(colors: [DarkColors.teal, DarkColors.tealLight]),
               ),
               child: Center(
                 child: Text(
@@ -583,7 +585,7 @@ class _LiveViewerScreenState extends State<LiveViewerScreen> with SingleTickerPr
       children: [
         _SideAction(
           icon: Icons.favorite_rounded,
-          color: AppColors.error,
+          color: DarkColors.error,
           label: compactCount(_likes),
           onTap: _like,
         ),
@@ -599,7 +601,7 @@ class _LiveViewerScreenState extends State<LiveViewerScreen> with SingleTickerPr
                     offset: Offset((id % 3 - 1) * 12.0 * t, -110 * t),
                     child: Opacity(opacity: 1 - t, child: child),
                   ),
-                  child: const Icon(Icons.favorite_rounded, color: AppColors.error, size: 26),
+                  child: const Icon(Icons.favorite_rounded, color: DarkColors.error, size: 26),
                 ),
               ),
             )),
@@ -629,7 +631,7 @@ class _LiveViewerScreenState extends State<LiveViewerScreen> with SingleTickerPr
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: 0.62),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.tealLight.withValues(alpha: 0.35)),
+        border: Border.all(color: DarkColors.tealLight.withValues(alpha: 0.35)),
       ),
       child: Row(
         children: [
@@ -637,10 +639,10 @@ class _LiveViewerScreenState extends State<LiveViewerScreen> with SingleTickerPr
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: AppColors.teal.withValues(alpha: 0.18),
+              color: DarkColors.teal.withValues(alpha: 0.18),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.push_pin_rounded, color: AppColors.tealLight, size: 18),
+            child: const Icon(Icons.push_pin_rounded, color: DarkColors.tealLight, size: 18),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -656,7 +658,7 @@ class _LiveViewerScreenState extends State<LiveViewerScreen> with SingleTickerPr
                 ),
                 Text(
                   'Rs ${item.price.toInt()} · ${item.estimatedTime}',
-                  style: GoogleFonts.poppins(color: AppColors.tealLight, fontSize: 11),
+                  style: GoogleFonts.poppins(color: DarkColors.tealLight, fontSize: 11),
                 ),
               ],
             ),
@@ -667,7 +669,7 @@ class _LiveViewerScreenState extends State<LiveViewerScreen> with SingleTickerPr
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
+                  gradient: const LinearGradient(colors: [DarkColors.teal, DarkColors.tealLight]),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
@@ -682,7 +684,7 @@ class _LiveViewerScreenState extends State<LiveViewerScreen> with SingleTickerPr
   }
 
   Widget _buildChatLine(_ChatLine line) {
-    final nameColor = line.mine ? AppColors.gold : _nameColors[line.name.length % _nameColors.length];
+    final nameColor = line.mine ? DarkColors.gold : _nameColors[line.name.length % _nameColors.length];
     return Padding(
       padding: const EdgeInsets.only(bottom: 5),
       child: RichText(
@@ -695,7 +697,7 @@ class _LiveViewerScreenState extends State<LiveViewerScreen> with SingleTickerPr
             TextSpan(
               text: line.text,
               style: GoogleFonts.poppins(
-                color: line.gift ? AppColors.gold : Colors.white.withValues(alpha: 0.88),
+                color: line.gift ? DarkColors.gold : Colors.white.withValues(alpha: 0.88),
                 fontWeight: line.gift ? FontWeight.w600 : FontWeight.normal,
                 fontSize: 12,
               ),
@@ -739,7 +741,7 @@ class _LiveViewerScreenState extends State<LiveViewerScreen> with SingleTickerPr
           ),
           IconButton(
             onPressed: _sendMessage,
-            icon: const Icon(Icons.send_rounded, color: AppColors.primaryLight, size: 20),
+            icon: const Icon(Icons.send_rounded, color: DarkColors.primaryLight, size: 20),
           ),
         ],
       ),

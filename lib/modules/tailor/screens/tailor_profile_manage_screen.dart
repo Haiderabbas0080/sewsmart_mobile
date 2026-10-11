@@ -33,7 +33,8 @@ class _TailorProfileManageScreenState extends State<TailorProfileManageScreen>
 
   final List<GarmentPricing> _pricing = List.from(MockData.garments);
 
-  final List<Color> _portfolioColors = [
+  // A getter, so the colours follow the theme when it changes on this screen.
+  List<Color> get _portfolioColors => [
     AppColors.primary,
     AppColors.teal,
     AppColors.secondary,
@@ -147,7 +148,7 @@ class _TailorProfileManageScreenState extends State<TailorProfileManageScreen>
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
+                  gradient: LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(item == null ? 'Add' : 'Save',
@@ -232,7 +233,7 @@ class _TailorProfileManageScreenState extends State<TailorProfileManageScreen>
               Container(
                 width: 88,
                 height: 88,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
                 ),
@@ -266,7 +267,7 @@ class _TailorProfileManageScreenState extends State<TailorProfileManageScreen>
                     color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 18),
               ),
               const SizedBox(width: 6),
-              const Icon(Icons.verified_rounded, color: AppColors.info, size: 18),
+              Icon(Icons.verified_rounded, color: AppColors.info, size: 18),
             ],
           ),
           const SizedBox(height: 4),
@@ -289,7 +290,7 @@ class _TailorProfileManageScreenState extends State<TailorProfileManageScreen>
         // Fill the whole tab, like the tab bars on the customer screens.
         indicatorSize: TabBarIndicatorSize.tab,
         indicator: BoxDecoration(
-          gradient: const LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
+          gradient: LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
           borderRadius: BorderRadius.circular(10),
         ),
         labelColor: Colors.white,
@@ -323,7 +324,7 @@ class _TailorProfileManageScreenState extends State<TailorProfileManageScreen>
           const SizedBox(height: 24),
           GradientButton(
             text: 'Save Changes',
-            colors: const [AppColors.teal, AppColors.tealLight],
+            colors: [AppColors.teal, AppColors.tealLight],
             loading: _saving,
             onTap: _handleSave,
           ),
@@ -345,6 +346,20 @@ class _TailorProfileManageScreenState extends State<TailorProfileManageScreen>
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const MyRidersScreen()),
+            ),
+          ),
+          const SizedBox(height: 10),
+          // Off switches the whole app to the light theme. The choice is saved.
+          _LinkTile(
+            icon: AppColors.isLight ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+            label: 'Dark Mode',
+            subtitle: AppColors.isLight ? 'The light theme is on' : 'The dark theme is on',
+            onTap: ThemeController.toggle,
+            trailing: Switch(
+              value: !AppColors.isLight,
+              onChanged: (dark) => ThemeController.setLight(!dark),
+              activeThumbColor: AppColors.tealLight,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
           ),
           const SizedBox(height: 16),
@@ -383,7 +398,7 @@ class _TailorProfileManageScreenState extends State<TailorProfileManageScreen>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.logout_rounded, color: AppColors.error, size: 18),
+                    Icon(Icons.logout_rounded, color: AppColors.error, size: 18),
                     const SizedBox(width: 8),
                     Text(
                       'Sign Out',
@@ -420,7 +435,7 @@ class _TailorProfileManageScreenState extends State<TailorProfileManageScreen>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.add_photo_alternate_rounded, color: AppColors.tealLight, size: 20),
+                    Icon(Icons.add_photo_alternate_rounded, color: AppColors.tealLight, size: 20),
                     const SizedBox(width: 8),
                     Text(
                       'Add Sample',
@@ -486,7 +501,7 @@ class _TailorProfileManageScreenState extends State<TailorProfileManageScreen>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.add_rounded, color: AppColors.tealLight, size: 20),
+                    Icon(Icons.add_rounded, color: AppColors.tealLight, size: 20),
                     const SizedBox(width: 8),
                     Text(
                       'Add New Garment',
@@ -504,12 +519,15 @@ class _TailorProfileManageScreenState extends State<TailorProfileManageScreen>
   }
 }
 
-// A row that opens another screen, such as Verification or My Riders.
+// A row that opens another screen, such as Verification or My Riders, or holds
+// a switch.
 class _LinkTile extends StatelessWidget {
   final IconData icon;
   final String label, subtitle;
   final VoidCallback onTap;
-  const _LinkTile({required this.icon, required this.label, required this.subtitle, required this.onTap});
+  // Shown in place of the arrow, such as a switch.
+  final Widget? trailing;
+  const _LinkTile({required this.icon, required this.label, required this.subtitle, required this.onTap, this.trailing});
 
   @override
   Widget build(BuildContext context) {
@@ -540,7 +558,7 @@ class _LinkTile extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(Icons.arrow_forward_ios_rounded, color: AppColors.textMuted, size: 14),
+          trailing ?? Icon(Icons.arrow_forward_ios_rounded, color: AppColors.textMuted, size: 14),
         ],
       ),
     );
@@ -565,7 +583,7 @@ class _PricingItem extends StatelessWidget {
               color: AppColors.teal.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(9),
             ),
-            child: const Icon(Icons.checkroom_rounded, color: AppColors.tealLight, size: 18),
+            child: Icon(Icons.checkroom_rounded, color: AppColors.tealLight, size: 18),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -599,7 +617,7 @@ class _PricingItem extends StatelessWidget {
                 color: AppColors.primary.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.edit_rounded, color: AppColors.primaryLight, size: 14),
+              child: Icon(Icons.edit_rounded, color: AppColors.primaryLight, size: 14),
             ),
           ),
         ],

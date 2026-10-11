@@ -119,14 +119,16 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 48),
+                  const SizedBox(height: 8),
+                  // Light or dark theme, before signing in too.
+                  const Align(alignment: Alignment.centerRight, child: ThemeToggleButton()),
                   Center(
                     child: Container(
                       width: 72,
                       height: 72,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        gradient: const LinearGradient(
+                        gradient: LinearGradient(
                           colors: [AppColors.primary, AppColors.primaryLight],
                         ),
                         boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.4), blurRadius: 20)],
@@ -231,7 +233,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.error_outline, color: AppColors.error, size: 16),
+                          Icon(Icons.error_outline, color: AppColors.error, size: 16),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(_errorMsg!, style: GoogleFonts.poppins(color: AppColors.error, fontSize: 12)),

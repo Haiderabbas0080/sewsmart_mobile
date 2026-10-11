@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'core/theme/app_theme.dart';
 import 'modules/auth/screens/splash_screen.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.light,
-    systemNavigationBarColor: AppColors.bg,
-    systemNavigationBarIconBrightness: Brightness.light,
-  ));
+  // Opens the app in the theme picked last time, light or dark.
+  await ThemeController.load();
   runApp(const SewSmartApp());
 }
 
@@ -19,11 +14,14 @@ class SewSmartApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'SewSmart',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.dark,
-      home: const SplashScreen(),
+    return ValueListenableBuilder<bool>(
+      valueListenable: ThemeController.light,
+      builder: (context, light, _) => MaterialApp(
+        title: 'SewSmart',
+        debugShowCheckedModeBanner: false,
+        theme: light ? AppTheme.light : AppTheme.dark,
+        home: const SplashScreen(),
+      ),
     );
   }
 }

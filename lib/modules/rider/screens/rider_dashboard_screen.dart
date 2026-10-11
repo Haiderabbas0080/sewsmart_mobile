@@ -106,7 +106,7 @@ class _RiderDashboardScreenState extends State<RiderDashboardScreen> {
                   ],
                   const SizedBox(height: 20),
                   if (_loading)
-                    const Center(
+                    Center(
                       child: Padding(
                         padding: EdgeInsets.all(40),
                         child: CircularProgressIndicator(color: AppColors.riderColor, strokeWidth: 2),
@@ -166,7 +166,7 @@ class _RiderDashboardScreenState extends State<RiderDashboardScreen> {
                   color: AppColors.card,
                   border: Border.all(color: AppColors.divider),
                 ),
-                child: const Icon(Icons.notifications_outlined, color: AppColors.textPrimary, size: 20),
+                child: Icon(Icons.notifications_outlined, color: AppColors.textPrimary, size: 20),
               ),
               Positioned(
                 right: 0,
@@ -191,7 +191,7 @@ class _RiderDashboardScreenState extends State<RiderDashboardScreen> {
         Container(
           width: 42,
           height: 42,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: LinearGradient(colors: [AppColors.riderColor, Color(0xFFF97316)]),
           ),
@@ -354,7 +354,7 @@ class _DeliveryCard extends StatelessWidget {
                   color: AppColors.riderColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.local_shipping_rounded, color: AppColors.riderColor, size: 20),
+                child: Icon(Icons.local_shipping_rounded, color: AppColors.riderColor, size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -380,18 +380,18 @@ class _DeliveryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          const Divider(color: AppColors.divider, height: 1),
+          Divider(color: AppColors.divider, height: 1),
           const SizedBox(height: 8),
           Row(
             children: [
-              const Icon(Icons.receipt_long_rounded, color: AppColors.textMuted, size: 13),
+              Icon(Icons.receipt_long_rounded, color: AppColors.textMuted, size: 13),
               const SizedBox(width: 4),
               Text(
                 order.id,
                 style: GoogleFonts.poppins(color: AppColors.textMuted, fontSize: 11),
               ),
               const SizedBox(width: 14),
-              const Icon(Icons.schedule_rounded, color: AppColors.textMuted, size: 13),
+              Icon(Icons.schedule_rounded, color: AppColors.textMuted, size: 13),
               const SizedBox(width: 4),
               Text(
                 order.scheduledDelivery != null

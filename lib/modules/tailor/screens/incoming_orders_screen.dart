@@ -159,7 +159,7 @@ class _IncomingOrdersScreenState extends State<IncomingOrdersScreen>
               _buildTabBar(),
               Expanded(
                 child: _loading
-                    ? const Center(
+                    ? Center(
                         child: CircularProgressIndicator(
                           color: AppColors.tealLight,
                           strokeWidth: 2,
@@ -189,7 +189,7 @@ class _IncomingOrdersScreenState extends State<IncomingOrdersScreen>
           if (Navigator.canPop(context))
             IconButton(
               onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back_ios_new, size: 18, color: AppColors.textPrimary),
+              icon: Icon(Icons.arrow_back_ios_new, size: 18, color: AppColors.textPrimary),
             ),
           Expanded(
             child: Text(
@@ -211,7 +211,7 @@ class _IncomingOrdersScreenState extends State<IncomingOrdersScreen>
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: AppColors.divider),
               ),
-              child: const Icon(Icons.filter_list_rounded, color: AppColors.textPrimary, size: 18),
+              child: Icon(Icons.filter_list_rounded, color: AppColors.textPrimary, size: 18),
             ),
           ),
         ],
@@ -232,7 +232,7 @@ class _IncomingOrdersScreenState extends State<IncomingOrdersScreen>
         // Fill the whole tab, like the tab bars on the customer screens.
         indicatorSize: TabBarIndicatorSize.tab,
         indicator: BoxDecoration(
-          gradient: const LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
+          gradient: LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
           borderRadius: BorderRadius.circular(10),
         ),
         labelColor: Colors.white,
@@ -342,7 +342,7 @@ class _OrderCard extends StatelessWidget {
                   color: AppColors.teal.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.checkroom_rounded, color: AppColors.tealLight, size: 22),
+                child: Icon(Icons.checkroom_rounded, color: AppColors.tealLight, size: 22),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -414,7 +414,7 @@ class _OrderCard extends StatelessWidget {
           ),
           if (showActions) ...[
             const SizedBox(height: 12),
-            const Divider(color: AppColors.divider, height: 1),
+            Divider(color: AppColors.divider, height: 1),
             const SizedBox(height: 10),
             Row(
               children: [
@@ -429,7 +429,7 @@ class _OrderCard extends StatelessWidget {
                       ),
                       child: Center(
                         child: rejectLoading
-                            ? const SizedBox(
+                            ? SizedBox(
                                 width: 14,
                                 height: 14,
                                 child: CircularProgressIndicator(color: AppColors.error, strokeWidth: 2),

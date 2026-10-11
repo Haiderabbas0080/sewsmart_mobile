@@ -155,7 +155,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.error_outline, color: AppColors.error, size: 16),
+                              Icon(Icons.error_outline, color: AppColors.error, size: 16),
                               const SizedBox(width: 8),
                               Expanded(child: Text(_errorMsg!, style: GoogleFonts.poppins(color: AppColors.error, fontSize: 12))),
                             ],
@@ -197,7 +197,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: isActive || isDone
-                          ? const LinearGradient(colors: [AppColors.primary, AppColors.primaryLight])
+                          ? LinearGradient(colors: [AppColors.primary, AppColors.primaryLight])
                           : null,
                       color: isActive || isDone ? null : AppColors.card,
                       border: Border.all(color: isActive || isDone ? AppColors.primary : AppColors.divider, width: 1.5),
@@ -258,7 +258,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
                         Text(g.garment, style: GoogleFonts.poppins(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 13)),
                         Row(
                           children: [
-                            const Icon(Icons.schedule_outlined, color: AppColors.textMuted, size: 12),
+                            Icon(Icons.schedule_outlined, color: AppColors.textMuted, size: 12),
                             const SizedBox(width: 4),
                             Text(g.estimatedTime, style: GoogleFonts.poppins(color: AppColors.textMuted, fontSize: 11)),
                           ],
@@ -270,7 +270,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text('Rs ${g.price.toInt()}', style: GoogleFonts.poppins(color: selected ? AppColors.primaryLight : AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 14)),
-                      if (selected) const Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 18),
+                      if (selected) Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 18),
                     ],
                   ),
                 ],
@@ -336,7 +336,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
                     ],
                   ),
                 ),
-                if (_hasDesignRef) const Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 20),
+                if (_hasDesignRef) Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 20),
               ],
             ),
           ),
@@ -372,7 +372,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
               _summaryRow('Shoulder', '${_shoulderCtrl.text}"'),
               if (_notesCtrl.text.isNotEmpty) _summaryRow('Notes', _notesCtrl.text),
               if (_hasDesignRef) _summaryRow('Design Ref', 'Uploaded'),
-              const Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Divider(color: AppColors.divider)),
+              Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Divider(color: AppColors.divider)),
               _summaryRow('Subtotal', 'Rs ${_selectedGarment!.price.toInt()}'),
               if (_couponApplied) _summaryRow('Discount', '- Rs ${_discount.toInt()}', color: AppColors.success),
               const SizedBox(height: 4),
@@ -401,7 +401,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
                 height: 50,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [AppColors.primary, AppColors.primaryLight]),
+                  gradient: LinearGradient(colors: [AppColors.primary, AppColors.primaryLight]),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(child: Text('Apply', style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13))),

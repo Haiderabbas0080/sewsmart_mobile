@@ -120,7 +120,7 @@ class _WriteReviewScreenState extends State<WriteReviewScreen> {
                       const SizedBox(height: 12),
                       Row(
                         children: [
-                          const Icon(Icons.public_rounded, color: AppColors.textMuted, size: 14),
+                          Icon(Icons.public_rounded, color: AppColors.textMuted, size: 14),
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
@@ -155,7 +155,7 @@ class _WriteReviewScreenState extends State<WriteReviewScreen> {
           Container(
             width: 48,
             height: 48,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(colors: [AppColors.primary, AppColors.teal]),
             ),
@@ -258,7 +258,7 @@ class _WriteReviewScreenState extends State<WriteReviewScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (selected) ...[
-                  const Icon(Icons.check_rounded, color: AppColors.primaryLight, size: 14),
+                  Icon(Icons.check_rounded, color: AppColors.primaryLight, size: 14),
                   const SizedBox(width: 4),
                 ],
                 Text(

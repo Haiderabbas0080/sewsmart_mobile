@@ -81,7 +81,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary, size: 18),
+                      icon: Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary, size: 18),
                       onPressed: () => Navigator.pop(context),
                     ),
                     Expanded(
@@ -113,7 +113,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               const SizedBox(height: 8),
               Expanded(
                 child: _loading
-                    ? const Center(child: CircularProgressIndicator(color: AppColors.primaryLight, strokeWidth: 2))
+                    ? Center(child: CircularProgressIndicator(color: AppColors.primaryLight, strokeWidth: 2))
                     : _notifications.isEmpty
                         ? const EmptyState(
                             icon: Icons.notifications_off_outlined,

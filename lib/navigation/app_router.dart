@@ -50,7 +50,7 @@ class _MainNavigationCustomerState extends State<MainNavigationCustomer> {
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: AppColors.surface,
-          border: const Border(top: BorderSide(color: AppColors.divider, width: 0.5)),
+          border: Border(top: BorderSide(color: AppColors.divider, width: 0.5)),
         ),
         child: SafeArea(
           child: BottomNavigationBar(
@@ -135,7 +135,7 @@ class _CustomerChatListScreen extends StatelessWidget {
                                   height: 46,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    gradient: const LinearGradient(
+                                    gradient: LinearGradient(
                                         colors: [AppColors.primary, AppColors.teal]),
                                   ),
                                   child: Center(
@@ -164,7 +164,7 @@ class _CustomerChatListScreen extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                                const Icon(Icons.arrow_forward_ios_rounded,
+                                Icon(Icons.arrow_forward_ios_rounded,
                                     color: AppColors.textMuted, size: 14),
                               ],
                             ),
@@ -207,7 +207,7 @@ class _MainNavigationTailorState extends State<MainNavigationTailor> {
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: AppColors.surface,
-          border: const Border(top: BorderSide(color: AppColors.divider, width: 0.5)),
+          border: Border(top: BorderSide(color: AppColors.divider, width: 0.5)),
         ),
         child: SafeArea(
           child: BottomNavigationBar(
@@ -295,7 +295,7 @@ class _TailorChatListScreen extends StatelessWidget {
                                   height: 46,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    gradient: const LinearGradient(
+                                    gradient: LinearGradient(
                                         colors: [AppColors.teal, AppColors.tealLight]),
                                   ),
                                   child: Center(
@@ -368,7 +368,7 @@ class _MainNavigationRiderState extends State<MainNavigationRider> {
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: AppColors.surface,
-          border: const Border(top: BorderSide(color: AppColors.divider, width: 0.5)),
+          border: Border(top: BorderSide(color: AppColors.divider, width: 0.5)),
         ),
         child: SafeArea(
           child: BottomNavigationBar(

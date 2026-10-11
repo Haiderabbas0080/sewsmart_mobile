@@ -150,7 +150,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                     color: AppColors.card,
                     border: Border.all(color: AppColors.divider),
                   ),
-                  child: const Icon(Icons.notifications_outlined, color: AppColors.textPrimary, size: 22),
+                  child: Icon(Icons.notifications_outlined, color: AppColors.textPrimary, size: 22),
                 ),
                 if (_unreadNotifications > 0)
                   Positioned(
@@ -199,7 +199,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
               height: 28,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: const LinearGradient(colors: [AppColors.primary, AppColors.teal]),
+                gradient: LinearGradient(colors: [AppColors.primary, AppColors.teal]),
               ),
               child: const Icon(Icons.search_rounded, color: Colors.white, size: 15),
             ),
@@ -379,7 +379,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
               Container(
                 width: 8,
                 height: 8,
-                decoration: const BoxDecoration(color: AppColors.success, shape: BoxShape.circle),
+                decoration: BoxDecoration(color: AppColors.success, shape: BoxShape.circle),
               ),
               const SizedBox(width: 8),
               Text('Active Order', style: GoogleFonts.poppins(color: AppColors.success, fontSize: 11, fontWeight: FontWeight.w600)),
@@ -396,7 +396,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 9),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [AppColors.primary, AppColors.primaryLight]),
+                gradient: LinearGradient(colors: [AppColors.primary, AppColors.primaryLight]),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Center(
@@ -466,7 +466,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
           ),
           const SizedBox(height: 14),
           if (_loadingTailors)
-            const Center(child: Padding(padding: EdgeInsets.all(30), child: CircularProgressIndicator(color: AppColors.primaryLight, strokeWidth: 2)))
+            Center(child: Padding(padding: EdgeInsets.all(30), child: CircularProgressIndicator(color: AppColors.primaryLight, strokeWidth: 2)))
           else
             ..._tailors.take(4).map((tailor) => _TailorListCard(tailor: tailor)),
         ],
@@ -491,7 +491,7 @@ class _TailorListCard extends StatelessWidget {
             height: 52,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: const LinearGradient(colors: [AppColors.primary, AppColors.teal]),
+              gradient: LinearGradient(colors: [AppColors.primary, AppColors.teal]),
             ),
             child: Center(
               child: Text(tailor.userAvatar, style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
@@ -507,13 +507,13 @@ class _TailorListCard extends StatelessWidget {
                     Text(tailor.name, style: GoogleFonts.poppins(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 13)),
                     if (tailor.isVerified) ...[
                       const SizedBox(width: 4),
-                      const Icon(Icons.verified_rounded, color: AppColors.info, size: 14),
+                      Icon(Icons.verified_rounded, color: AppColors.info, size: 14),
                     ],
                   ],
                 ),
                 Row(
                   children: [
-                    const Icon(Icons.location_on_outlined, color: AppColors.textMuted, size: 12),
+                    Icon(Icons.location_on_outlined, color: AppColors.textMuted, size: 12),
                     const SizedBox(width: 2),
                     Text(tailor.city, style: GoogleFonts.poppins(color: AppColors.textMuted, fontSize: 11)),
                     const SizedBox(width: 8),
@@ -540,7 +540,7 @@ class _TailorListCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [AppColors.primary, AppColors.primaryLight]),
+                  gradient: LinearGradient(colors: [AppColors.primary, AppColors.primaryLight]),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text('Book', style: GoogleFonts.poppins(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600)),

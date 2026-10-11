@@ -115,21 +115,21 @@ class _TailorProfileScreenState extends State<TailorProfileScreen> with SingleTi
               Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary, size: 18),
+                    icon: Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary, size: 18),
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Spacer(),
                   IconButton(
-                    icon: const Icon(Icons.share_outlined, color: AppColors.textPrimary, size: 20),
+                    icon: Icon(Icons.share_outlined, color: AppColors.textPrimary, size: 20),
                     onPressed: () => showComingSoon(context, 'Sharing tailor profiles'),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.bookmark_border_rounded, color: AppColors.textPrimary, size: 20),
+                    icon: Icon(Icons.bookmark_border_rounded, color: AppColors.textPrimary, size: 20),
                     onPressed: () => showComingSoon(context, 'Saving tailors'),
                   ),
                   PopupMenuButton<String>(
                     color: AppColors.cardAlt,
-                    icon: const Icon(Icons.more_vert_rounded, color: AppColors.textPrimary, size: 20),
+                    icon: Icon(Icons.more_vert_rounded, color: AppColors.textPrimary, size: 20),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     onSelected: (_) => showReportContentSheet(
                       context,
@@ -142,7 +142,7 @@ class _TailorProfileScreenState extends State<TailorProfileScreen> with SingleTi
                         value: 'report',
                         child: Row(
                           children: [
-                            const Icon(Icons.flag_outlined, color: AppColors.error, size: 16),
+                            Icon(Icons.flag_outlined, color: AppColors.error, size: 16),
                             const SizedBox(width: 8),
                             Text('Report profile', style: GoogleFonts.poppins(color: AppColors.textPrimary, fontSize: 13)),
                           ],
@@ -161,7 +161,7 @@ class _TailorProfileScreenState extends State<TailorProfileScreen> with SingleTi
                     height: 80,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      gradient: const LinearGradient(
+                      gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [AppColors.primary, AppColors.teal],
@@ -185,13 +185,13 @@ class _TailorProfileScreenState extends State<TailorProfileScreen> with SingleTi
                             ),
                             if (t.isVerified) ...[
                               const SizedBox(width: 5),
-                              const Icon(Icons.verified_rounded, color: AppColors.info, size: 16),
+                              Icon(Icons.verified_rounded, color: AppColors.info, size: 16),
                             ],
                           ],
                         ),
                         Row(
                           children: [
-                            const Icon(Icons.location_on_outlined, color: AppColors.textMuted, size: 13),
+                            Icon(Icons.location_on_outlined, color: AppColors.textMuted, size: 13),
                             const SizedBox(width: 2),
                             Text(t.city, style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: 12)),
                           ],
@@ -252,7 +252,7 @@ class _TailorProfileScreenState extends State<TailorProfileScreen> with SingleTi
       child: TabBar(
         controller: _tabController,
         indicator: BoxDecoration(
-          gradient: const LinearGradient(colors: [AppColors.primary, AppColors.primaryLight]),
+          gradient: LinearGradient(colors: [AppColors.primary, AppColors.primaryLight]),
           borderRadius: BorderRadius.circular(10),
         ),
         indicatorSize: TabBarIndicatorSize.tab,
@@ -324,7 +324,7 @@ class _TailorProfileScreenState extends State<TailorProfileScreen> with SingleTi
                   color: AppColors.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.checkroom_outlined, color: AppColors.primaryLight, size: 20),
+                child: Icon(Icons.checkroom_outlined, color: AppColors.primaryLight, size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -334,7 +334,7 @@ class _TailorProfileScreenState extends State<TailorProfileScreen> with SingleTi
                     Text(p.garment, style: GoogleFonts.poppins(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 13)),
                     Row(
                       children: [
-                        const Icon(Icons.schedule_outlined, color: AppColors.textMuted, size: 12),
+                        Icon(Icons.schedule_outlined, color: AppColors.textMuted, size: 12),
                         const SizedBox(width: 4),
                         Text(p.estimatedTime, style: GoogleFonts.poppins(color: AppColors.textMuted, fontSize: 11)),
                       ],
@@ -399,7 +399,7 @@ class _TailorProfileScreenState extends State<TailorProfileScreen> with SingleTi
                         targetId: r.id,
                         itemLabel: 'Review by ${r.customerName}: "${r.comment}"',
                       ),
-                      child: const Padding(
+                      child: Padding(
                         padding: EdgeInsets.only(left: 8, top: 4, bottom: 4),
                         child: Icon(Icons.flag_outlined, color: AppColors.textMuted, size: 16),
                       ),
@@ -418,7 +418,7 @@ class _TailorProfileScreenState extends State<TailorProfileScreen> with SingleTi
   Widget _buildBottomBar(TailorModel t) {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.surface,
         border: Border(top: BorderSide(color: AppColors.divider, width: 0.5)),
       ),
@@ -438,7 +438,7 @@ class _TailorProfileScreenState extends State<TailorProfileScreen> with SingleTi
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.chat_bubble_outline_rounded, color: AppColors.primaryLight, size: 18),
+                    Icon(Icons.chat_bubble_outline_rounded, color: AppColors.primaryLight, size: 18),
                     const SizedBox(width: 6),
                     Text('Chat', style: GoogleFonts.poppins(color: AppColors.primaryLight, fontWeight: FontWeight.w600, fontSize: 13)),
                   ],
