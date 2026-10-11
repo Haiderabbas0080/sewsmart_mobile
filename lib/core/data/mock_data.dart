@@ -69,7 +69,7 @@ class MockData {
   static final List<ReviewModel> reviews = [
     ReviewModel(id: 'REV001', customerId: 'C001', tailorId: 'T001', customerName: 'Ayesha K.', comment: 'Amazing bridal work! Exactly as I imagined.', rating: 5.0, createdAt: DateTime.now().subtract(const Duration(days: 14))),
     ReviewModel(id: 'REV002', customerId: 'C002', tailorId: 'T001', customerName: 'Sara A.', comment: 'Very professional and on-time delivery.', rating: 4.5, createdAt: DateTime.now().subtract(const Duration(days: 20))),
-    ReviewModel(id: 'REV003', customerId: 'C001', tailorId: 'T002', customerName: 'Hina M.', comment: 'Good quality, will order again.', rating: 4.0, createdAt: DateTime.now().subtract(const Duration(days: 30))),
+    ReviewModel(id: 'REV003', customerId: 'C003', tailorId: 'T002', customerName: 'Hina M.', comment: 'Good quality, will order again.', rating: 4.0, createdAt: DateTime.now().subtract(const Duration(days: 30))),
   ];
 
   // ── Monthly Earnings ───────────────────────────────────────────────────────
@@ -119,6 +119,58 @@ class MockData {
     const SavedPaymentMethod(id: 'PM001', type: 'jazzCash', detail: '0301-2345678', accountName: 'Ayesha Khan', isDefault: true),
     const SavedPaymentMethod(id: 'PM002', type: 'cashOnDelivery', detail: ''),
   ];
+
+  // ── Saved Addresses ────────────────────────────────────────────────────────
+  static List<AddressModel> addresses = [
+    const AddressModel(id: 'AD001', label: 'home', street: 'House 12, Street 5', area: 'Gulberg III', city: 'Lahore', phone: '0300-1234567', landmark: 'Near Liberty Market', isDefault: true),
+    const AddressModel(id: 'AD002', label: 'work', street: 'Office 4, 2nd Floor, Arfa Tower', area: 'Ferozepur Road', city: 'Lahore', phone: '0300-1234567'),
+  ];
+
+  // ── Disputes and Content Reports ───────────────────────────────────────────
+  // Filled from the app. The admin panel reads them on its Disputes and
+  // Content screens.
+  static final List<DisputeModel> disputes = [];
+  static final List<Map<String, String>> contentReports = [];
+
+  // ── Riders (added by tailors) ──────────────────────────────────────────────
+  static final List<RiderProfile> riders = [
+    const RiderProfile(id: 'R001', name: 'Ali Raza', phone: '0304-5678901', city: 'Lahore', isVerified: true, isAvailable: true, totalDeliveries: 156, monthDeliveries: 28, rating: 4.8, assignedTailorId: 'T001', assignedTailorName: "Sana's Couture"),
+    const RiderProfile(id: 'R002', name: 'Bilal Ahmed', phone: '0305-1122334', city: 'Lahore', isVerified: true, isAvailable: false, totalDeliveries: 89, monthDeliveries: 12, rating: 4.6, assignedTailorId: 'T001', assignedTailorName: "Sana's Couture"),
+    const RiderProfile(id: 'R003', name: 'Usman Tariq', phone: '0306-9988776', city: 'Lahore', isVerified: false, isAvailable: true, totalDeliveries: 0, monthDeliveries: 0, rating: 0, assignedTailorId: 'T001', assignedTailorName: "Sana's Couture"),
+  ];
+
+  // ── Verification Requests (by user id) ─────────────────────────────────────
+  // Every verified tailor and rider has an approved request. A tailor who
+  // registers in the app has none until they send their documents.
+  static final Map<String, VerificationRequest> verifications = {
+    'T001': VerificationRequest(
+      id: 'VR001', status: 'approved', cnicNumber: '35202-1234567-1',
+      submittedAt: DateTime(2024, 11, 6),
+      documents: const [
+        VerificationDocument(type: 'cnicFront'),
+        VerificationDocument(type: 'cnicBack'),
+        VerificationDocument(type: 'businessProof'),
+      ],
+    ),
+    'T002': VerificationRequest(
+      id: 'VR003', status: 'approved', cnicNumber: '42101-2345678-2',
+      submittedAt: DateTime(2024, 12, 2),
+      documents: const [
+        VerificationDocument(type: 'cnicFront'),
+        VerificationDocument(type: 'cnicBack'),
+        VerificationDocument(type: 'businessProof'),
+      ],
+    ),
+    'R001': VerificationRequest(
+      id: 'VR002', status: 'approved', cnicNumber: '35202-7654321-3',
+      submittedAt: DateTime(2025, 3, 2),
+      documents: const [
+        VerificationDocument(type: 'cnicFront'),
+        VerificationDocument(type: 'cnicBack'),
+        VerificationDocument(type: 'drivingLicence'),
+      ],
+    ),
+  };
 
   // ── Payout Accounts and Withdrawals ────────────────────────────────────────
   // The mock keeps one set. The real API returns the signed-in user's own.
@@ -192,6 +244,12 @@ class MockData {
 
   // ── Live Stream ────────────────────────────────────────────────────────────
   static LiveStream? liveStream;
+  // Streams by other tailors, so the customer app has something to watch.
+  // pinnedGarmentId points into tailorGarments.
+  static final List<LiveStream> liveStreams = [
+    LiveStream(id: 'LIVE001', tailorId: 'T004', tailorName: 'Nadia Creations', title: 'Bridal embroidery Q&A', category: 'Bridal Work', status: 'live', startedAt: DateTime.now().subtract(const Duration(minutes: 42)), viewers: 268, peakViewers: 301, likes: 2140, pinnedGarmentId: 'G002'),
+    LiveStream(id: 'LIVE002', tailorId: 'T002', tailorName: 'Mehak Boutique', title: 'Eid party wear, stitched live', category: 'Design Showcase', status: 'live', startedAt: DateTime.now().subtract(const Duration(minutes: 18)), viewers: 134, peakViewers: 160, likes: 820, pinnedGarmentId: 'G005'),
+  ];
   static final List<LiveMessage> liveMessages = [
     LiveMessage(id: 'LM001', viewerName: 'Fatima K.', text: 'Mashallah so beautiful work!', createdAt: DateTime.now().subtract(const Duration(seconds: 40))),
     LiveMessage(id: 'LM002', viewerName: 'Zara M.', text: 'Can you make this for me?', createdAt: DateTime.now().subtract(const Duration(seconds: 25))),

@@ -7,7 +7,10 @@ import '../../../core/models/app_models.dart';
 import '../../../core/data/mock_data.dart';
 import '../../../core/utils/app_refresh.dart';
 import '../../auth/screens/login_screen.dart';
+import '../services/customer_service.dart';
+import 'addresses_screen.dart';
 import 'payment_methods_screen.dart';
+import 'saved_designs_screen.dart';
 // ignore_for_file: use_build_context_synchronously
 
 class CustomerProfileScreen extends StatefulWidget {
@@ -20,17 +23,31 @@ class CustomerProfileScreen extends StatefulWidget {
 class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
   bool _notifications = true;
   bool _signingOut = false;
+  int _savedCount = 0;
 
   @override
   void initState() {
     super.initState();
+    _loadSavedCount();
     // The order count changes when an order is placed.
     AppRefresh.orders.addListener(_refresh);
+    // The saved count changes when a design is saved or removed anywhere.
+    AppRefresh.wishlist.addListener(_loadSavedCount);
+  }
+
+  Future<void> _loadSavedCount() async {
+    final saved = await CustomerService().getWishlist();
+    if (mounted) setState(() => _savedCount = saved.length);
+  }
+
+  void _openSavedDesigns() {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => const SavedDesignsScreen()));
   }
 
   @override
   void dispose() {
     AppRefresh.orders.removeListener(_refresh);
+    AppRefresh.wishlist.removeListener(_loadSavedCount);
     super.dispose();
   }
 
@@ -162,7 +179,13 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
           const SizedBox(width: 10),
           _StatBox(label: 'Reviews', value: '$_reviewCount', icon: Icons.star_rounded, color: AppColors.gold),
           const SizedBox(width: 10),
-          _StatBox(label: 'Saved', value: '3', icon: Icons.bookmark_rounded, color: AppColors.teal),
+          _StatBox(
+            label: 'Saved',
+            value: '$_savedCount',
+            icon: Icons.bookmark_rounded,
+            color: AppColors.teal,
+            onTap: _openSavedDesigns,
+          ),
         ],
       ),
     );
@@ -260,9 +283,15 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
         _SettingsTile(
           icon: Icons.location_on_outlined,
           label: 'Addresses',
-          trailing: user.city ?? 'Not set',
-          onTap: () => _showInfoDialog('Addresses',
-              'Default Address:\n${user.city ?? 'No city set'}\n\nTo add more addresses, a full address management screen will be available soon.'),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AddressesScreen()),
+          ),
+        ),
+        _SettingsTile(
+          icon: Icons.bookmark_border_rounded,
+          label: 'Saved Designs',
+          onTap: _openSavedDesigns,
         ),
         _SettingsTile(
           icon: Icons.credit_card_outlined,
@@ -379,24 +408,28 @@ class _StatBox extends StatelessWidget {
   final String label, value;
   final IconData icon;
   final Color color;
-  const _StatBox({required this.label, required this.value, required this.icon, required this.color});
+  final VoidCallback? onTap;
+  const _StatBox({required this.label, required this.value, required this.icon, required this.color, this.onTap});
 
   @override
   Widget build(BuildContext context) => Expanded(
-    child: Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: color, size: 18),
-          const SizedBox(height: 4),
-          Text(value, style: GoogleFonts.poppins(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 15)),
-          Text(label, style: GoogleFonts.poppins(color: AppColors.textMuted, fontSize: 10)),
-        ],
+    child: GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 18),
+            const SizedBox(height: 4),
+            Text(value, style: GoogleFonts.poppins(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 15)),
+            Text(label, style: GoogleFonts.poppins(color: AppColors.textMuted, fontSize: 10)),
+          ],
+        ),
       ),
     ),
   );

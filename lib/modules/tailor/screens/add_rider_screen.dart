@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/services/auth_service.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/widgets/shared_widgets.dart';
 import '../services/tailor_service.dart';
@@ -55,9 +56,11 @@ class _AddRiderScreenState extends State<AddRiderScreen> {
     }
     setState(() => _submitting = true);
     final ok = await TailorService().addRider(
-      tailorId: 'T001',
+      tailorId: AuthService().currentUser?.id ?? 'T001',
       riderName: _nameCtrl.text,
       riderPhone: _phoneCtrl.text,
+      cnicNumber: _cnicCtrl.text,
+      city: _cityCtrl.text,
     );
     if (mounted) {
       setState(() {
@@ -124,7 +127,7 @@ class _AddRiderScreenState extends State<AddRiderScreen> {
             ),
             const SizedBox(height: 32),
             GradientButton(
-              text: 'Back to Dashboard',
+              text: 'Done',
               colors: const [AppColors.teal, AppColors.tealLight],
               onTap: () => Navigator.pop(context),
             ),

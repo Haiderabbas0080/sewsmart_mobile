@@ -1,6 +1,6 @@
 # SewSmart API contract
 
-Draft 2, 7 October 2026. The 36 admin panel endpoints and the 50 mobile endpoints that were missing are designed in full. The 29 mobile endpoints that the app already named are listed, and their request and response details still have to be written.
+Draft 3, 11 October 2026. The 36 admin panel endpoints and the 68 mobile endpoints added since 7 October 2026 are designed in full. The 29 mobile endpoints that the app already named are listed, and the request and response details of most of them still have to be written. Draft 3 adds the 18 endpoints behind the screens built on 11 October 2026 (3.18 to 3.24).
 
 This file is the agreement between the Flutter apps and the backend. Every endpoint below has a matching `// TODO: METHOD /path` comment above the service method that will call it. To change an endpoint, change this file and that comment in the same pull request.
 
@@ -69,7 +69,7 @@ The admin Orders screen has four tabs for the nine order statuses. The grouping 
 
 ## 3. Mobile app endpoints
 
-The mobile app needs 79 endpoints. The service files already named 29 of them as TODO comments. The other 50 were added on 7 October 2026 for the features that had no endpoint at all. Each new one is a mock-backed method with its endpoint as a TODO comment. No screen calls the new methods yet.
+The mobile app needs 97 endpoints. The service files already named 29 of them as TODO comments. 50 more were added on 7 October 2026 for the features that had no endpoint at all, and 18 on 11 October 2026 for the screens that were missing. Each added one is a mock-backed method with its endpoint as a TODO comment. The screens built on 11 October 2026 call their methods. Most older screens still read mock data directly, and connecting them is part of the backend work.
 
 A user keeps one ID across the app. The tailor `T001` in `/api/tailors/T001` is the user `T001`, and the same holds for riders.
 
@@ -140,7 +140,7 @@ Three services are new and sit in `lib/core/services/` because more than one rol
 
 | Endpoint | Service method | Screen that needs it |
 | --- | --- | --- |
-| `POST /api/auth/reset-password` | `AuthService.resetPassword` | None yet |
+| `POST /api/auth/reset-password` | `AuthService.resetPassword` | Reset password |
 | `GET /api/users/me` | `AuthService.getProfile` | Customer profile, rider profile |
 | `PUT /api/users/me` | `AuthService.updateProfile` | Customer profile, rider profile |
 | `PUT /api/tailors/:id` | `TailorService.updateProfile` | Tailor profile |
@@ -160,9 +160,9 @@ Three services are new and sit in `lib/core/services/` because more than one rol
 | `POST /api/payment-methods` | `CustomerService.addPaymentMethod` | Payment methods |
 | `PUT /api/payment-methods/:id/default` | `CustomerService.setDefaultPaymentMethod` | Payment methods |
 | `DELETE /api/payment-methods/:id` | `CustomerService.removePaymentMethod` | Payment methods |
-| `GET /api/wishlist` | `CustomerService.getWishlist` | Customer profile |
+| `GET /api/wishlist` | `CustomerService.getWishlist` | Customer profile, saved designs, AI recommendations |
 | `POST /api/wishlist` | `CustomerService.addToWishlist` | AI recommendations |
-| `DELETE /api/wishlist/:designId` | `CustomerService.removeFromWishlist` | None yet |
+| `DELETE /api/wishlist/:designId` | `CustomerService.removeFromWishlist` | Saved designs |
 | `POST /api/searches` | `CustomerService.recordSearch` | AI recommendations, browse tailors |
 | `GET /api/searches` | `CustomerService.getMySearches` | AI recommendations |
 | `GET /api/searches/trending` | `CustomerService.getTrendingSearches` | AI recommendations |
@@ -231,7 +231,7 @@ Send any of `name`, `phone` and `city`. Returns the updated user. `400` when `na
 }
 ```
 
-Returns `204`. `400` when the token is wrong or older than 15 minutes, or the password is shorter than 4 characters, which is the rule the register screen applies. The app has no screen for this step, so the link in the email must open a page or a screen that makes this call.
+Returns `204`. `400` when the token is wrong or older than 15 minutes, or the password is shorter than 4 characters, which is the rule the register screen applies. The app does not open links yet, so the email must also show the token as a code. The customer types it on the Reset Password screen, which opens from Enter Reset Code after the email is sent. When the app can open links, the link passes the token to the same screen and the code box is hidden.
 
 ### 3.4 Tailor profile, portfolio and price list
 
@@ -541,7 +541,7 @@ Returns `201` with four design concepts.
 }
 ```
 
-Returns `204`. The tailor gets a notification with the design. The screen has no tailor picker yet, and no other screen opens the design studio.
+Returns `204`. The tailor gets a notification with the design. The studio opens from the AI Design tile on the customer home screen, and Send to Tailor opens a tailor picker. The screen does not call `generateDesigns` or this endpoint yet, so after a tailor is picked it only shows a message.
 
 ### 3.11 Virtual try-on
 
@@ -754,7 +754,7 @@ Returns `204`. A rider who is not available gets no new deliveries.
 
 ### 3.16 Live stream
 
-These endpoints cover the tailor's side only.
+These endpoints cover the tailor's side. The customer's side is in 3.24. Every stream object also carries `tailor_name`, the business name, so the customer app can list streams without loading each tailor.
 
 **`POST /api/streams`**
 
@@ -855,6 +855,251 @@ The list the admin manages in settings (4.11), for the category chips on the bro
 ```json
 ["Bridal", "Eastern", "Western", "Casual", "Children"]
 ```
+
+### 3.18 Endpoints added on 11 October 2026
+
+These serve the screens built on 11 October 2026. Each one is a mock-backed method with its endpoint as a TODO comment, and the new screens call these methods. Two services are new in `lib/core/services/`: `SupportService` for disputes and content reports, and `VerificationService` for tailor and rider documents.
+
+| Endpoint | Service method | Screen that needs it |
+| --- | --- | --- |
+| `GET /api/addresses` | `CustomerService.getAddresses` | Addresses |
+| `POST /api/addresses` | `CustomerService.addAddress` | Addresses |
+| `PUT /api/addresses/:id` | `CustomerService.updateAddress` | Addresses |
+| `PUT /api/addresses/:id/default` | `CustomerService.setDefaultAddress` | Addresses |
+| `DELETE /api/addresses/:id` | `CustomerService.removeAddress` | Addresses |
+| `GET /api/tailors/:id/riders` | `TailorService.getRiders` | My riders, order detail |
+| `PUT /api/orders/:id/rider` | `TailorService.assignRider` | Order detail |
+| `GET /api/verifications/me` | `VerificationService.getMyVerification` | Verification, tailor dashboard |
+| `POST /api/verifications` | `VerificationService.submitVerification` | Verification |
+| `POST /api/disputes` | `SupportService.raiseDispute` | Report a problem, for customers and tailors |
+| `GET /api/disputes` | `SupportService.getMyDisputes` | Order tracking, tailor order detail |
+| `POST /api/content-reports` | `SupportService.reportContent` | Tailor profile, live stream viewer |
+| `GET /api/streams?status=live` | `CustomerService.getLiveStreams` | Customer home, Live Now |
+| `POST /api/streams/:id/join` | `CustomerService.joinStream` | Live stream viewer |
+| `POST /api/streams/:id/leave` | `CustomerService.leaveStream` | Live stream viewer |
+| `POST /api/streams/:id/messages` | `CustomerService.sendStreamMessage` | Live stream viewer |
+| `POST /api/streams/:id/like` | `CustomerService.likeStream` | Live stream viewer |
+| `POST /api/streams/:id/gifts` | `CustomerService.sendGift` | Live stream viewer |
+
+Two older endpoints changed. `POST /api/reviews` now takes the order (3.19), and `POST /api/riders` takes the rider's CNIC and city (3.21). The viewer screen also reads `GET /api/streams/:id/messages`, through `CustomerService.getStreamMessages`.
+
+### 3.19 Reviews
+
+**`POST /api/reviews`**
+
+```json
+{
+  "order_id": "ORD002",
+  "tailor_id": "T002",
+  "rating": 5,
+  "comment": "Lovely fitting.\nPerfect fitting · On-time delivery"
+}
+```
+
+`rating` is a whole number from 1 to 5. `comment` may be empty, and the tags the customer picked arrive as its last line. The customer comes from the token. The service also passes `customerId` and `customerName` for the mock, and the backend ignores both. Returns `201` with the review. `403` when the order is not the customer's. `409` when the order is not `delivered` or `completed`, or already has a review. Recalculate the tailor's `rating` afterwards.
+
+The review object, as `GET /api/tailors/:id/reviews` returns it, now carries `order_id`:
+
+```json
+{
+  "id": "REV004",
+  "order_id": "ORD002",
+  "customer_id": "C001",
+  "tailor_id": "T002",
+  "customer_name": "Ayesha K.",
+  "rating": 5,
+  "comment": "Lovely fitting.",
+  "created_at": "2026-10-11T09:30:00.000Z"
+}
+```
+
+`customer_name` is the first name and an initial. The order tracking screen finds the customer's own review of an order in that list by `order_id`, and shows Rate until there is one.
+
+### 3.20 Addresses
+
+**`GET /api/addresses`**
+
+```json
+[
+  {
+    "id": "AD001",
+    "label": "home",
+    "street": "House 12, Street 5",
+    "area": "Gulberg III",
+    "city": "Lahore",
+    "phone": "0300-1234567",
+    "landmark": "Near Liberty Market",
+    "is_default": true
+  }
+]
+```
+
+`label` is `home`, `work` or `other`. `landmark` may be `null`.
+
+**`POST /api/addresses`**
+
+The fields above without `id` and `is_default`. Returns `201` with the new address. `400` when `street`, `area` or `city` is empty, or `phone` is not a mobile number. The first address becomes the default.
+
+**`PUT /api/addresses/:id`**
+
+The same body as `POST`. Returns the updated address. `is_default` does not change here.
+
+**`PUT /api/addresses/:id/default`**
+
+No body. Returns the updated address. The previous default loses the flag.
+
+**`DELETE /api/addresses/:id`**
+
+Returns `204`. `409` when it is the default address and the customer has other addresses.
+
+### 3.21 Riders of a tailor
+
+**`POST /api/riders`**
+
+Named in 3.1. The Add Rider screen sends:
+
+```json
+{
+  "name": "Usman Tariq",
+  "phone": "0306-9988776",
+  "cnic_number": "35202-1234567-1",
+  "city": "Lahore"
+}
+```
+
+Returns `201` with the rider object of 3.15 and `is_verified` false. The tailor comes from the token, and a verification request is created for the admin (4.5). The two ID photos join the request once uploads exist.
+
+**`GET /api/tailors/:id/riders`**
+
+The tailor's riders as an array of the rider object in 3.15, including riders still waiting for verification. Only that tailor may call it.
+
+**`PUT /api/orders/:id/rider`**
+
+```json
+{
+  "rider_id": "R001"
+}
+```
+
+Returns the updated order with `rider_id` and `rider_name`. `409` when the order is not `readyForDelivery`, or the rider is not verified, not available, or belongs to another tailor. The tailor can change the rider until the pickup is verified. The rider then finds the order in `GET /api/riders/:id/deliveries`.
+
+### 3.22 Verification documents
+
+Tailors and riders send these, and the admin decides on the Verifications screen (4.5).
+
+**`GET /api/verifications/me`**
+
+The signed-in user's latest request. `404` when they have not sent one.
+
+```json
+{
+  "id": "VR001",
+  "status": "pending",
+  "cnic_number": "35202-1234567-1",
+  "documents": [
+    { "type": "cnicFront", "url": "https://example.com/uploads/documents/vr001-cnic-front.jpg" },
+    { "type": "cnicBack", "url": "https://example.com/uploads/documents/vr001-cnic-back.jpg" },
+    { "type": "businessProof", "url": "https://example.com/uploads/documents/vr001-proof.jpg" }
+  ],
+  "submitted_at": "2026-10-11T09:00:00.000Z",
+  "rejection_reason": null,
+  "admin_message": null
+}
+```
+
+`status` is `pending`, `approved` or `rejected`. `rejection_reason` is the reason the admin gave with `PUT /api/admin/verifications/:id/reject`. `admin_message` is the message sent with `POST /api/admin/verifications/:id/request-documents`, while the request stays `pending`. The screen offers Send Documents Again in both cases.
+
+**`POST /api/verifications`**
+
+Multipart form data: `cnic_number`, plus one file for each document type, named `cnicFront` and `cnicBack`, and `businessProof` for a tailor or `drivingLicence` for a rider. Returns `201` with the new request as `pending`. A new request replaces an open one. `400` when the CNIC is not 13 digits or a document is missing. The app has no image picker yet, so the mock sends file names only.
+
+### 3.23 Disputes and content reports
+
+**`POST /api/disputes`**
+
+```json
+{
+  "order_id": "ORD002",
+  "reason": "Wrong measurements",
+  "details": "The sleeves are two inches shorter than the measurements I gave."
+}
+```
+
+The order's customer or its tailor sends it. `reason` is one of the choices on the screen. A customer picks from Wrong measurements, Poor stitching quality, Late delivery, Damaged or stained, Not as described, Payment or refund, and Other. A tailor picks from Customer not responding, Delivery refused, Wrong measurements given, Payment problem, Abusive behaviour, and Other. `details` has at least 20 characters. Returns `201`:
+
+```json
+{
+  "id": "DIS-101",
+  "order_id": "ORD002",
+  "reason": "Wrong measurements",
+  "details": "The sleeves are two inches shorter than the measurements I gave.",
+  "status": "open",
+  "resolution": null,
+  "resolution_notes": null,
+  "created_at": "2026-10-11T09:40:00.000Z"
+}
+```
+
+`403` when the user is neither the order's customer nor its tailor. `409` when the order already has an open dispute.
+
+**`GET /api/disputes`**
+
+Disputes on the signed-in user's orders, whoever raised them, newest first, as an array of the object above. For a customer these are their own orders; for a tailor, the orders placed with them. The customer's order tracking screen and the tailor's order detail screen show the latest one for their order, open or resolved, in place of the "Report a problem" link.
+
+**`POST /api/content-reports`**
+
+```json
+{
+  "target_type": "review",
+  "target_id": "REV002",
+  "reason": "Fake or misleading",
+  "details": ""
+}
+```
+
+`target_type` is `review`, `design` or `profile`. `details` may be empty. Returns `201`. Reporting the same item twice is not an error. The person reported is not told who reported them.
+
+### 3.24 Watching a live stream
+
+The customer's side of 3.16. The video still needs a streaming service (decision 12). Until the API sends live updates (section 5), the viewer screen moves the numbers and plays other viewers' chat by itself, as the tailor's live screen does.
+
+**`GET /api/streams?status=live`**
+
+The streams that are live now, most viewers first, as an array of the stream object in 3.16.
+
+**`POST /api/streams/:id/join`**
+
+No body. Counts the viewer and returns the stream. A stream that has ended comes back with `status` `ended`, and the screen says so.
+
+**`POST /api/streams/:id/leave`**
+
+No body. Returns `204`. Sent when the viewer closes the screen.
+
+**`POST /api/streams/:id/messages`**
+
+```json
+{
+  "text": "Can you make this in blue?"
+}
+```
+
+Returns `201` with the new chat line, in the shape of `GET /api/streams/:id/messages`. `viewer_name` comes from the token. `409` when the stream has ended.
+
+**`POST /api/streams/:id/like`**
+
+No body. Returns `204`. A viewer can like many times.
+
+**`POST /api/streams/:id/gifts`**
+
+```json
+{
+  "gift": "Rose"
+}
+```
+
+`gift` is Star, Rose, Diamond or Crown. The backend charges the viewer's default payment method (3.7) and adds the amount to the stream's `earnings`. Returns `204`. `409` when gifts are off, the stream has ended, or the customer has no payment method.
+
+The pinned item's Order button opens the place order screen with that garment selected.
 
 ## 4. Admin panel endpoints
 
@@ -1102,7 +1347,7 @@ Returns `204`. Keep the account's orders, payments and reviews. Mark the account
 
 ### 4.5 Verifications
 
-A request is created by the mobile flows: when a tailor or rider registers, and when a tailor adds a rider with `POST /api/riders`. The admin API only reads requests and decides them.
+A request is created by the mobile flows: when a tailor or rider registers, when a tailor adds a rider with `POST /api/riders`, and when a tailor or rider sends documents with `POST /api/verifications` (3.22). The admin API only reads requests and decides them.
 
 **`GET /api/admin/verifications?status=`**
 
@@ -1245,7 +1490,7 @@ This is the mobile payment object plus the two names. The admin table shows `tra
 ]
 ```
 
-`resolution` and `resolution_notes` are `null` while the dispute is open.
+`resolution` and `resolution_notes` are `null` while the dispute is open. Disputes come from `POST /api/disputes` (3.23). `issue` joins the `reason` and `details` the user sent, and `amount` is the order amount.
 
 **`PUT /api/admin/disputes/:id/resolve`**
 
@@ -1341,7 +1586,7 @@ Returns `204`. Recalculate the tailor's average rating afterwards.
 ]
 ```
 
-`reported_item` is the text the admin reads. `target_type` is `design`, `review` or `profile`, and with `target_id` it tells the backend what the report points at.
+`reported_item` is the text the admin reads. `target_type` is `design`, `review` or `profile`, and with `target_id` it tells the backend what the report points at. Reports come from `POST /api/content-reports` (3.23), and the backend fills in `reporter_name` and `reported_item`.
 
 **`PUT /api/admin/content/reports/:id/resolve`**
 
@@ -1423,21 +1668,16 @@ Every feature in both apps now has its endpoints named. These parts are still op
 | --- | --- |
 | Request and response details of the 29 endpoints in 3.1 | Only their methods and paths are fixed. Each needs the same detail as the newer endpoints before its backend work starts. |
 | File uploads | The portfolio and try-on endpoints take multipart form data, and so will the design reference on an order, the rider documents and the delivery proof. Where files are stored and their size limits are not decided. The app has no image picker yet. |
-| Watching a live stream | No customer screen exists, so listing live streams, joining, commenting, liking and sending gifts have no endpoints. The video itself needs a streaming service. |
+| Live video | Tailors and viewers have their endpoints (3.16 and 3.24). The video itself needs a streaming service (decision 12). |
+| Delivery address of an order | Customers keep addresses (3.20), but an order and its delivery schedule do not say which one to use. This draft delivers to the default address (decision 15). |
+| Saved try-on results | Results can be saved with `PUT /api/ai/try-on/:id/save`, but no endpoint lists them and no screen shows them. The try-on screen has to call `generateTryOn` first. |
 | Paying withdrawals | The mobile app can request a withdrawal, but no admin screen lists or pays them. |
 | Coupons | The app can validate a code, but no admin screen creates one. |
 | Rider issue reports | Riders send them with `POST /api/deliveries/:id/report-issue`, and no admin screen shows them. |
 | Live updates | Chat, notifications and stream numbers are read by asking again. Socket.IO can deliver them live later without changing these endpoints. |
 | Push notifications | Nothing registers a device for push yet. |
 
-Screens that have to be built before some endpoints can be used:
-
-- A screen to set the new password after a reset link.
-- A screen where a customer submits a review. `submitReview` exists, but nothing calls it.
-- Screens where a customer or tailor raises a dispute or reports content. Until then the admin Disputes screen and the Reports tab of the Content screen have no source of data.
-- A wishlist screen and a list of saved try-on results. Both can be saved, and neither can be opened again.
-- A tailor picker in the AI design studio, and a way to open the studio from another screen.
-- A screen where a tailor sees their riders and assigns one to an order.
+The screens that were missing were built on 11 October 2026: Reset Password, Rate Your Tailor, Saved Designs, Addresses, Report a Problem (customer and tailor), reporting a review or a tailor profile, Live Now and the live stream viewer, My Riders with rider assignment on the order detail, and Verification for tailors and riders. The AI design studio opens from the customer home screen and has a tailor picker. Still without a screen: a list of saved try-on results.
 
 ## 6. Decisions to confirm
 
@@ -1456,3 +1696,8 @@ Each item states what this draft assumes. Change the draft if the team decides o
 11. **Try-on result.** The screen shows a 3D viewer with rotate buttons. This draft returns one image, in one request that waits for the result.
 12. **Live video.** The stream endpoints carry the title, the numbers and the chat. The video needs a streaming service, and the response to `POST /api/streams` will have to carry that service's channel and token once one is chosen.
 13. **Password length.** The register screen accepts 4 characters, and this draft asks for 8 on the admin password. One rule for both would be simpler.
+14. **One review per order.** A customer reviews each delivered or completed order once, and cannot edit it afterwards.
+15. **Delivery address.** Riders deliver to the customer's default address. The delivery schedule call does not choose an address yet.
+16. **Rider assignment.** The tailor assigns one of their own verified, available riders to an order that is ready for delivery, and can change the rider until the pickup is verified.
+17. **Gifts.** A gift is charged to the viewer's default payment method when it is sent and is not refunded.
+18. **Reset code.** The reset email shows the token as a code as well as a link, because the app does not open links yet.

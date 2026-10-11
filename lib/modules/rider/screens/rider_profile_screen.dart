@@ -5,6 +5,7 @@ import '../../../core/widgets/shared_widgets.dart';
 import '../../../core/models/user_model.dart';
 import '../../../core/services/auth_service.dart';
 import '../../auth/screens/login_screen.dart';
+import '../../auth/screens/verification_screen.dart';
 import 'rider_earnings_screen.dart';
 import 'rider_payment_screen.dart';
 
@@ -173,8 +174,10 @@ class RiderProfileScreen extends StatelessWidget {
         'icon': Icons.folder_rounded,
         'label': 'Documents',
         'color': AppColors.info,
-        'onTap': () => _showInfoDialog(context, 'Documents',
-            'Your documents are verified and on file.\nCNIC: ****-*******-1\nLicense: Verified ✓'),
+        'onTap': () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const VerificationScreen()),
+            ),
       },
       {
         'icon': Icons.history_rounded,

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
+import '../../../core/models/app_models.dart';
+import '../services/customer_service.dart';
 
 class AiDesignScreen extends StatefulWidget {
   const AiDesignScreen({super.key});
@@ -59,6 +61,36 @@ class _AiDesignScreenState extends State<AiDesignScreen> {
         _hasResult = true;
       });
     }
+  }
+
+  void _showMessage(String text, Color color) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(text, style: GoogleFonts.poppins()), backgroundColor: color));
+  }
+
+  // The customer picks the tailor who receives the selected design.
+  Future<void> _sendToTailor() async {
+    if (_selectedDesign == null) {
+      _showMessage('Select a design first', AppColors.warning);
+      return;
+    }
+    final tailors = await CustomerService().getTailors();
+    if (!mounted) return;
+    final tailor = await showModalBottomSheet<TailorModel>(
+      context: context,
+      backgroundColor: AppColors.surface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => _TailorPicker(tailors: tailors, category: _selectedCategory),
+    );
+    if (tailor == null || !mounted) return;
+    // The designs here are not generated through CustomerService yet, so there
+    // is no design id to send. Once _generate calls generateDesigns, call
+    // CustomerService().sendDesignToTailor(conceptId, tailor.id) here.
+    _showMessage('Design sent to ${tailor.name}', AppColors.success);
   }
 
   @override
@@ -428,19 +460,7 @@ class _AiDesignScreenState extends State<AiDesignScreen> {
         GlassCard(
           padding: const EdgeInsets.all(14),
           borderColor: AppColors.primary.withValues(alpha: 0.4),
-          onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-            _selectedDesign == null
-                ? SnackBar(
-                    content: Text('Select a design first',
-                        style: GoogleFonts.poppins()),
-                    backgroundColor: AppColors.warning,
-                  )
-                : SnackBar(
-                    content: Text('Design sent to tailor!',
-                        style: GoogleFonts.poppins()),
-                    backgroundColor: AppColors.success,
-                  ),
-          ),
+          onTap: _sendToTailor,
           child: Row(
             children: [
               Container(
@@ -463,7 +483,7 @@ class _AiDesignScreenState extends State<AiDesignScreen> {
                             color: AppColors.textPrimary,
                             fontWeight: FontWeight.w600,
                             fontSize: 13)),
-                    Text('Share these designs with your selected tailor',
+                    Text('Pick a tailor to send the selected design to',
                         style: GoogleFonts.poppins(
                             color: AppColors.textMuted, fontSize: 11)),
                   ],
@@ -708,6 +728,138 @@ class _DesignCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// The list of tailors a design can be sent to. Tailors who work in the
+// design's category come first.
+class _TailorPicker extends StatelessWidget {
+  final List<TailorModel> tailors;
+  final String category;
+  const _TailorPicker({required this.tailors, required this.category});
+
+  // The studio's categories (Bridal, Lehenga, Abaya...) are matched loosely
+  // against the tailor's category and specialties.
+  bool _matches(TailorModel t) {
+    final c = category.toLowerCase();
+    return t.category.toLowerCase() == c ||
+        t.specialties.any((s) => c.contains(s.toLowerCase()) || s.toLowerCase().contains(c));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final sorted = [...tailors.where(_matches), ...tailors.where((t) => !_matches(t))];
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.7),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(2)),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Send to a Tailor',
+              style: GoogleFonts.poppins(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            Text(
+              'The tailor sees the design with the colour and fabric you chose.',
+              style: GoogleFonts.poppins(color: AppColors.textMuted, fontSize: 11),
+            ),
+            const SizedBox(height: 14),
+            if (sorted.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Text(
+                  'No tailors found.',
+                  style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: 13),
+                ),
+              )
+            else
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: sorted.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 8),
+                  itemBuilder: (_, i) {
+                    final t = sorted[i];
+                    return GestureDetector(
+                      onTap: () => Navigator.pop(context, t),
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.card,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.divider),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: LinearGradient(colors: [AppColors.primary, AppColors.teal]),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  t.userAvatar,
+                                  style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 17),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          t.name,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: GoogleFonts.poppins(
+                                            color: AppColors.textPrimary,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ),
+                                      if (t.isVerified) ...[
+                                        const SizedBox(width: 4),
+                                        const Icon(Icons.verified_rounded, color: AppColors.info, size: 13),
+                                      ],
+                                    ],
+                                  ),
+                                  Text(
+                                    '${t.city} · ${t.specialties.take(2).join(', ')}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: GoogleFonts.poppins(color: AppColors.textMuted, fontSize: 11),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            StarRating(rating: t.rating, size: 11),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

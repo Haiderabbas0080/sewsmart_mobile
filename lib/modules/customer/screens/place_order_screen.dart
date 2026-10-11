@@ -12,7 +12,10 @@ import 'payment_screen.dart';
 
 class PlaceOrderScreen extends StatefulWidget {
   final TailorModel tailor;
-  const PlaceOrderScreen({super.key, required this.tailor});
+  // A garment to select when the screen opens, such as the one a tailor
+  // pinned in a live stream.
+  final String? initialGarment;
+  const PlaceOrderScreen({super.key, required this.tailor, this.initialGarment});
 
   @override
   State<PlaceOrderScreen> createState() => _PlaceOrderScreenState();
@@ -20,7 +23,8 @@ class PlaceOrderScreen extends StatefulWidget {
 
 class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
   int _currentStep = 1;
-  GarmentPricing? _selectedGarment;
+  late GarmentPricing? _selectedGarment =
+      _garments.where((g) => g.garment == widget.initialGarment).firstOrNull;
   final List<GarmentPricing> _garments = MockData.garments;
 
   // Step 2 – measurements

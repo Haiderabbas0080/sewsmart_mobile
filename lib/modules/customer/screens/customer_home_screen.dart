@@ -13,6 +13,9 @@ import 'order_history_screen.dart';
 import 'notifications_screen.dart';
 import 'virtual_tryon_screen.dart';
 import 'customer_ai_recommendations_screen.dart';
+import 'ai_design_screen.dart';
+import 'live_streams_screen.dart';
+import 'live_viewer_screen.dart';
 import 'measure_screen.dart';
 
 class CustomerHomeScreen extends StatefulWidget {
@@ -25,6 +28,7 @@ class CustomerHomeScreen extends StatefulWidget {
 class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
   List<TailorModel> _tailors = [];
   List<OrderModel> _orders = [];
+  List<LiveStream> _liveStreams = [];
   int _unreadNotifications = 0;
   bool _loadingTailors = true;
 
@@ -48,10 +52,12 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
     final tailors = await CustomerService().getTailors();
     final orders = await CustomerService().getMyOrders(user.id);
     final notifications = await CustomerService().getNotifications(user.id);
+    final liveStreams = await CustomerService().getLiveStreams();
     if (mounted) {
       setState(() {
         _tailors = tailors;
         _orders = orders;
+        _liveStreams = liveStreams;
         _unreadNotifications = notifications.where((n) => !n.isRead).length;
         _loadingTailors = false;
       });
@@ -100,6 +106,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                   _buildFeatureTiles(),
                   _buildPromoBanner(),
                   if (_activeOrder != null) _buildActiveOrderCard(_activeOrder!),
+                  if (_liveStreams.isNotEmpty) _buildLiveNow(),
                   _buildTopTailors(),
                   const SizedBox(height: 24),
                 ],
@@ -217,6 +224,15 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
             ),
       },
       {
+        'icon': Icons.auto_awesome_rounded,
+        'label': 'AI Design',
+        'gradient': [const Color(0xFFA855F7), AppColors.secondary],
+        'onTap': () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AiDesignScreen()),
+            ),
+      },
+      {
         'icon': Icons.view_in_ar_rounded,
         'label': 'Try-On',
         'gradient': [AppColors.teal, AppColors.tealLight],
@@ -259,8 +275,8 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                 child: GestureDetector(
                   onTap: tile['onTap'] as VoidCallback,
                   child: Container(
-                    margin: EdgeInsets.only(right: entry.key < tiles.length - 1 ? 10 : 0),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    margin: EdgeInsets.only(right: entry.key < tiles.length - 1 ? 8 : 0),
+                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 2),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
@@ -386,6 +402,50 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
               child: Center(
                 child: Text('Track Order', style: GoogleFonts.poppins(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Tailors streaming right now, in a row that scrolls sideways.
+  Widget _buildLiveNow() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: SectionHeader(
+              title: 'Live Now',
+              action: 'See All',
+              onAction: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const LiveStreamsScreen()),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 160,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              itemCount: _liveStreams.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 12),
+              itemBuilder: (_, i) {
+                final stream = _liveStreams[i];
+                return LiveStreamCard(
+                  stream: stream,
+                  compact: true,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => LiveViewerScreen(stream: stream)),
+                  ),
+                );
+              },
             ),
           ),
         ],
