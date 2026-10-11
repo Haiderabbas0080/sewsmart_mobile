@@ -101,7 +101,7 @@ class _AddRiderScreenState extends State<AddRiderScreen> {
             Container(
               width: 80,
               height: 80,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: LinearGradient(colors: [AppColors.teal, AppColors.success]),
               ),
@@ -128,7 +128,7 @@ class _AddRiderScreenState extends State<AddRiderScreen> {
             const SizedBox(height: 32),
             GradientButton(
               text: 'Done',
-              colors: const [AppColors.teal, AppColors.tealLight],
+              colors: [AppColors.teal, AppColors.tealLight],
               onTap: () => Navigator.pop(context),
             ),
           ],
@@ -154,7 +154,7 @@ class _AddRiderScreenState extends State<AddRiderScreen> {
                     color: AppColors.teal.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.info_outline_rounded, color: AppColors.tealLight, size: 20),
+                  child: Icon(Icons.info_outline_rounded, color: AppColors.tealLight, size: 20),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -242,7 +242,7 @@ class _AddRiderScreenState extends State<AddRiderScreen> {
           const SizedBox(height: 30),
           GradientButton(
             text: 'Submit for Verification',
-            colors: const [AppColors.teal, AppColors.tealLight],
+            colors: [AppColors.teal, AppColors.tealLight],
             loading: _submitting,
             onTap: _handleSubmit,
           ),

@@ -206,7 +206,7 @@ class _CustomerAiRecommendationsScreenState
   }
 
   // ── Static catalogue ──────────────────────────────────────────────────────────
-  static const _kSimilar = <String, List<_DesignCard>>{
+  static Map<String, List<_DesignCard>> get _kSimilar => <String, List<_DesignCard>>{
     'bridal': [
       _DesignCard('Heavy Bridal Lehenga',    'Rs 4,500 – 8,000',  AppColors.secondary, Icons.diamond_rounded,             'Bridal'),
       _DesignCard('Embroidered Bridal Set',   'Rs 5,000 – 9,000',  AppColors.primary,   Icons.auto_awesome_rounded,        'Bridal'),
@@ -343,11 +343,11 @@ class _CustomerAiRecommendationsScreenState
         children: [
           IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.arrow_back_ios_rounded,
+            icon: Icon(Icons.arrow_back_ios_rounded,
                 color: AppColors.textPrimary, size: 20),
           ),
           ShaderMask(
-            shaderCallback: (b) => const LinearGradient(
+            shaderCallback: (b) => LinearGradient(
               colors: [AppColors.primary, Color(0xFFA855F7)],
             ).createShader(b),
             child: const Icon(Icons.recommend_rounded,
@@ -380,7 +380,7 @@ class _CustomerAiRecommendationsScreenState
                 border: Border.all(
                     color: AppColors.primary.withValues(alpha: 0.3)),
               ),
-              child: const Icon(Icons.refresh_rounded,
+              child: Icon(Icons.refresh_rounded,
                   color: AppColors.primaryLight, size: 18),
             ),
           ),
@@ -415,7 +415,7 @@ class _CustomerAiRecommendationsScreenState
             Padding(
               padding: const EdgeInsets.only(left: 14),
               child: ShaderMask(
-                shaderCallback: (b) => const LinearGradient(
+                shaderCallback: (b) => LinearGradient(
                   colors: [AppColors.primary, Color(0xFFA855F7)],
                 ).createShader(b),
                 child: const Icon(Icons.search_rounded,
@@ -452,7 +452,7 @@ class _CustomerAiRecommendationsScreenState
                       color: AppColors.textMuted.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.close_rounded,
+                    child: Icon(Icons.close_rounded,
                         color: AppColors.textMuted, size: 14),
                   ),
                 ),
@@ -516,7 +516,7 @@ class _CustomerAiRecommendationsScreenState
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.explore_rounded,
+                  Icon(Icons.explore_rounded,
                       color: AppColors.primaryLight, size: 18),
                   const SizedBox(width: 8),
                   Text('Browse All Tailors for this Design',
@@ -593,7 +593,7 @@ class _CustomerAiRecommendationsScreenState
             ),
             child: Center(
               child: ShaderMask(
-                shaderCallback: (b) => const LinearGradient(
+                shaderCallback: (b) => LinearGradient(
                   colors: [AppColors.primary, Color(0xFFA855F7)],
                 ).createShader(b),
                 child: const Icon(Icons.recommend_rounded,
@@ -831,7 +831,7 @@ class _CustomerAiRecommendationsScreenState
                 border: Border.all(color: AppColors.divider),
               ),
               child: Row(children: [
-                const Icon(Icons.schedule_rounded,
+                Icon(Icons.schedule_rounded,
                     color: AppColors.textMuted, size: 16),
                 const SizedBox(width: 10),
                 Text('Estimated delivery: 3 – 10 days',

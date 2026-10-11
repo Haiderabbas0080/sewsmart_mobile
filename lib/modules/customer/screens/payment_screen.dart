@@ -159,14 +159,14 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                   text: 'Pay Rs ${widget.amount.toInt()}',
                   onTap: _pay,
                   loading: _loading,
-                  colors: const [AppColors.success, Color(0xFF16A34A)],
+                  colors: [AppColors.success, Color(0xFF16A34A)],
                 ),
                 const SizedBox(height: 16),
                 Center(
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.lock_outline, color: AppColors.textMuted, size: 14),
+                      Icon(Icons.lock_outline, color: AppColors.textMuted, size: 14),
                       const SizedBox(width: 4),
                       Text('Payments are secured and encrypted', style: GoogleFonts.poppins(color: AppColors.textMuted, fontSize: 11)),
                     ],
@@ -184,7 +184,7 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [AppColors.primary, Color(0xFF6D28D9)],
@@ -351,7 +351,7 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                 height: 110,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: const LinearGradient(colors: [AppColors.success, AppColors.teal]),
+                  gradient: LinearGradient(colors: [AppColors.success, AppColors.teal]),
                   boxShadow: [BoxShadow(color: AppColors.success.withValues(alpha: 0.45), blurRadius: 30)],
                 ),
                 child: const Icon(Icons.check_rounded, color: Colors.white, size: 54),
@@ -372,11 +372,11 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('Receipt', style: GoogleFonts.poppins(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 14)),
-                      const Icon(Icons.receipt_long_rounded, color: AppColors.success, size: 18),
+                      Icon(Icons.receipt_long_rounded, color: AppColors.success, size: 18),
                     ],
                   ),
                   const SizedBox(height: 14),
-                  const Divider(color: AppColors.divider),
+                  Divider(color: AppColors.divider),
                   const SizedBox(height: 8),
                   _receiptRow('Order ID', widget.orderId),
                   if (_paymentResult != null) _receiptRow('Transaction ID', _paymentResult!.transactionId ?? 'N/A'),
@@ -395,7 +395,7 @@ class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProvider
                 MaterialPageRoute(builder: (_) => const MainNavigationCustomer(initialIndex: 2)),
                 (route) => false,
               ),
-              colors: const [AppColors.success, Color(0xFF16A34A)],
+              colors: [AppColors.success, Color(0xFF16A34A)],
             ),
             const SizedBox(height: 14),
             GestureDetector(

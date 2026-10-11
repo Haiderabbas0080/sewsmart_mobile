@@ -61,7 +61,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
+                gradient: LinearGradient(
                     colors: [AppColors.riderColor, Color(0xFFF97316)]),
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -152,7 +152,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [AppColors.success, Color(0xFF4ADE80)]),
+                gradient: LinearGradient(colors: [AppColors.success, Color(0xFF4ADE80)]),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text('Verify', style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600)),
@@ -299,7 +299,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                   color: AppColors.riderColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.checkroom_rounded, color: AppColors.riderColor, size: 22),
+                child: Icon(Icons.checkroom_rounded, color: AppColors.riderColor, size: 22),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -325,7 +325,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
             ],
           ),
           const SizedBox(height: 12),
-          const Divider(color: AppColors.divider, height: 1),
+          Divider(color: AppColors.divider, height: 1),
           const SizedBox(height: 10),
           Row(
             children: [
@@ -363,7 +363,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                   color: AppColors.riderColor.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.storefront_rounded, color: AppColors.riderColor, size: 16),
+                child: Icon(Icons.storefront_rounded, color: AppColors.riderColor, size: 16),
               ),
               const SizedBox(width: 10),
               Text(
@@ -385,7 +385,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 12),
+                      Icon(Icons.check_circle_rounded, color: AppColors.success, size: 12),
                       const SizedBox(width: 4),
                       Text('Verified', style: GoogleFonts.poppins(color: AppColors.success, fontSize: 10, fontWeight: FontWeight.w600)),
                     ],
@@ -412,7 +412,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                 width: double.infinity,
                 height: 42,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     colors: [AppColors.riderColor, Color(0xFFF97316)],
                   ),
                   borderRadius: BorderRadius.circular(10),
@@ -479,7 +479,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                   color: AppColors.success.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.home_rounded, color: AppColors.success, size: 16),
+                child: Icon(Icons.home_rounded, color: AppColors.success, size: 16),
               ),
               const SizedBox(width: 10),
               Text(
@@ -501,7 +501,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 12),
+                      Icon(Icons.check_circle_rounded, color: AppColors.success, size: 12),
                       const SizedBox(width: 4),
                       Text('Delivered', style: GoogleFonts.poppins(color: AppColors.success, fontSize: 10, fontWeight: FontWeight.w600)),
                     ],
@@ -551,7 +551,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                         ),
                         child: Center(
                           child: _uploadingProof
-                              ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(color: AppColors.success, strokeWidth: 2))
+                              ? SizedBox(width: 14, height: 14, child: CircularProgressIndicator(color: AppColors.success, strokeWidth: 2))
                               : Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -582,7 +582,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                       child: Container(
                         height: 40,
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(colors: [AppColors.success, Color(0xFF4ADE80)]),
+                          gradient: LinearGradient(colors: [AppColors.success, Color(0xFF4ADE80)]),
                           borderRadius: BorderRadius.circular(10),
                           boxShadow: [
                             BoxShadow(
@@ -628,11 +628,11 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
         ),
         child: Center(
           child: _reportingIssue
-              ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: AppColors.error, strokeWidth: 2))
+              ? SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: AppColors.error, strokeWidth: 2))
               : Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.flag_rounded, color: AppColors.error, size: 16),
+                    Icon(Icons.flag_rounded, color: AppColors.error, size: 16),
                     const SizedBox(width: 8),
                     Text(
                       'Report Issue',

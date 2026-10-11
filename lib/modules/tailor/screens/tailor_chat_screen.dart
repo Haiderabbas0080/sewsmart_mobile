@@ -131,14 +131,14 @@ class _TailorChatScreenState extends State<TailorChatScreen> {
           if (Navigator.canPop(context))
             IconButton(
               onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back_ios_new, size: 18, color: AppColors.textPrimary),
+              icon: Icon(Icons.arrow_back_ios_new, size: 18, color: AppColors.textPrimary),
             ),
           Container(
             width: 36,
             height: 36,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: const LinearGradient(colors: [AppColors.primary, AppColors.teal]),
+              gradient: LinearGradient(colors: [AppColors.primary, AppColors.teal]),
             ),
             child: Center(
               child: Text(
@@ -193,7 +193,7 @@ class _TailorChatScreenState extends State<TailorChatScreen> {
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        border: const Border(top: BorderSide(color: AppColors.divider, width: 0.5)),
+        border: Border(top: BorderSide(color: AppColors.divider, width: 0.5)),
       ),
       child: Row(
         children: [
@@ -208,7 +208,7 @@ class _TailorChatScreenState extends State<TailorChatScreen> {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.divider),
               ),
-              child: const Icon(Icons.attach_file_rounded, color: AppColors.textMuted, size: 18),
+              child: Icon(Icons.attach_file_rounded, color: AppColors.textMuted, size: 18),
             ),
           ),
           Expanded(
@@ -241,7 +241,7 @@ class _TailorChatScreenState extends State<TailorChatScreen> {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
+                gradient: LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
@@ -287,7 +287,7 @@ class _MessageBubble extends StatelessWidget {
               height: 28,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: const LinearGradient(colors: [AppColors.primary, AppColors.teal]),
+                gradient: LinearGradient(colors: [AppColors.primary, AppColors.teal]),
               ),
               child: Center(
                 child: Text(initial, style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
@@ -306,7 +306,7 @@ class _MessageBubble extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
                     gradient: isMe
-                        ? const LinearGradient(colors: [AppColors.teal, AppColors.tealLight])
+                        ? LinearGradient(colors: [AppColors.teal, AppColors.tealLight])
                         : null,
                     color: isMe ? null : AppColors.card,
                     borderRadius: BorderRadius.only(
@@ -338,7 +338,7 @@ class _MessageBubble extends StatelessWidget {
             Container(
               width: 28,
               height: 28,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
               ),

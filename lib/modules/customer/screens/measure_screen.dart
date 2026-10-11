@@ -155,11 +155,11 @@ class _MeasureScreenState extends State<MeasureScreen> {
         children: [
           IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.arrow_back_ios_rounded,
+            icon: Icon(Icons.arrow_back_ios_rounded,
                 color: AppColors.textPrimary, size: 20),
           ),
           ShaderMask(
-            shaderCallback: (b) => const LinearGradient(
+            shaderCallback: (b) => LinearGradient(
               colors: [AppColors.secondary, Color(0xFFEC4899)],
             ).createShader(b),
             child: const Icon(Icons.straighten_rounded,
@@ -241,7 +241,7 @@ class _MeasureScreenState extends State<MeasureScreen> {
             ),
             child: Center(
               child: ShaderMask(
-                shaderCallback: (b) => const LinearGradient(
+                shaderCallback: (b) => LinearGradient(
                   colors: [AppColors.secondary, Color(0xFFEC4899)],
                 ).createShader(b),
                 child: const Icon(Icons.accessibility_new_rounded,
@@ -272,7 +272,7 @@ class _MeasureScreenState extends State<MeasureScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
                   gradient: _isCm
-                      ? const LinearGradient(
+                      ? LinearGradient(
                           colors: [AppColors.secondary, Color(0xFFEC4899)])
                       : null,
                   borderRadius: BorderRadius.circular(8),
@@ -296,7 +296,7 @@ class _MeasureScreenState extends State<MeasureScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
                   gradient: !_isCm
-                      ? const LinearGradient(
+                      ? LinearGradient(
                           colors: [AppColors.secondary, Color(0xFFEC4899)])
                       : null,
                   borderRadius: BorderRadius.circular(8),
@@ -324,7 +324,7 @@ class _MeasureScreenState extends State<MeasureScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(children: [
-          const Icon(Icons.tune_rounded, color: AppColors.secondary, size: 16),
+          Icon(Icons.tune_rounded, color: AppColors.secondary, size: 16),
           const SizedBox(width: 6),
           Text('Measurements',
               style: GoogleFonts.poppins(
@@ -378,7 +378,7 @@ class _MeasureScreenState extends State<MeasureScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(children: [
-            const Icon(Icons.lightbulb_outline_rounded,
+            Icon(Icons.lightbulb_outline_rounded,
                 color: AppColors.info, size: 16),
             const SizedBox(width: 6),
             Text('Tips for Accurate Measurements',
@@ -433,7 +433,7 @@ class _MeasureScreenState extends State<MeasureScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.camera_enhance_rounded,
+            Icon(Icons.camera_enhance_rounded,
                 color: AppColors.info, size: 20),
             const SizedBox(width: 8),
             Text('Auto-Scan with Camera (AR)',

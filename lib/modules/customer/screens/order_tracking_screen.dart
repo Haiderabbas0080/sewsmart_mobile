@@ -185,7 +185,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
           const SizedBox(height: 6),
           Row(
             children: [
-              const Icon(Icons.cut_rounded, color: AppColors.textMuted, size: 13),
+              Icon(Icons.cut_rounded, color: AppColors.textMuted, size: 13),
               const SizedBox(width: 4),
               Text(widget.order.tailorName, style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: 12)),
             ],
@@ -334,7 +334,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
                   duration: const Duration(milliseconds: 200),
                   width: 56,
                   decoration: BoxDecoration(
-                    gradient: selected ? const LinearGradient(colors: [AppColors.primary, AppColors.primaryLight]) : null,
+                    gradient: selected ? LinearGradient(colors: [AppColors.primary, AppColors.primaryLight]) : null,
                     color: selected ? null : AppColors.card,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: selected ? AppColors.primary : AppColors.divider),
@@ -366,7 +366,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
                 duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                 decoration: BoxDecoration(
-                  gradient: selected ? const LinearGradient(colors: [AppColors.primary, AppColors.primaryLight]) : null,
+                  gradient: selected ? LinearGradient(colors: [AppColors.primary, AppColors.primaryLight]) : null,
                   color: selected ? null : AppColors.card,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: selected ? AppColors.primary : AppColors.divider),
@@ -381,7 +381,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
           text: 'Confirm Schedule',
           onTap: _confirmSchedule,
           loading: _savingSchedule,
-          colors: const [AppColors.success, Color(0xFF16A34A)],
+          colors: [AppColors.success, Color(0xFF16A34A)],
         ),
       ],
     );
@@ -401,7 +401,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.success.withValues(alpha: 0.15)),
-            child: const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 22),
+            child: Icon(Icons.check_circle_rounded, color: AppColors.success, size: 22),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -450,7 +450,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.chat_bubble_outline_rounded, color: AppColors.primaryLight, size: 18),
+                      Icon(Icons.chat_bubble_outline_rounded, color: AppColors.primaryLight, size: 18),
                       const SizedBox(width: 8),
                       Text('Chat', style: GoogleFonts.poppins(color: AppColors.primaryLight, fontWeight: FontWeight.w600, fontSize: 13)),
                     ],
@@ -472,7 +472,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.videocam_outlined, color: AppColors.tealLight, size: 18),
+                      Icon(Icons.videocam_outlined, color: AppColors.tealLight, size: 18),
                       const SizedBox(width: 8),
                       Text('Video', style: GoogleFonts.poppins(color: AppColors.tealLight, fontWeight: FontWeight.w600, fontSize: 13)),
                     ],
@@ -525,7 +525,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
             width: 42,
             height: 42,
             decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.gold.withValues(alpha: 0.15)),
-            child: const Icon(Icons.star_rounded, color: AppColors.gold, size: 22),
+            child: Icon(Icons.star_rounded, color: AppColors.gold, size: 22),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -561,7 +561,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
       return Center(
         child: TextButton.icon(
           onPressed: _openDispute,
-          icon: const Icon(Icons.report_problem_outlined, color: AppColors.textMuted, size: 16),
+          icon: Icon(Icons.report_problem_outlined, color: AppColors.textMuted, size: 16),
           label: Text('Report a problem with this order', style: GoogleFonts.poppins(color: AppColors.textMuted, fontSize: 12)),
         ),
       );

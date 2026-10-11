@@ -142,7 +142,7 @@ class _TailorNotificationsScreenState
             children: [
               _buildAppBar(unread),
               if (_loading)
-                const Expanded(
+                Expanded(
                   child: Center(
                     child: CircularProgressIndicator(
                       color: AppColors.tealLight,
@@ -201,7 +201,7 @@ class _TailorNotificationsScreenState
           if (Navigator.canPop(context))
             IconButton(
               onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back_ios_new, size: 18, color: AppColors.textPrimary),
+              icon: Icon(Icons.arrow_back_ios_new, size: 18, color: AppColors.textPrimary),
             ),
           Expanded(
             child: Column(

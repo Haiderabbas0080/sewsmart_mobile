@@ -101,7 +101,7 @@ class _BrowseTailorsScreenState extends State<BrowseTailorsScreen> {
                   icon: Icons.search_rounded,
                   suffix: _searchCtrl.text.isNotEmpty
                       ? IconButton(
-                          icon: const Icon(Icons.clear, color: AppColors.textMuted, size: 18),
+                          icon: Icon(Icons.clear, color: AppColors.textMuted, size: 18),
                           onPressed: () { _searchCtrl.clear(); _applyFilter(); },
                         )
                       : null,
@@ -144,7 +144,7 @@ class _BrowseTailorsScreenState extends State<BrowseTailorsScreen> {
               const SizedBox(height: 16),
               Expanded(
                 child: _loading
-                    ? const Center(child: CircularProgressIndicator(color: AppColors.primaryLight, strokeWidth: 2))
+                    ? Center(child: CircularProgressIndicator(color: AppColors.primaryLight, strokeWidth: 2))
                     : _filtered.isEmpty
                         ? EmptyState(
                             icon: Icons.search_off_rounded,
@@ -207,18 +207,18 @@ class _TailorListCard extends StatelessWidget {
                         ),
                         if (tailor.isVerified) ...[
                           const SizedBox(width: 4),
-                          const Icon(Icons.verified_rounded, color: AppColors.info, size: 15),
+                          Icon(Icons.verified_rounded, color: AppColors.info, size: 15),
                         ],
                       ],
                     ),
                     const SizedBox(height: 3),
                     Row(
                       children: [
-                        const Icon(Icons.location_on_outlined, color: AppColors.textMuted, size: 13),
+                        Icon(Icons.location_on_outlined, color: AppColors.textMuted, size: 13),
                         const SizedBox(width: 2),
                         Text(tailor.city, style: GoogleFonts.poppins(color: AppColors.textMuted, fontSize: 11)),
                         const SizedBox(width: 8),
-                        const Icon(Icons.check_circle_outline, color: AppColors.textMuted, size: 12),
+                        Icon(Icons.check_circle_outline, color: AppColors.textMuted, size: 12),
                         const SizedBox(width: 2),
                         Text('${tailor.totalOrders} orders', style: GoogleFonts.poppins(color: AppColors.textMuted, fontSize: 11)),
                       ],
@@ -262,7 +262,7 @@ class _TailorListCard extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(colors: [AppColors.primary, AppColors.primaryLight]),
+                    gradient: LinearGradient(colors: [AppColors.primary, AppColors.primaryLight]),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text('Book Now', style: GoogleFonts.poppins(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),

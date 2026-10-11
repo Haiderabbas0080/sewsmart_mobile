@@ -112,7 +112,7 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                 height: 90,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [AppColors.primary, AppColors.primaryLight, AppColors.teal],
@@ -133,7 +133,7 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                     color: AppColors.surface,
                     border: Border.all(color: AppColors.divider),
                   ),
-                  child: const Icon(Icons.edit_outlined, color: AppColors.textSecondary, size: 14),
+                  child: Icon(Icons.edit_outlined, color: AppColors.textSecondary, size: 14),
                 ),
               ),
             ],
@@ -160,7 +160,7 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                 Text('Customer', style: GoogleFonts.poppins(color: AppColors.customerColor, fontSize: 11, fontWeight: FontWeight.w600)),
                 if (user.isVerified) ...[
                   const SizedBox(width: 6),
-                  const Icon(Icons.verified_rounded, color: AppColors.info, size: 14),
+                  Icon(Icons.verified_rounded, color: AppColors.info, size: 14),
                 ],
               ],
             ),
@@ -256,7 +256,7 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
+                gradient: LinearGradient(
                     colors: [AppColors.primary, AppColors.primaryLight]),
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -329,18 +329,17 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
           onTap: () => _showInfoDialog(
               'Language', 'SewSmart is available in English for now. Urdu is planned for a later version.'),
         ),
-        // The app has only a dark theme, so the switch stays on and explains why.
+        // Off switches the whole app to the light theme. The choice is saved.
         _SettingsTile(
-          icon: Icons.dark_mode_outlined,
+          icon: AppColors.isLight ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
           label: 'Dark Mode',
           trailing: Switch(
-            value: true,
-            onChanged: (_) => _showInfoDialog(
-                'Dark Mode', 'SewSmart uses a dark theme. A light theme is planned for a later version.'),
+            value: !AppColors.isLight,
+            onChanged: (dark) => ThemeController.setLight(!dark),
             activeThumbColor: AppColors.primaryLight,
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
-          onTap: null,
+          onTap: ThemeController.toggle,
         ),
       ],
     );
@@ -390,9 +389,9 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (_signingOut)
-                const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppColors.error, strokeWidth: 2))
+                SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppColors.error, strokeWidth: 2))
               else ...[
-                const Icon(Icons.logout_rounded, color: AppColors.error, size: 20),
+                Icon(Icons.logout_rounded, color: AppColors.error, size: 20),
                 const SizedBox(width: 10),
                 Text('Sign Out', style: GoogleFonts.poppins(color: AppColors.error, fontWeight: FontWeight.w600, fontSize: 14)),
               ],
@@ -483,7 +482,7 @@ class _SettingsTile extends StatelessWidget {
     } else if (trailing is String) {
       trailingWidget = Text(trailing as String, style: GoogleFonts.poppins(color: AppColors.textMuted, fontSize: 12));
     } else {
-      trailingWidget = const Icon(Icons.arrow_forward_ios_rounded, color: AppColors.textMuted, size: 14);
+      trailingWidget = Icon(Icons.arrow_forward_ios_rounded, color: AppColors.textMuted, size: 14);
     }
 
     return GestureDetector(

@@ -61,7 +61,7 @@ class _TailorEarningsScreenState extends State<TailorEarningsScreen> {
         orb2: AppColors.purpleOrb,
         child: SafeArea(
           child: _loading
-              ? const Center(
+              ? Center(
                   child: CircularProgressIndicator(color: AppColors.tealLight, strokeWidth: 2))
               : Column(
                   children: [
@@ -82,7 +82,7 @@ class _TailorEarningsScreenState extends State<TailorEarningsScreen> {
                             const SizedBox(height: 24),
                             GradientButton(
                               text: 'Withdraw Earnings',
-                              colors: const [AppColors.teal, AppColors.tealLight],
+                              colors: [AppColors.teal, AppColors.tealLight],
                               loading: _withdrawing,
                               onTap: _handleWithdraw,
                             ),
@@ -262,7 +262,7 @@ class _TailorEarningsScreenState extends State<TailorEarningsScreen> {
                 gridData: FlGridData(
                   show: true,
                   drawVerticalLine: false,
-                  getDrawingHorizontalLine: (_) => const FlLine(
+                  getDrawingHorizontalLine: (_) => FlLine(
                     color: AppColors.divider,
                     strokeWidth: 0.5,
                   ),

@@ -131,7 +131,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
               const SewAppBar(title: 'Addresses', subtitle: 'Where your orders are delivered'),
               Expanded(
                 child: _loading
-                    ? const Center(
+                    ? Center(
                         child: CircularProgressIndicator(color: AppColors.primaryLight, strokeWidth: 2),
                       )
                     : ListView(
@@ -157,7 +157,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
                           const SizedBox(height: 16),
                           Row(
                             children: [
-                              const Icon(Icons.local_shipping_outlined, color: AppColors.textMuted, size: 14),
+                              Icon(Icons.local_shipping_outlined, color: AppColors.textMuted, size: 14),
                               const SizedBox(width: 6),
                               Expanded(
                                 child: Text(
@@ -262,7 +262,7 @@ class _AddressCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(Icons.phone_outlined, color: AppColors.textMuted, size: 12),
+                    Icon(Icons.phone_outlined, color: AppColors.textMuted, size: 12),
                     const SizedBox(width: 4),
                     Text(a.phone, style: GoogleFonts.poppins(color: AppColors.textMuted, fontSize: 11)),
                   ],
@@ -272,7 +272,7 @@ class _AddressCard extends StatelessWidget {
           ),
           PopupMenuButton<String>(
             color: AppColors.cardAlt,
-            icon: const Icon(Icons.more_vert_rounded, color: AppColors.textMuted, size: 18),
+            icon: Icon(Icons.more_vert_rounded, color: AppColors.textMuted, size: 18),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             onSelected: (value) {
               if (value == 'edit') onEdit();

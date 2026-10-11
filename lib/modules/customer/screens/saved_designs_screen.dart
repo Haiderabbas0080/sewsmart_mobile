@@ -112,7 +112,7 @@ class _SavedDesignsScreenState extends State<SavedDesignsScreen> {
 
   Widget _buildBody() {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator(color: AppColors.primaryLight, strokeWidth: 2));
+      return Center(child: CircularProgressIndicator(color: AppColors.primaryLight, strokeWidth: 2));
     }
     if (_designs.isEmpty) {
       return Center(
@@ -205,7 +205,7 @@ class _SavedDesignCard extends StatelessWidget {
                         color: AppColors.bg.withValues(alpha: 0.6),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.favorite_rounded, color: AppColors.error, size: 17),
+                      child: Icon(Icons.favorite_rounded, color: AppColors.error, size: 17),
                     ),
                   ),
                 ),

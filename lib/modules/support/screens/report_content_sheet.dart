@@ -115,7 +115,7 @@ class _ReportSheetState extends State<_ReportSheet> {
             const SizedBox(height: 18),
             Row(
               children: [
-                const Icon(Icons.flag_rounded, color: AppColors.error, size: 20),
+                Icon(Icons.flag_rounded, color: AppColors.error, size: 20),
                 const SizedBox(width: 8),
                 Text(
                   _title,
@@ -162,7 +162,7 @@ class _ReportSheetState extends State<_ReportSheet> {
               text: 'Send Report',
               onTap: _send,
               loading: _sending,
-              colors: const [AppColors.error, Color(0xFFF87171)],
+              colors: [AppColors.error, Color(0xFFF87171)],
             ),
             const SizedBox(height: 10),
             Center(

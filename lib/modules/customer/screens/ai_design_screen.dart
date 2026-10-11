@@ -99,7 +99,7 @@ class _AiDesignScreenState extends State<AiDesignScreen> {
       backgroundColor: AppColors.bg,
       body: AuroraBackground(
         orb1: AppColors.purpleOrb,
-        orb2: const Color(0x884C1D95),
+        orb2: AppColors.isLight ? AppColors.purpleOrb : const Color(0x884C1D95),
         orb3: AppColors.pinkOrb,
         child: SafeArea(
           child: Column(
@@ -152,11 +152,11 @@ class _AiDesignScreenState extends State<AiDesignScreen> {
         children: [
           IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.arrow_back_ios_rounded,
+            icon: Icon(Icons.arrow_back_ios_rounded,
                 color: AppColors.textPrimary, size: 20),
           ),
           ShaderMask(
-            shaderCallback: (b) => const LinearGradient(
+            shaderCallback: (b) => LinearGradient(
               colors: [AppColors.primary, Color(0xFFA855F7)],
             ).createShader(b),
             child: const Icon(Icons.auto_awesome_rounded,
@@ -254,7 +254,7 @@ class _AiDesignScreenState extends State<AiDesignScreen> {
             ),
             child: Center(
               child: ShaderMask(
-                shaderCallback: (b) => const LinearGradient(
+                shaderCallback: (b) => LinearGradient(
                   colors: [AppColors.primary, Color(0xFFA855F7)],
                 ).createShader(b),
                 child: const Icon(Icons.auto_fix_high_rounded,
@@ -470,7 +470,7 @@ class _AiDesignScreenState extends State<AiDesignScreen> {
                   color: AppColors.primary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.send_rounded,
+                child: Icon(Icons.send_rounded,
                     color: AppColors.primaryLight, size: 18),
               ),
               const SizedBox(width: 12),
@@ -489,7 +489,7 @@ class _AiDesignScreenState extends State<AiDesignScreen> {
                   ],
                 ),
               ),
-              const Icon(Icons.arrow_forward_ios_rounded,
+              Icon(Icons.arrow_forward_ios_rounded,
                   color: AppColors.textMuted, size: 14),
             ],
           ),
@@ -718,7 +718,7 @@ class _DesignCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: AppColors.divider),
                         ),
-                        child: const Icon(Icons.favorite_border_rounded,
+                        child: Icon(Icons.favorite_border_rounded,
                             color: AppColors.textMuted, size: 12),
                       ),
                     ),
@@ -806,7 +806,7 @@ class _TailorPicker extends StatelessWidget {
                             Container(
                               width: 44,
                               height: 44,
-                              decoration: const BoxDecoration(
+                              decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 gradient: LinearGradient(colors: [AppColors.primary, AppColors.teal]),
                               ),
@@ -837,7 +837,7 @@ class _TailorPicker extends StatelessWidget {
                                       ),
                                       if (t.isVerified) ...[
                                         const SizedBox(width: 4),
-                                        const Icon(Icons.verified_rounded, color: AppColors.info, size: 13),
+                                        Icon(Icons.verified_rounded, color: AppColors.info, size: 13),
                                       ],
                                     ],
                                   ),

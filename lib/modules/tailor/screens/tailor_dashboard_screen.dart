@@ -153,7 +153,7 @@ class _TailorDashboardScreenState extends State<TailorDashboardScreen> {
                   if (!_loading && _pendingCount > 0) _buildPendingBanner(),
                   const SizedBox(height: 20),
                   if (_loading)
-                    const Center(
+                    Center(
                       child: Padding(
                         padding: EdgeInsets.all(40),
                         child: CircularProgressIndicator(color: AppColors.tealLight, strokeWidth: 2),
@@ -215,7 +215,7 @@ class _TailorDashboardScreenState extends State<TailorDashboardScreen> {
                   color: AppColors.card,
                   border: Border.all(color: AppColors.divider),
                 ),
-                child: const Icon(Icons.notifications_outlined, color: AppColors.textPrimary, size: 20),
+                child: Icon(Icons.notifications_outlined, color: AppColors.textPrimary, size: 20),
               ),
               Positioned(
                 right: 0,
@@ -243,7 +243,7 @@ class _TailorDashboardScreenState extends State<TailorDashboardScreen> {
         Container(
           width: 42,
           height: 42,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
           ),
@@ -268,7 +268,7 @@ class _TailorDashboardScreenState extends State<TailorDashboardScreen> {
       ),
       child: Row(
         children: [
-          const Icon(Icons.warning_amber_rounded, color: AppColors.warning, size: 20),
+          Icon(Icons.warning_amber_rounded, color: AppColors.warning, size: 20),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -480,7 +480,7 @@ class _OrderCard extends StatelessWidget {
               color: AppColors.teal.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.checkroom_rounded, color: AppColors.tealLight, size: 20),
+            child: Icon(Icons.checkroom_rounded, color: AppColors.tealLight, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(

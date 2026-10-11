@@ -68,7 +68,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
               children: [
                 const SizedBox(height: 16),
                 IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary, size: 18),
+                  icon: Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary, size: 18),
                   onPressed: () => Navigator.pop(context),
                 ),
                 const SizedBox(height: 20),
@@ -93,7 +93,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
             color: AppColors.primary.withValues(alpha: 0.15),
             border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
           ),
-          child: const Icon(Icons.lock_reset_rounded, color: AppColors.primaryLight, size: 30),
+          child: Icon(Icons.lock_reset_rounded, color: AppColors.primaryLight, size: 30),
         ),
         const SizedBox(height: 20),
         Text(
@@ -123,7 +123,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
             ),
             child: Row(
               children: [
-                const Icon(Icons.error_outline, color: AppColors.error, size: 16),
+                Icon(Icons.error_outline, color: AppColors.error, size: 16),
                 const SizedBox(width: 8),
                 Expanded(child: Text(_errorMsg!, style: GoogleFonts.poppins(color: AppColors.error, fontSize: 12))),
               ],
@@ -143,7 +143,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.arrow_back_rounded, color: AppColors.primaryLight, size: 16),
+                Icon(Icons.arrow_back_rounded, color: AppColors.primaryLight, size: 16),
                 const SizedBox(width: 6),
                 Text('Back to Sign In', style: GoogleFonts.poppins(color: AppColors.primaryLight, fontSize: 13)),
               ],
@@ -170,7 +170,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                 color: AppColors.success.withValues(alpha: 0.12),
                 border: Border.all(color: AppColors.success.withValues(alpha: 0.4), width: 2),
               ),
-              child: const Icon(Icons.mark_email_read_rounded, color: AppColors.success, size: 46),
+              child: Icon(Icons.mark_email_read_rounded, color: AppColors.success, size: 46),
             ),
           ),
         ),
@@ -198,7 +198,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.info_outline, color: AppColors.info, size: 18),
+              Icon(Icons.info_outline, color: AppColors.info, size: 18),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(

@@ -157,7 +157,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary, size: 18),
+                      icon: Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary, size: 18),
                       onPressed: () {
                         if (_step == 2) {
                           setState(() { _step = 1; _errorMsg = null; });
@@ -288,7 +288,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             color: AppColors.primary.withValues(alpha: 0.15),
             border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
           ),
-          child: const Icon(Icons.sms_outlined, color: AppColors.primaryLight, size: 36),
+          child: Icon(Icons.sms_outlined, color: AppColors.primaryLight, size: 36),
         ),
         const SizedBox(height: 20),
         Text(
@@ -333,7 +333,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     ),
     child: Row(
       children: [
-        const Icon(Icons.error_outline, color: AppColors.error, size: 16),
+        Icon(Icons.error_outline, color: AppColors.error, size: 16),
         const SizedBox(width: 8),
         Expanded(child: Text(msg, style: GoogleFonts.poppins(color: AppColors.error, fontSize: 12))),
       ],
@@ -349,7 +349,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     ),
     child: Row(
       children: [
-        const Icon(Icons.check_circle_outline, color: AppColors.success, size: 16),
+        Icon(Icons.check_circle_outline, color: AppColors.success, size: 16),
         const SizedBox(width: 8),
         Expanded(child: Text(msg, style: GoogleFonts.poppins(color: AppColors.success, fontSize: 12))),
       ],

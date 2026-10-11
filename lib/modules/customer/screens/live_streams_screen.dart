@@ -54,7 +54,7 @@ class _LiveStreamsScreenState extends State<LiveStreamsScreen> {
               const SewAppBar(title: 'Live Now', subtitle: 'Watch tailors stitch and show their designs'),
               Expanded(
                 child: _loading
-                    ? const Center(
+                    ? Center(
                         child: CircularProgressIndicator(color: AppColors.primaryLight, strokeWidth: 2),
                       )
                     : RefreshIndicator(
@@ -139,7 +139,7 @@ class LiveStreamCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(color: AppColors.error.withValues(alpha: 0.7), width: 2),
-                        gradient: const LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
+                        gradient: LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
                       ),
                       child: Center(
                         child: Text(

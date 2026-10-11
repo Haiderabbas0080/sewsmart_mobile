@@ -85,18 +85,18 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
     'Bridal Work', 'Stitching Tutorial', 'Design Showcase', 'Q&A Session',
   ];
   static const _kGifts = <_Gift>[
-    _Gift('⭐', 'Star',    10,  AppColors.gold),
-    _Gift('🌹', 'Rose',   50,  AppColors.error),
-    _Gift('💎', 'Diamond',100, AppColors.info),
-    _Gift('👑', 'Crown',  500, AppColors.secondary),
+    _Gift('⭐', 'Star',    10,  DarkColors.gold),
+    _Gift('🌹', 'Rose',   50,  DarkColors.error),
+    _Gift('💎', 'Diamond',100, DarkColors.info),
+    _Gift('👑', 'Crown',  500, DarkColors.secondary),
   ];
 
   // ── Showcase items ────────────────────────────────────────────────────────
   static const _kShowcase = <_ShowItem>[
-    _ShowItem('Bridal Lehenga Set',    'Rs 4,500', Icons.diamond_rounded,          AppColors.secondary),
-    _ShowItem('Formal Shalwar Kameez', 'Rs 2,200', Icons.business_center_rounded,  AppColors.info),
-    _ShowItem('Anarkali Frock',        'Rs 3,000', Icons.layers_rounded,           AppColors.teal),
-    _ShowItem('Silk Sharara',          'Rs 5,000', Icons.auto_awesome_rounded,     AppColors.primary),
+    _ShowItem('Bridal Lehenga Set',    'Rs 4,500', Icons.diamond_rounded,          DarkColors.secondary),
+    _ShowItem('Formal Shalwar Kameez', 'Rs 2,200', Icons.business_center_rounded,  DarkColors.info),
+    _ShowItem('Anarkali Frock',        'Rs 3,000', Icons.layers_rounded,           DarkColors.teal),
+    _ShowItem('Silk Sharara',          'Rs 5,000', Icons.auto_awesome_rounded,     DarkColors.primary),
   ];
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -132,7 +132,7 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
     if (_titleCtrl.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Please add a stream title', style: GoogleFonts.poppins()),
-        backgroundColor: AppColors.error,
+        backgroundColor: DarkColors.error,
       ));
       return;
     }
@@ -223,16 +223,19 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
   Widget build(BuildContext context) {
     // While live, the back button asks before ending the stream instead of
     // closing the screen and dropping the viewers.
-    return PopScope(
-      canPop: _phase != _Phase.live,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _confirmEnd();
-      },
-      child: switch (_phase) {
-        _Phase.setup => _buildSetup(),
-        _Phase.live => _buildLive(),
-        _Phase.ended => _buildSummary(),
-      },
+    // The live studio keeps the dark look while the light theme is on too.
+    return AlwaysDark(
+      child: PopScope(
+        canPop: _phase != _Phase.live,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) _confirmEnd();
+        },
+        child: switch (_phase) {
+          _Phase.setup => _buildSetup(),
+          _Phase.live => _buildLive(),
+          _Phase.ended => _buildSummary(),
+        },
+      ),
     );
   }
 
@@ -241,11 +244,13 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
   // ═══════════════════════════════════════════════════════════════════════════
   Widget _buildSetup() {
     return Scaffold(
-      backgroundColor: AppColors.bg,
+      backgroundColor: DarkColors.bg,
       body: AuroraBackground(
-        orb1: AppColors.tealOrb,
-        orb2: AppColors.purpleOrb,
-        orb3: AppColors.orangeOrb,
+        // The live studio keeps the dark look in the light theme too.
+        alwaysDark: true,
+        orb1: DarkColors.tealOrb,
+        orb2: DarkColors.purpleOrb,
+        orb3: DarkColors.orangeOrb,
         child: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 48),
@@ -261,17 +266,17 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                       onPressed: () => Navigator.pop(context),
                       padding: EdgeInsets.zero,
                       icon: const Icon(Icons.arrow_back_ios_rounded,
-                          color: AppColors.textPrimary, size: 20),
+                          color: DarkColors.textPrimary, size: 20),
                     ),
                     const SizedBox(width: 4),
                     Column(crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                       Text('Live Stream', style: GoogleFonts.poppins(
-                          color: AppColors.textPrimary,
+                          color: DarkColors.textPrimary,
                           fontWeight: FontWeight.bold, fontSize: 18)),
                       Text('Go live & earn passive income',
                           style: GoogleFonts.poppins(
-                              color: AppColors.textMuted, fontSize: 11)),
+                              color: DarkColors.textMuted, fontSize: 11)),
                     ]),
                   ]),
                 ),
@@ -280,9 +285,9 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                 Container(
                   height: 196,
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: DarkColors.surface,
                     borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: AppColors.divider),
+                    border: Border.all(color: DarkColors.divider),
                   ),
                   child: Stack(alignment: Alignment.center, children: [
                     // Animated glow ring
@@ -295,7 +300,7 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
-                                color: AppColors.tealLight.withValues(alpha: 0.35),
+                                color: DarkColors.tealLight.withValues(alpha: 0.35),
                                 width: 2),
                           ),
                         ),
@@ -307,7 +312,7 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                       decoration: const BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: LinearGradient(
-                            colors: [AppColors.teal, AppColors.tealLight]),
+                            colors: [DarkColors.teal, DarkColors.tealLight]),
                       ),
                       child: const Center(
                         child: Text('S',
@@ -320,7 +325,7 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                            color: AppColors.error,
+                            color: DarkColors.error,
                             borderRadius: BorderRadius.circular(6)),
                         child: Text('PREVIEW', style: GoogleFonts.poppins(
                             color: Colors.white, fontSize: 9,
@@ -346,7 +351,7 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                       child: Text(
                         _frontCam ? '📷 Front Camera' : '📷 Back Camera',
                         style: GoogleFonts.poppins(
-                            color: AppColors.textMuted, fontSize: 11),
+                            color: DarkColors.textMuted, fontSize: 11),
                       ),
                     ),
                   ]),
@@ -355,26 +360,26 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
 
                 // ── Title ────────────────────────────────────────────────────
                 Text('Stream Title', style: GoogleFonts.poppins(
-                    color: AppColors.textPrimary,
+                    color: DarkColors.textPrimary,
                     fontWeight: FontWeight.w600, fontSize: 13)),
                 const SizedBox(height: 8),
                 Container(
                   decoration: BoxDecoration(
-                    color: AppColors.card,
+                    color: DarkColors.card,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.divider),
+                    border: Border.all(color: DarkColors.divider),
                   ),
                   child: TextField(
                     controller: _titleCtrl,
                     style: GoogleFonts.poppins(
-                        color: AppColors.textPrimary, fontSize: 13),
+                        color: DarkColors.textPrimary, fontSize: 13),
                     decoration: InputDecoration(
                       hintText:
                           'e.g. "Bridal Lehenga Live Stitching Session"',
                       hintStyle: GoogleFonts.poppins(
-                          color: AppColors.textMuted, fontSize: 12),
+                          color: DarkColors.textMuted, fontSize: 12),
                       prefixIcon: const Icon(Icons.title_rounded,
-                          color: AppColors.tealLight, size: 18),
+                          color: DarkColors.tealLight, size: 18),
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(
                           vertical: 13, horizontal: 12),
@@ -385,7 +390,7 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
 
                 // ── Category ─────────────────────────────────────────────────
                 Text('Category', style: GoogleFonts.poppins(
-                    color: AppColors.textPrimary,
+                    color: DarkColors.textPrimary,
                     fontWeight: FontWeight.w600, fontSize: 13)),
                 const SizedBox(height: 8),
                 Wrap(
@@ -400,20 +405,20 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                             horizontal: 14, vertical: 8),
                         decoration: BoxDecoration(
                           color: sel
-                              ? AppColors.teal.withValues(alpha: 0.18)
-                              : AppColors.card,
+                              ? DarkColors.teal.withValues(alpha: 0.18)
+                              : DarkColors.card,
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
                             color: sel
-                                ? AppColors.tealLight
-                                : AppColors.divider,
+                                ? DarkColors.tealLight
+                                : DarkColors.divider,
                           ),
                         ),
                         child: Text(cat,
                             style: GoogleFonts.poppins(
                                 color: sel
-                                    ? AppColors.tealLight
-                                    : AppColors.textSecondary,
+                                    ? DarkColors.tealLight
+                                    : DarkColors.textSecondary,
                                 fontSize: 12,
                                 fontWeight: sel
                                     ? FontWeight.w600
@@ -428,19 +433,19 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: AppColors.card,
+                    color: DarkColors.card,
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppColors.divider),
+                    border: Border.all(color: DarkColors.divider),
                   ),
                   child: Row(children: [
                     Container(
                       width: 40, height: 40,
                       decoration: BoxDecoration(
-                        color: AppColors.gold.withValues(alpha: 0.12),
+                        color: DarkColors.gold.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Icon(Icons.card_giftcard_rounded,
-                          color: AppColors.gold, size: 20),
+                          color: DarkColors.gold, size: 20),
                     ),
                     const SizedBox(width: 12),
                     Expanded(child: Column(
@@ -448,19 +453,19 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                       children: [
                         Text('Enable Gifts & Tips',
                             style: GoogleFonts.poppins(
-                                color: AppColors.textPrimary,
+                                color: DarkColors.textPrimary,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13)),
                         Text('Earn from viewer gifts and donations',
                             style: GoogleFonts.poppins(
-                                color: AppColors.textMuted, fontSize: 11)),
+                                color: DarkColors.textMuted, fontSize: 11)),
                       ],
                     )),
                     Switch(
                       value: _giftsOn,
                       onChanged: (v) => setState(() => _giftsOn = v),
-                      activeTrackColor: AppColors.teal.withValues(alpha: 0.5),
-                      activeColor: AppColors.tealLight, // ignore: deprecated_member_use
+                      activeTrackColor: DarkColors.teal.withValues(alpha: 0.5),
+                      activeColor: DarkColors.tealLight, // ignore: deprecated_member_use
                     ),
                   ]),
                 ),
@@ -471,21 +476,21 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppColors.gold.withValues(alpha: 0.06),
+                      color: DarkColors.gold.withValues(alpha: 0.06),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                          color: AppColors.gold.withValues(alpha: 0.22)),
+                          color: DarkColors.gold.withValues(alpha: 0.22)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(children: [
                           const Icon(Icons.monetization_on_rounded,
-                              color: AppColors.gold, size: 14),
+                              color: DarkColors.gold, size: 14),
                           const SizedBox(width: 6),
                           Text('Viewer Gift Types',
                               style: GoogleFonts.poppins(
-                                  color: AppColors.gold,
+                                  color: DarkColors.gold,
                                   fontWeight: FontWeight.w600,
                                   fontSize: 12)),
                         ]),
@@ -504,7 +509,7 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                                     fontWeight: FontWeight.w600)),
                             Text('Rs ${g.amount}',
                                 style: GoogleFonts.poppins(
-                                    color: AppColors.textMuted,
+                                    color: DarkColors.textMuted,
                                     fontSize: 10)),
                           ])).toList(),
                         ),
@@ -518,21 +523,21 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.07),
+                    color: DarkColors.primary.withValues(alpha: 0.07),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.2)),
+                        color: DarkColors.primary.withValues(alpha: 0.2)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(children: [
                         const Icon(Icons.tips_and_updates_rounded,
-                            color: AppColors.primaryLight, size: 14),
+                            color: DarkColors.primaryLight, size: 14),
                         const SizedBox(width: 6),
                         Text('Tips to Maximise Earnings',
                             style: GoogleFonts.poppins(
-                                color: AppColors.primaryLight,
+                                color: DarkColors.primaryLight,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 12)),
                       ]),
@@ -547,12 +552,12 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                         padding: const EdgeInsets.only(top: 5),
                         child: Row(children: [
                           const Icon(Icons.check_circle_rounded,
-                              color: AppColors.success, size: 12),
+                              color: DarkColors.success, size: 12),
                           const SizedBox(width: 7),
                           Expanded(
                             child: Text(t,
                                 style: GoogleFonts.poppins(
-                                    color: AppColors.textSecondary,
+                                    color: DarkColors.textSecondary,
                                     fontSize: 11)),
                           ),
                         ]),
@@ -573,7 +578,7 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                       borderRadius: BorderRadius.circular(14),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.error.withValues(alpha: 0.45),
+                          color: DarkColors.error.withValues(alpha: 0.45),
                           blurRadius: 18, offset: const Offset(0, 7)),
                       ],
                     ),
@@ -631,7 +636,7 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                 gradient: RadialGradient(
                   center: Alignment(-0.2, -0.4),
                   radius: 0.9,
-                  colors: [AppColors.teal, Colors.transparent],
+                  colors: [DarkColors.teal, Colors.transparent],
                 ),
               ),
             ),
@@ -651,7 +656,7 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                      color: AppColors.error.withValues(alpha: 0.65),
+                      color: DarkColors.error.withValues(alpha: 0.65),
                       width: 2.5),
                 ),
                 child: Padding(
@@ -660,7 +665,7 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
-                          colors: [AppColors.teal, AppColors.tealLight]),
+                          colors: [DarkColors.teal, DarkColors.tealLight]),
                     ),
                     child: const Center(
                       child: Text('S',
@@ -695,7 +700,7 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                 padding: const EdgeInsets.symmetric(
                     horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                    color: AppColors.error,
+                    color: DarkColors.error,
                     borderRadius: BorderRadius.circular(8)),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
                   Container(width: 6, height: 6,
@@ -721,7 +726,7 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                 padding: const EdgeInsets.symmetric(
                     horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.88),
+                  color: DarkColors.success.withValues(alpha: 0.88),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -748,7 +753,7 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
               child: Column(mainAxisSize: MainAxisSize.min, children: [
                 _SideBtn(
                   icon: Icons.favorite_rounded,
-                  color: AppColors.error,
+                  color: DarkColors.error,
                   label: _likes > 999
                       ? '${(_likes / 1000).toStringAsFixed(1)}k'
                       : '$_likes',
@@ -756,13 +761,13 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                 const SizedBox(height: 16),
                 _SideBtn(
                   icon: Icons.card_giftcard_rounded,
-                  color: AppColors.gold,
+                  color: DarkColors.gold,
                   label: 'Gift',
                 ),
                 const SizedBox(height: 16),
                 _SideBtn(
                   icon: Icons.share_rounded,
-                  color: AppColors.info,
+                  color: DarkColors.info,
                   label: 'Share',
                 ),
               ]),
@@ -801,8 +806,8 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                     itemBuilder: (_, i) {
                       final m = _msgs[i];
                       final colors = [
-                        AppColors.tealLight, AppColors.primaryLight,
-                        AppColors.gold, AppColors.error, AppColors.info,
+                        DarkColors.tealLight, DarkColors.primaryLight,
+                        DarkColors.gold, DarkColors.error, DarkColors.info,
                       ];
                       final c = colors[m.viewer.length % colors.length];
                       return Padding(
@@ -853,7 +858,7 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                             ? Icons.mic_off_rounded
                             : Icons.mic_rounded,
                         label: _muted ? 'Muted' : 'Mic',
-                        color: _muted ? AppColors.error : Colors.white70,
+                        color: _muted ? DarkColors.error : Colors.white70,
                       ),
                     ),
                     // Flip
@@ -871,7 +876,7 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                       child: const _CtrlBtn(
                           icon: Icons.checkroom_rounded,
                           label: 'Showcase',
-                          color: AppColors.tealLight),
+                          color: DarkColors.tealLight),
                     ),
                     // End live
                     GestureDetector(
@@ -880,7 +885,7 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 9),
                         decoration: BoxDecoration(
-                            color: AppColors.error,
+                            color: DarkColors.error,
                             borderRadius: BorderRadius.circular(12)),
                         child: Row(children: [
                           const Icon(Icons.stop_circle_rounded,
@@ -909,7 +914,7 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
   void _showShowcase() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: DarkColors.surface,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(22))),
       builder: (shCtx) => Padding(
@@ -922,18 +927,18 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
               child: Container(
                   width: 36, height: 4,
                   decoration: BoxDecoration(
-                      color: AppColors.divider,
+                      color: DarkColors.divider,
                       borderRadius: BorderRadius.circular(2))),
             ),
             const SizedBox(height: 16),
             Text('Pin a Design to Showcase',
                 style: GoogleFonts.poppins(
-                    color: AppColors.textPrimary,
+                    color: DarkColors.textPrimary,
                     fontWeight: FontWeight.bold,
                     fontSize: 15)),
             Text('Viewers can tap to order directly from the stream',
                 style: GoogleFonts.poppins(
-                    color: AppColors.textMuted, fontSize: 11)),
+                    color: DarkColors.textMuted, fontSize: 11)),
             const SizedBox(height: 12),
             ..._kShowcase.map((item) => ListTile(
               contentPadding: EdgeInsets.zero,
@@ -947,19 +952,19 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
               ),
               title: Text(item.name,
                   style: GoogleFonts.poppins(
-                      color: AppColors.textPrimary,
+                      color: DarkColors.textPrimary,
                       fontSize: 13,
                       fontWeight: FontWeight.w600)),
               subtitle: Text(item.price,
                   style: GoogleFonts.poppins(
-                      color: AppColors.success, fontSize: 12)),
+                      color: DarkColors.success, fontSize: 12)),
               trailing: GestureDetector(
                 onTap: () {
                   Navigator.pop(shCtx);
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text('${item.name} pinned for viewers!',
                         style: GoogleFonts.poppins()),
-                    backgroundColor: AppColors.teal,
+                    backgroundColor: DarkColors.teal,
                     duration: const Duration(seconds: 2),
                   ));
                 },
@@ -967,14 +972,14 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                   padding: const EdgeInsets.symmetric(
                       horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: AppColors.teal.withValues(alpha: 0.15),
+                    color: DarkColors.teal.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                        color: AppColors.tealLight.withValues(alpha: 0.3)),
+                        color: DarkColors.tealLight.withValues(alpha: 0.3)),
                   ),
                   child: Text('Pin',
                       style: GoogleFonts.poppins(
-                          color: AppColors.tealLight,
+                          color: DarkColors.tealLight,
                           fontWeight: FontWeight.w600,
                           fontSize: 12)),
                 ),
@@ -991,24 +996,24 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
     showDialog(
       context: context,
       builder: (dCtx) => AlertDialog(
-        backgroundColor: AppColors.surface,
+        backgroundColor: DarkColors.surface,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16)),
         title: Text('End Live Stream?',
             style: GoogleFonts.poppins(
-                color: AppColors.textPrimary,
+                color: DarkColors.textPrimary,
                 fontWeight: FontWeight.bold)),
         content: Text(
           "You've earned Rs ${_earnings.toInt()} so far.\n"
           "Are you sure you want to end?",
           style: GoogleFonts.poppins(
-              color: AppColors.textSecondary, fontSize: 13),
+              color: DarkColors.textSecondary, fontSize: 13),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dCtx),
             child: Text('Keep Streaming',
-                style: GoogleFonts.poppins(color: AppColors.tealLight)),
+                style: GoogleFonts.poppins(color: DarkColors.tealLight)),
           ),
           TextButton(
             onPressed: () {
@@ -1017,7 +1022,7 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
             },
             child: Text('End Stream',
                 style: GoogleFonts.poppins(
-                    color: AppColors.error,
+                    color: DarkColors.error,
                     fontWeight: FontWeight.w600)),
           ),
         ],
@@ -1030,11 +1035,13 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
   // ═══════════════════════════════════════════════════════════════════════════
   Widget _buildSummary() {
     return Scaffold(
-      backgroundColor: AppColors.bg,
+      backgroundColor: DarkColors.bg,
       body: AuroraBackground(
-        orb1: AppColors.tealOrb,
-        orb2: AppColors.orangeOrb,
-        orb3: AppColors.purpleOrb,
+        // The live studio keeps the dark look in the light theme too.
+        alwaysDark: true,
+        orb1: DarkColors.tealOrb,
+        orb2: DarkColors.orangeOrb,
+        orb3: DarkColors.purpleOrb,
         child: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 48),
@@ -1047,9 +1054,9 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: const LinearGradient(
-                        colors: [AppColors.gold, AppColors.warning]),
+                        colors: [DarkColors.gold, DarkColors.warning]),
                     boxShadow: [BoxShadow(
-                        color: AppColors.gold.withValues(alpha: 0.45),
+                        color: DarkColors.gold.withValues(alpha: 0.45),
                         blurRadius: 24)],
                   ),
                   child: const Icon(Icons.emoji_events_rounded,
@@ -1058,12 +1065,12 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                 const SizedBox(height: 16),
                 Text('Stream Ended!',
                     style: GoogleFonts.poppins(
-                        color: AppColors.textPrimary,
+                        color: DarkColors.textPrimary,
                         fontWeight: FontWeight.bold,
                         fontSize: 22)),
                 Text('Great session — here\'s your summary',
                     style: GoogleFonts.poppins(
-                        color: AppColors.textMuted, fontSize: 12)),
+                        color: DarkColors.textMuted, fontSize: 12)),
                 const SizedBox(height: 24),
 
                 // ── Earnings card ────────────────────────────────────────────
@@ -1072,26 +1079,26 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                   padding: const EdgeInsets.all(22),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(colors: [
-                      AppColors.success.withValues(alpha: 0.18),
-                      AppColors.success.withValues(alpha: 0.07),
+                      DarkColors.success.withValues(alpha: 0.18),
+                      DarkColors.success.withValues(alpha: 0.07),
                     ]),
                     borderRadius: BorderRadius.circular(18),
                     border: Border.all(
-                        color: AppColors.success.withValues(alpha: 0.4)),
+                        color: DarkColors.success.withValues(alpha: 0.4)),
                   ),
                   child: Column(children: [
                     Text('Total Earnings',
                         style: GoogleFonts.poppins(
-                            color: AppColors.textMuted, fontSize: 13)),
+                            color: DarkColors.textMuted, fontSize: 13)),
                     const SizedBox(height: 6),
                     Text('Rs ${_earnings.toInt()}',
                         style: GoogleFonts.poppins(
-                            color: AppColors.success,
+                            color: DarkColors.success,
                             fontWeight: FontWeight.bold,
                             fontSize: 38)),
                     Text('from gifts, tips & stream bonuses',
                         style: GoogleFonts.poppins(
-                            color: AppColors.textMuted, fontSize: 11)),
+                            color: DarkColors.textMuted, fontSize: 11)),
                   ]),
                 ),
                 const SizedBox(height: 16),
@@ -1106,13 +1113,13 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                   childAspectRatio: 1.55,
                   children: [
                     _StatCard('Peak Viewers', '$_peakView',
-                        Icons.remove_red_eye_rounded, AppColors.info),
+                        Icons.remove_red_eye_rounded, DarkColors.info),
                     _StatCard('Total Likes', '$_likes',
-                        Icons.favorite_rounded, AppColors.error),
+                        Icons.favorite_rounded, DarkColors.error),
                     _StatCard('Duration', _dur,
-                        Icons.timer_rounded, AppColors.primary),
+                        Icons.timer_rounded, DarkColors.primary),
                     _StatCard('Category', _category.split(' ').first,
-                        Icons.category_rounded, AppColors.teal),
+                        Icons.category_rounded, DarkColors.teal),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -1121,20 +1128,20 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.card,
+                    color: DarkColors.card,
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppColors.divider),
+                    border: Border.all(color: DarkColors.divider),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(children: [
                         const Icon(Icons.card_giftcard_rounded,
-                            color: AppColors.gold, size: 15),
+                            color: DarkColors.gold, size: 15),
                         const SizedBox(width: 7),
                         Text('Gifts Received',
                             style: GoogleFonts.poppins(
-                                color: AppColors.textPrimary,
+                                color: DarkColors.textPrimary,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13)),
                       ]),
@@ -1154,7 +1161,7 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                                     fontSize: 14)),
                             Text('Rs ${g.amount}',
                                 style: GoogleFonts.poppins(
-                                    color: AppColors.textMuted,
+                                    color: DarkColors.textMuted,
                                     fontSize: 10)),
                           ]);
                         }).toList(),
@@ -1174,14 +1181,14 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                                 'The minimum withdrawal is Rs ${PayoutService.minimumWithdrawal.toInt()}. '
                                 'These earnings stay in your balance.',
                                 style: GoogleFonts.poppins()),
-                            backgroundColor: AppColors.warning,
+                            backgroundColor: DarkColors.warning,
                             duration: const Duration(seconds: 3),
                           )
                         : SnackBar(
                             content: Text(
                                 'Rs ${_earnings.toInt()} withdrawal initiated!',
                                 style: GoogleFonts.poppins()),
-                            backgroundColor: AppColors.success,
+                            backgroundColor: DarkColors.success,
                             duration: const Duration(seconds: 3),
                           ),
                   ),
@@ -1189,10 +1196,10 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                     width: double.infinity, height: 54,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                          colors: [AppColors.success, Color(0xFF16A34A)]),
+                          colors: [DarkColors.success, Color(0xFF16A34A)]),
                       borderRadius: BorderRadius.circular(14),
                       boxShadow: [BoxShadow(
-                          color: AppColors.success.withValues(alpha: 0.38),
+                          color: DarkColors.success.withValues(alpha: 0.38),
                           blurRadius: 16, offset: const Offset(0, 6))],
                     ),
                     child: Row(
@@ -1218,19 +1225,19 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     decoration: BoxDecoration(
-                      color: AppColors.card,
+                      color: DarkColors.card,
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: AppColors.divider),
+                      border: Border.all(color: DarkColors.divider),
                     ),
                     child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                       const Icon(Icons.replay_rounded,
-                          color: AppColors.tealLight, size: 18),
+                          color: DarkColors.tealLight, size: 18),
                       const SizedBox(width: 8),
                       Text('Go Live Again',
                           style: GoogleFonts.poppins(
-                              color: AppColors.tealLight,
+                              color: DarkColors.tealLight,
                               fontWeight: FontWeight.w600,
                               fontSize: 14)),
                     ]),
@@ -1245,14 +1252,14 @@ class _TailorLiveScreenState extends State<TailorLiveScreen>
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: DarkColors.surface,
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: AppColors.divider),
+                      border: Border.all(color: DarkColors.divider),
                     ),
                     child: Center(
                       child: Text('Back to Dashboard',
                           style: GoogleFonts.poppins(
-                              color: AppColors.textSecondary,
+                              color: DarkColors.textSecondary,
                               fontSize: 13)),
                     ),
                   ),
@@ -1358,21 +1365,21 @@ class _StatCard extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(14),
     decoration: BoxDecoration(
-      color: AppColors.card,
+      color: DarkColors.card,
       borderRadius: BorderRadius.circular(14),
-      border: Border.all(color: AppColors.divider),
+      border: Border.all(color: DarkColors.divider),
     ),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Icon(icon, color: color, size: 20),
       const Spacer(),
       Text(value,
           style: GoogleFonts.poppins(
-              color: AppColors.textPrimary,
+              color: DarkColors.textPrimary,
               fontWeight: FontWeight.bold,
               fontSize: 18)),
       Text(label,
           style: GoogleFonts.poppins(
-              color: AppColors.textMuted, fontSize: 10)),
+              color: DarkColors.textMuted, fontSize: 10)),
     ]),
   );
 }

@@ -73,7 +73,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> with SingleTick
                   child: TabBar(
                     controller: _tabController,
                     indicator: BoxDecoration(
-                      gradient: const LinearGradient(colors: [AppColors.primary, AppColors.primaryLight]),
+                      gradient: LinearGradient(colors: [AppColors.primary, AppColors.primaryLight]),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     indicatorSize: TabBarIndicatorSize.tab,
@@ -92,7 +92,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> with SingleTick
               ),
               Expanded(
                 child: _loading
-                    ? const Center(child: CircularProgressIndicator(color: AppColors.primaryLight, strokeWidth: 2))
+                    ? Center(child: CircularProgressIndicator(color: AppColors.primaryLight, strokeWidth: 2))
                     : TabBarView(
                         controller: _tabController,
                         children: [
@@ -169,7 +169,7 @@ class _OrderCard extends StatelessWidget {
           const SizedBox(height: 4),
           Row(
             children: [
-              const Icon(Icons.cut_rounded, color: AppColors.textMuted, size: 13),
+              Icon(Icons.cut_rounded, color: AppColors.textMuted, size: 13),
               const SizedBox(width: 4),
               Text(order.tailorName, style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: 12)),
             ],
@@ -180,7 +180,7 @@ class _OrderCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.calendar_today_outlined, color: AppColors.textMuted, size: 12),
+                  Icon(Icons.calendar_today_outlined, color: AppColors.textMuted, size: 12),
                   const SizedBox(width: 4),
                   Text(
                     '${order.createdAt.day}/${order.createdAt.month}/${order.createdAt.year}',
@@ -208,7 +208,7 @@ class _OrderCard extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.local_shipping_outlined, color: AppColors.success, size: 16),
+                    Icon(Icons.local_shipping_outlined, color: AppColors.success, size: 16),
                     const SizedBox(width: 8),
                     Text('Schedule Delivery', style: GoogleFonts.poppins(color: AppColors.success, fontSize: 12, fontWeight: FontWeight.w600)),
                   ],

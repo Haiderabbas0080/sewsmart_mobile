@@ -175,10 +175,10 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
         children: [
           IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.arrow_back_ios_rounded,
+            icon: Icon(Icons.arrow_back_ios_rounded,
                 color: AppColors.textPrimary, size: 20),
           ),
-          const Icon(Icons.credit_card_rounded,
+          Icon(Icons.credit_card_rounded,
               color: AppColors.primaryLight, size: 22),
           const SizedBox(width: 10),
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -202,7 +202,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(children: [
-          const Icon(Icons.account_balance_wallet_outlined,
+          Icon(Icons.account_balance_wallet_outlined,
               color: AppColors.textMuted, size: 14),
           const SizedBox(width: 6),
           Text('SAVED METHODS',
@@ -276,7 +276,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                 ),
                 PopupMenuButton<String>(
                   color: AppColors.cardAlt,
-                  icon: const Icon(Icons.more_vert_rounded,
+                  icon: Icon(Icons.more_vert_rounded,
                       color: AppColors.textMuted, size: 18),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
@@ -289,7 +289,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                       PopupMenuItem(
                         value: 'default',
                         child: Row(children: [
-                          const Icon(Icons.check_circle_outline_rounded,
+                          Icon(Icons.check_circle_outline_rounded,
                               color: AppColors.success, size: 16),
                           const SizedBox(width: 8),
                           Text('Set as Default',
@@ -301,7 +301,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                     PopupMenuItem(
                       value: 'remove',
                       child: Row(children: [
-                        const Icon(Icons.delete_outline_rounded,
+                        Icon(Icons.delete_outline_rounded,
                             color: AppColors.error, size: 16),
                         const SizedBox(width: 8),
                         Text('Remove',
@@ -326,7 +326,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
               colors: [AppColors.primary, AppColors.primaryLight]),
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
@@ -370,7 +370,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(children: [
-          const Icon(Icons.info_outline_rounded,
+          Icon(Icons.info_outline_rounded,
               color: AppColors.textMuted, size: 14),
           const SizedBox(width: 6),
           Text('ACCEPTED PAYMENTS',
@@ -424,7 +424,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
             color: AppColors.success.withValues(alpha: 0.2)),
       ),
       child: Row(children: [
-        const Icon(Icons.lock_outline_rounded,
+        Icon(Icons.lock_outline_rounded,
             color: AppColors.success, size: 16),
         const SizedBox(width: 10),
         Expanded(
@@ -482,7 +482,7 @@ class _AddMethodSheetState extends State<_AddMethodSheet> {
     return number;
   }
 
-  static const _types = [
+  static List<_AcceptedMethod> get _types => [
     _AcceptedMethod('JazzCash', Icons.account_balance_wallet_rounded,
         AppColors.warning),
     _AcceptedMethod(
@@ -531,7 +531,7 @@ class _AddMethodSheetState extends State<_AddMethodSheet> {
                 width: 4,
                 height: 24,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [AppColors.primary, AppColors.teal]),

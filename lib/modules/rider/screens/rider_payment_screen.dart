@@ -160,10 +160,10 @@ class _RiderPaymentScreenState extends State<RiderPaymentScreen> {
         children: [
           IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.arrow_back_ios_rounded,
+            icon: Icon(Icons.arrow_back_ios_rounded,
                 color: AppColors.textPrimary, size: 20),
           ),
-          const Icon(Icons.account_balance_wallet_rounded,
+          Icon(Icons.account_balance_wallet_rounded,
               color: AppColors.riderColor, size: 22),
           const SizedBox(width: 10),
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -207,7 +207,7 @@ class _RiderPaymentScreenState extends State<RiderPaymentScreen> {
               color: AppColors.riderColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.payments_rounded,
+            child: Icon(Icons.payments_rounded,
                 color: AppColors.riderColor, size: 24),
           ),
           const SizedBox(width: 14),
@@ -242,7 +242,7 @@ class _RiderPaymentScreenState extends State<RiderPaymentScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(children: [
-          const Icon(Icons.account_balance_outlined,
+          Icon(Icons.account_balance_outlined,
               color: AppColors.textMuted, size: 14),
           const SizedBox(width: 6),
           Text('PAYOUT ACCOUNTS',
@@ -316,7 +316,7 @@ class _RiderPaymentScreenState extends State<RiderPaymentScreen> {
                 ),
                 PopupMenuButton<String>(
                   color: AppColors.cardAlt,
-                  icon: const Icon(Icons.more_vert_rounded,
+                  icon: Icon(Icons.more_vert_rounded,
                       color: AppColors.textMuted, size: 18),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
@@ -329,7 +329,7 @@ class _RiderPaymentScreenState extends State<RiderPaymentScreen> {
                       PopupMenuItem(
                         value: 'default',
                         child: Row(children: [
-                          const Icon(Icons.check_circle_outline_rounded,
+                          Icon(Icons.check_circle_outline_rounded,
                               color: AppColors.success, size: 16),
                           const SizedBox(width: 8),
                           Text('Set as Default',
@@ -341,7 +341,7 @@ class _RiderPaymentScreenState extends State<RiderPaymentScreen> {
                     PopupMenuItem(
                       value: 'remove',
                       child: Row(children: [
-                        const Icon(Icons.delete_outline_rounded,
+                        Icon(Icons.delete_outline_rounded,
                             color: AppColors.error, size: 16),
                         const SizedBox(width: 8),
                         Text('Remove',
@@ -366,7 +366,7 @@ class _RiderPaymentScreenState extends State<RiderPaymentScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
               colors: [AppColors.riderColor, Color(0xFFF97316)]),
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
@@ -409,7 +409,7 @@ class _RiderPaymentScreenState extends State<RiderPaymentScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(children: [
-          const Icon(Icons.info_outline_rounded,
+          Icon(Icons.info_outline_rounded,
               color: AppColors.textMuted, size: 14),
           const SizedBox(width: 6),
           Text('SUPPORTED METHODS',
@@ -465,7 +465,7 @@ class _RiderPaymentScreenState extends State<RiderPaymentScreen> {
       child: Column(
         children: [
           Row(children: [
-            const Icon(Icons.schedule_rounded,
+            Icon(Icons.schedule_rounded,
                 color: AppColors.info, size: 16),
             const SizedBox(width: 8),
             Text('Payout Schedule',
@@ -512,7 +512,7 @@ class _AddPayoutSheetState extends State<_AddPayoutSheet> {
   final _ibanCtrl = TextEditingController();
   String? _error;
 
-  static const _types = [
+  static List<_SupportedItem> get _types => [
     _SupportedItem(
         'JazzCash', Icons.account_balance_wallet_rounded, AppColors.warning),
     _SupportedItem(
@@ -559,7 +559,7 @@ class _AddPayoutSheetState extends State<_AddPayoutSheet> {
                 width: 4,
                 height: 24,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [AppColors.riderColor, Color(0xFFF97316)]),

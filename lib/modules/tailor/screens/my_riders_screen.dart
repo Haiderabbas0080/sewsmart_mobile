@@ -62,7 +62,7 @@ class _MyRidersScreenState extends State<MyRidersScreen> {
               ),
               Expanded(
                 child: _loading
-                    ? const Center(child: CircularProgressIndicator(color: AppColors.tealLight, strokeWidth: 2))
+                    ? Center(child: CircularProgressIndicator(color: AppColors.tealLight, strokeWidth: 2))
                     : RefreshIndicator(
                         color: AppColors.tealLight,
                         backgroundColor: AppColors.card,
@@ -94,7 +94,7 @@ class _MyRidersScreenState extends State<MyRidersScreen> {
                             const SizedBox(height: 8),
                             GradientButton(
                               text: 'Add Rider',
-                              colors: const [AppColors.teal, AppColors.tealLight],
+                              colors: [AppColors.teal, AppColors.tealLight],
                               onTap: _addRider,
                             ),
                             const SizedBox(height: 16),
@@ -108,7 +108,7 @@ class _MyRidersScreenState extends State<MyRidersScreen> {
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Icon(Icons.info_outline_rounded, color: AppColors.info, size: 18),
+                                  Icon(Icons.info_outline_rounded, color: AppColors.info, size: 18),
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: Text(
@@ -206,7 +206,7 @@ class _RiderCard extends StatelessWidget {
                     ),
                     if (r.isVerified) ...[
                       const SizedBox(width: 4),
-                      const Icon(Icons.verified_rounded, color: AppColors.info, size: 14),
+                      Icon(Icons.verified_rounded, color: AppColors.info, size: 14),
                     ],
                   ],
                 ),
@@ -220,7 +220,7 @@ class _RiderCard extends StatelessWidget {
                     StatusBadge(label: status, color: statusColor),
                     if (r.isVerified) ...[
                       const SizedBox(width: 10),
-                      const Icon(Icons.local_shipping_outlined, color: AppColors.textMuted, size: 13),
+                      Icon(Icons.local_shipping_outlined, color: AppColors.textMuted, size: 13),
                       const SizedBox(width: 3),
                       Text(
                         '${r.totalDeliveries}',
@@ -251,7 +251,7 @@ class _RiderAvatar extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         width: size,
         height: size,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: LinearGradient(colors: [AppColors.riderColor, Color(0xFFF97316)]),
         ),
@@ -335,7 +335,7 @@ class _AssignRiderSheetState extends State<_AssignRiderSheet> {
             ),
             const SizedBox(height: 14),
             if (riders == null)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.all(30),
                 child: Center(child: CircularProgressIndicator(color: AppColors.tealLight, strokeWidth: 2)),
               )
@@ -403,12 +403,12 @@ class _AssignRiderSheetState extends State<_AssignRiderSheet> {
                 ),
               ),
               if (current)
-                const Icon(Icons.check_circle_rounded, color: AppColors.tealLight, size: 20)
+                Icon(Icons.check_circle_rounded, color: AppColors.tealLight, size: 20)
               else if (canAssign)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
+                    gradient: LinearGradient(colors: [AppColors.teal, AppColors.tealLight]),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(

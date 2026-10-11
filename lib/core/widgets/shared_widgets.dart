@@ -6,20 +6,24 @@ import '../theme/app_theme.dart';
 class AuroraBackground extends StatelessWidget {
   final Widget child;
   final Color? orb1, orb2, orb3;
-  const AuroraBackground({super.key, required this.child, this.orb1, this.orb2, this.orb3});
+  // Keeps the dark look in the light theme too. The live stream screens use it.
+  final bool alwaysDark;
+  const AuroraBackground({super.key, required this.child, this.orb1, this.orb2, this.orb3, this.alwaysDark = false});
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(builder: (context, constraints) {
+    final light = AppColors.isLight && !alwaysDark;
+    final defaultOrb = light ? LightColors.purpleOrb : DarkColors.purpleOrb;
     final background = Container(
-      decoration: const BoxDecoration(gradient: LinearGradient(
+      decoration: BoxDecoration(gradient: LinearGradient(
         begin: Alignment.topLeft, end: Alignment.bottomRight,
-        colors: [Color(0xFF0A0812), Color(0xFF120A22), Color(0xFF0A1220)],
+        colors: light ? LightColors.background : DarkColors.background,
       )),
       child: Stack(children: [
-        Positioned(top: -80, left: -60, child: _Orb(color: orb1 ?? AppColors.purpleOrb, size: 280)),
-        Positioned(top: 200, left: 60, child: _Orb(color: orb2 ?? AppColors.pinkOrb, size: 220)),
-        Positioned(top: 80, right: -40, child: _Orb(color: orb3 ?? AppColors.tealOrb, size: 200)),
-        Positioned(bottom: 100, right: 20, child: _Orb(color: AppColors.purpleOrb, size: 160)),
+        Positioned(top: -80, left: -60, child: _Orb(color: orb1 ?? defaultOrb, size: 280, light: light)),
+        Positioned(top: 200, left: 60, child: _Orb(color: orb2 ?? (light ? LightColors.pinkOrb : DarkColors.pinkOrb), size: 220, light: light)),
+        Positioned(top: 80, right: -40, child: _Orb(color: orb3 ?? (light ? LightColors.tealOrb : DarkColors.tealOrb), size: 200, light: light)),
+        Positioned(bottom: 100, right: 20, child: _Orb(color: defaultOrb, size: 160, light: light)),
         child,
       ]),
     );
@@ -32,12 +36,15 @@ class AuroraBackground extends StatelessWidget {
 
 class _Orb extends StatelessWidget {
   final Color color; final double size;
-  const _Orb({required this.color, required this.size});
+  // On a light background the orb fades into its own colour, because fading
+  // into transparent black leaves a grey ring.
+  final bool light;
+  const _Orb({required this.color, required this.size, this.light = false});
   @override
   Widget build(BuildContext context) => Container(
     width: size, height: size,
     decoration: BoxDecoration(shape: BoxShape.circle,
-      gradient: RadialGradient(colors: [color, Colors.transparent])),
+      gradient: RadialGradient(colors: [color, light ? color.withValues(alpha: 0) : Colors.transparent])),
   );
 }
 
@@ -231,26 +238,60 @@ class RoleChip extends StatelessWidget {
 // ── Choice Pill ───────────────────────────────────────────────────────────────
 // A tappable pill for picking one of a few options, such as a reason or a label.
 class ChoicePill extends StatelessWidget {
-  final String label; final bool selected; final VoidCallback onTap; final Color color;
-  const ChoicePill({super.key, required this.label, required this.selected, required this.onTap, this.color = AppColors.primaryLight});
+  // color defaults to AppColors.primaryLight of the theme in use.
+  final String label; final bool selected; final VoidCallback onTap; final Color? color;
+  const ChoicePill({super.key, required this.label, required this.selected, required this.onTap, this.color});
   @override
-  Widget build(BuildContext context) => GestureDetector(
-    onTap: onTap,
-    child: AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-      decoration: BoxDecoration(
-        color: selected ? color.withValues(alpha: 0.16) : AppColors.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: selected ? color : AppColors.divider),
+  Widget build(BuildContext context) {
+    final accent = color ?? AppColors.primaryLight;
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        decoration: BoxDecoration(
+          color: selected ? accent.withValues(alpha: 0.16) : AppColors.card,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: selected ? accent : AppColors.divider),
+        ),
+        child: Text(label, style: GoogleFonts.poppins(
+          color: selected ? accent : AppColors.textSecondary,
+          fontSize: 12,
+          fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+        )),
       ),
-      child: Text(label, style: GoogleFonts.poppins(
-        color: selected ? color : AppColors.textSecondary,
-        fontSize: 12,
-        fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
-      )),
-    ),
-  );
+    );
+  }
+}
+
+// ── Theme Toggle ──────────────────────────────────────────────────────────────
+// A round button that switches the whole app between the light and the dark
+// theme. The profile screens have the same choice as a Dark Mode switch.
+class ThemeToggleButton extends StatelessWidget {
+  const ThemeToggleButton({super.key});
+  @override
+  Widget build(BuildContext context) {
+    final light = AppColors.isLight;
+    return Tooltip(
+      message: light ? 'Dark theme' : 'Light theme',
+      child: GestureDetector(
+        onTap: ThemeController.toggle,
+        child: Container(
+          width: 40, height: 40,
+          decoration: BoxDecoration(
+            color: AppColors.card,
+            shape: BoxShape.circle,
+            border: Border.all(color: AppColors.divider),
+          ),
+          child: Icon(
+            light ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+            color: light ? AppColors.primary : AppColors.gold,
+            size: 20,
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 // ── Coming Soon ───────────────────────────────────────────────────────────────

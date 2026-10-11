@@ -52,7 +52,7 @@ class RiderProfileScreen extends StatelessWidget {
                 Container(
                   width: 92,
                   height: 92,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: LinearGradient(
                       colors: [AppColors.riderColor, Color(0xFFF97316)],
@@ -94,7 +94,7 @@ class RiderProfileScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 6),
-                const Icon(Icons.verified_rounded, color: AppColors.info, size: 18),
+                Icon(Icons.verified_rounded, color: AppColors.info, size: 18),
               ],
             ),
             const SizedBox(height: 4),
@@ -216,6 +216,19 @@ class RiderProfileScreen extends StatelessWidget {
             color: item['color'] as Color,
             onTap: item['onTap'] as VoidCallback,
           )),
+          // Off switches the whole app to the light theme. The choice is saved.
+          _MenuItem(
+            icon: AppColors.isLight ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+            label: 'Dark Mode',
+            color: AppColors.primaryLight,
+            onTap: ThemeController.toggle,
+            trailing: Switch(
+              value: !AppColors.isLight,
+              onChanged: (dark) => ThemeController.setLight(!dark),
+              activeThumbColor: AppColors.riderColor,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+          ),
           const SizedBox(height: 8),
           _MenuItem(
             icon: Icons.logout_rounded,
@@ -269,7 +282,7 @@ class RiderProfileScreen extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const Icon(Icons.info_outline_rounded, color: AppColors.textMuted, size: 16),
+            Icon(Icons.info_outline_rounded, color: AppColors.textMuted, size: 16),
             const SizedBox(width: 10),
             Expanded(
               child: Text.rich(
@@ -373,7 +386,7 @@ void _showEditProfileDialog(BuildContext context) {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                   colors: [AppColors.riderColor, Color(0xFFF97316)]),
               borderRadius: BorderRadius.circular(10),
             ),
@@ -393,6 +406,8 @@ class _MenuItem extends StatelessWidget {
   final Color color;
   final VoidCallback onTap;
   final bool isDestructive;
+  // Shown in place of the arrow, such as a switch.
+  final Widget? trailing;
 
   const _MenuItem({
     required this.icon,
@@ -400,6 +415,7 @@ class _MenuItem extends StatelessWidget {
     required this.color,
     required this.onTap,
     this.isDestructive = false,
+    this.trailing,
   });
 
   @override
@@ -438,11 +454,12 @@ class _MenuItem extends StatelessWidget {
                 ),
               ),
             ),
-            Icon(
-              Icons.arrow_forward_ios_rounded,
-              color: AppColors.textMuted,
-              size: 14,
-            ),
+            trailing ??
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: AppColors.textMuted,
+                  size: 14,
+                ),
           ],
         ),
       ),

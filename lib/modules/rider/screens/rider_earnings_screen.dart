@@ -70,7 +70,7 @@ class _RiderEarningsScreenState extends State<RiderEarningsScreen> {
         orb2: AppColors.purpleOrb,
         child: SafeArea(
           child: _loading
-              ? const Center(
+              ? Center(
                   child: CircularProgressIndicator(color: AppColors.riderColor, strokeWidth: 2),
                 )
               : Column(
@@ -92,7 +92,7 @@ class _RiderEarningsScreenState extends State<RiderEarningsScreen> {
                             const SizedBox(height: 24),
                             GradientButton(
                               text: 'Withdraw Earnings',
-                              colors: const [AppColors.riderColor, Color(0xFFF97316)],
+                              colors: [AppColors.riderColor, Color(0xFFF97316)],
                               loading: _withdrawing,
                               onTap: _handleWithdraw,
                             ),
@@ -115,7 +115,7 @@ class _RiderEarningsScreenState extends State<RiderEarningsScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [AppColors.riderColor, Color(0xFFC2410C)],
@@ -286,7 +286,7 @@ class _RiderEarningsScreenState extends State<RiderEarningsScreen> {
                 gridData: FlGridData(
                   show: true,
                   drawVerticalLine: false,
-                  getDrawingHorizontalLine: (_) => const FlLine(
+                  getDrawingHorizontalLine: (_) => FlLine(
                     color: AppColors.divider,
                     strokeWidth: 0.5,
                   ),

@@ -26,7 +26,7 @@ class _TailorPaymentScreenState extends State<TailorPaymentScreen> {
   ];
 
   // ── Mock earnings data ────────────────────────────────────────────────────
-  static const _kHistory = <_Payout>[
+  static List<_Payout> get _kHistory => <_Payout>[
     _Payout('May 2026', 'Rs 12,400', AppColors.success, true),
     _Payout('Apr 2026', 'Rs 9,800',  AppColors.success, true),
     _Payout('Mar 2026', 'Rs 15,200', AppColors.success, true),
@@ -161,10 +161,10 @@ class _TailorPaymentScreenState extends State<TailorPaymentScreen> {
         children: [
           IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.arrow_back_ios_rounded,
+            icon: Icon(Icons.arrow_back_ios_rounded,
                 color: AppColors.textPrimary, size: 20),
           ),
-          const Icon(Icons.account_balance_wallet_rounded,
+          Icon(Icons.account_balance_wallet_rounded,
               color: AppColors.tealLight, size: 22),
           const SizedBox(width: 10),
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -197,7 +197,7 @@ class _TailorPaymentScreenState extends State<TailorPaymentScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(children: [
-          const Icon(Icons.bar_chart_rounded,
+          Icon(Icons.bar_chart_rounded,
               color: AppColors.tealLight, size: 15),
           const SizedBox(width: 6),
           Text('EARNINGS OVERVIEW',
@@ -252,7 +252,7 @@ class _TailorPaymentScreenState extends State<TailorPaymentScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(children: [
-          const Icon(Icons.account_balance_outlined,
+          Icon(Icons.account_balance_outlined,
               color: AppColors.textMuted, size: 14),
           const SizedBox(width: 6),
           Text('PAYOUT ACCOUNTS',
@@ -324,7 +324,7 @@ class _TailorPaymentScreenState extends State<TailorPaymentScreen> {
                 ),
                 PopupMenuButton<String>(
                   color: AppColors.cardAlt,
-                  icon: const Icon(Icons.more_vert_rounded,
+                  icon: Icon(Icons.more_vert_rounded,
                       color: AppColors.textMuted, size: 18),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
@@ -337,7 +337,7 @@ class _TailorPaymentScreenState extends State<TailorPaymentScreen> {
                       PopupMenuItem(
                         value: 'default',
                         child: Row(children: [
-                          const Icon(Icons.check_circle_outline_rounded,
+                          Icon(Icons.check_circle_outline_rounded,
                               color: AppColors.success, size: 16),
                           const SizedBox(width: 8),
                           Text('Set as Default',
@@ -348,7 +348,7 @@ class _TailorPaymentScreenState extends State<TailorPaymentScreen> {
                     PopupMenuItem(
                       value: 'remove',
                       child: Row(children: [
-                        const Icon(Icons.delete_outline_rounded,
+                        Icon(Icons.delete_outline_rounded,
                             color: AppColors.error, size: 16),
                         const SizedBox(width: 8),
                         Text('Remove',
@@ -373,7 +373,7 @@ class _TailorPaymentScreenState extends State<TailorPaymentScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
               colors: [AppColors.teal, AppColors.tealLight]),
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
@@ -401,7 +401,7 @@ class _TailorPaymentScreenState extends State<TailorPaymentScreen> {
 
   // ── Supported methods ─────────────────────────────────────────────────────
   Widget _buildSupportedMethods() {
-    const supported = [
+    final supported = [
       _SupportItem('JazzCash',     Icons.account_balance_wallet_rounded, AppColors.warning),
       _SupportItem('EasyPaisa',    Icons.mobile_friendly_rounded,        AppColors.success),
       _SupportItem('Bank Account', Icons.account_balance_rounded,        AppColors.info),
@@ -411,7 +411,7 @@ class _TailorPaymentScreenState extends State<TailorPaymentScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(children: [
-          const Icon(Icons.info_outline_rounded,
+          Icon(Icons.info_outline_rounded,
               color: AppColors.textMuted, size: 14),
           const SizedBox(width: 6),
           Text('SUPPORTED METHODS',
@@ -459,7 +459,7 @@ class _TailorPaymentScreenState extends State<TailorPaymentScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(children: [
-          const Icon(Icons.history_rounded,
+          Icon(Icons.history_rounded,
               color: AppColors.textMuted, size: 14),
           const SizedBox(width: 6),
           Text('PAYOUT HISTORY',
@@ -485,7 +485,7 @@ class _TailorPaymentScreenState extends State<TailorPaymentScreen> {
                 color: p.color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.check_circle_rounded,
+              child: Icon(Icons.check_circle_rounded,
                   color: AppColors.success, size: 18),
             ),
             const SizedBox(width: 12),
@@ -528,7 +528,7 @@ class _TailorPaymentScreenState extends State<TailorPaymentScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(children: [
-            const Icon(Icons.schedule_rounded,
+            Icon(Icons.schedule_rounded,
                 color: AppColors.tealLight, size: 15),
             const SizedBox(width: 8),
             Text('Payout Schedule',
@@ -575,7 +575,7 @@ class _AddPayoutSheetState extends State<_AddPayoutSheet> {
   final _ibanCtrl     = TextEditingController();
   String? _error;
 
-  static const _types = <_SupportItem>[
+  static List<_SupportItem> get _types => <_SupportItem>[
     _SupportItem('JazzCash',     Icons.account_balance_wallet_rounded, AppColors.warning),
     _SupportItem('EasyPaisa',    Icons.mobile_friendly_rounded,        AppColors.success),
     _SupportItem('Bank Account', Icons.account_balance_rounded,        AppColors.info),
@@ -616,7 +616,7 @@ class _AddPayoutSheetState extends State<_AddPayoutSheet> {
               Container(
                 width: 4, height: 24,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [AppColors.teal, AppColors.tealLight]),
@@ -720,7 +720,7 @@ class _AddPayoutSheetState extends State<_AddPayoutSheet> {
             const SizedBox(height: 22),
             GradientButton(
               text: 'Add Account',
-              colors: const [AppColors.teal, AppColors.tealLight],
+              colors: [AppColors.teal, AppColors.tealLight],
               onTap: () {
                 final problem = Validators.payoutAccountProblem(
                   isBank: isBank,
