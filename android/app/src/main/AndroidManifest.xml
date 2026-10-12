@@ -1,6 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Release builds need this to download the Poppins font (google_fonts)
+         and, later, to reach the backend. Debug builds get it from src/debug. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="sewsmart_mobile"
+        android:label="SewSmart"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
