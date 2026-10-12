@@ -88,7 +88,9 @@ class LightColors {
 class AppColors {
   AppColors._();
 
-  static bool _light = false;
+  // The app opens in the light theme. ThemeController.load switches to the
+  // saved choice before the first screen shows.
+  static bool _light = true;
 
   // True while the light theme is on.
   static bool get isLight => _light;
@@ -230,23 +232,24 @@ class AlwaysDark extends StatelessWidget {
 
 // ── Theme switch ──────────────────────────────────────────────────────────────
 // Keeps the light or dark choice and saves it on the device, so the app opens
-// with the theme the user picked last time.
+// with the theme the user picked last time. Until the user picks one, the app
+// uses the light theme.
 class ThemeController {
   ThemeController._();
 
   static const _prefsKey = 'light_theme';
 
   // True while the light theme is on. MaterialApp listens to it.
-  static final ValueNotifier<bool> light = ValueNotifier<bool>(false);
+  static final ValueNotifier<bool> light = ValueNotifier<bool>(true);
 
   // Reads the saved choice. Called once, before the app starts.
   static Future<void> load() async {
-    var saved = false;
+    var saved = true;
     try {
       final prefs = await SharedPreferences.getInstance();
-      saved = prefs.getBool(_prefsKey) ?? false;
+      saved = prefs.getBool(_prefsKey) ?? true;
     } catch (_) {
-      // Storage is not available. Start with the dark theme.
+      // Storage is not available. Start with the light theme.
     }
     _apply(saved);
   }
